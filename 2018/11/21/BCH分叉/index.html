@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+<html lang="" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>private plots of P&amp;W</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Fechin,"> 
+    
+    <meta name="author" content="blackj liuyun"> 
+    <link rel="alternative" href="atom.xml" title="private plots of P&amp;W" type="application/atom+xml"> 
+    <link rel="icon" href="/img/favicon.png"> 
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+    <link rel="stylesheet" href="/css/diaspora.css">
+</head>
+
+<body class="loading">
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="icon-home image-icon" href="javascript:;"></a>
+    <div title="播放/暂停" class="icon-play"></div>
+    <h3 class="subtitle"></h3>
+    <div class="social">
+        <!--<div class="like-icon">-->
+            <!--<a href="javascript:;" class="likeThis active"><span class="icon-like"></span><span class="count">76</span></a>-->
+        <!--</div>-->
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title"></h1>
+        <div class="stuff">
+            <span>十一月 21, 2018</span>
+            
+
+        </div>
+        <div class="content markdown">
+            <hr>
+<p> title: BCH分叉-重放攻击解决方案<br> date: 2018-11-21 00:08:30<br> tags:</p>
+<ul>
+<li><h2 id="区块链安全"><a href="#区块链安全" class="headerlink" title="区块链安全"></a>区块链安全</h2><h3 id="BCH分叉-重放攻击解决方案"><a href="#BCH分叉-重放攻击解决方案" class="headerlink" title="BCH分叉 重放攻击解决方案"></a>BCH分叉 重放攻击解决方案</h3>BCH在进行硬分叉：分为BCH和BCHSV</li>
+</ul>
+<p>对于分叉前拥有BCH的用户，在分叉后该钱包中会拥有BCH/BSV两种虚拟货币，若是分叉前钱包里有BCH，在硬分叉完成后，这个钱包里也会生成相应的BSV</p>
+<h5 id="目的：分离同一地址中-共同存在的BCH和BSV-来防重放攻击"><a href="#目的：分离同一地址中-共同存在的BCH和BSV-来防重放攻击" class="headerlink" title="目的：分离同一地址中 共同存在的BCH和BSV 来防重放攻击"></a>目的：分离同一地址中 共同存在的BCH和BSV 来防重放攻击</h5><h5 id="针对转账业务"><a href="#针对转账业务" class="headerlink" title="针对转账业务"></a>针对转账业务</h5><p>限制条件：该用户账户拥有BCH的同时也拥有BSV<br>利用原理：在用户原意在分叉后转帐 BCH 时，该消息被攻击者广播在BSV链上，导致用户的BSV资产也被转移，受到重放攻击。</p>
+<h5 id="INPUT污染法分离："><a href="#INPUT污染法分离：" class="headerlink" title="INPUT污染法分离："></a>INPUT污染法分离：</h5><p>INPUT污染法的原理：<br>就是用分叉后的BCH混入分叉前的BCH，从而达到分离BCH与BSV的目的。<br>具体操作如下：<br>　　    在分叉完成后，用分叉后的BCH币充值到分叉前的BCH币所在的钱包，然后将这个钱包里所有的BCH币（分叉前的BCH和分叉后的BCH）转移到另<br>一个地址。此次交易在BCH链可以成功完成，但是在BSV链上广播时却不能被节点接受，因为这笔交易离存在着分叉后的BCH币。这样子，BSV还是存<br>在于原本的钱包中，达到了将BCH和BSV分离的目的。</p>
+<h4 id="构造特有的操作码交易："><a href="#构造特有的操作码交易：" class="headerlink" title="构造特有的操作码交易："></a>构造特有的操作码交易：</h4><p>分叉后的BCH和BSV链的共识机制有一定的区别，主要体现在操作码上，</p>
+<p>BCH链上交易时，构造含有 OP_CHECKDATASIG 操作码的输出</p>
+<p>BCHSV链上交易时，构造含有 OP_MUL 操作码的输出</p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        <li title='0' data-url='http://link.hhtjim.com/163/5146554.mp3'></li>
+                    
+                        <li title='1' data-url='http://link.hhtjim.com/qq/001faIUs4M2zna.mp3'></li>
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+        data-ae='false'
+        data-ci=''
+        data-cs=''
+        data-r=''
+        data-o=''
+        data-a=''
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/diaspora.js"></script>
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+</html>
