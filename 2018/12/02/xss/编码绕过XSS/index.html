@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next mist use-motion" lang="zh-Hans">
+<html class="theme-next gemini use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -84,10 +84,10 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="编码绕过xss">
 <meta property="og:url" content="http://yoursite.com/2018/12/02/xss/编码绕过XSS/index.html">
-<meta property="og:site_name" content="Private Plots of P&amp;W">
+<meta property="og:site_name" content="吾善养浩然气">
 <meta property="og:description" content="标签img、video、audio、iframe中的src属性只能请求，不能执行，在ie8以前可以;但可以使用js伪协议调用js12345&amp;lt;iframe src=&amp;quot;javascript:alert(&amp;apos;iframe&amp;apos;)&amp;quot; width = &amp;quot;0&amp;quot; height = &amp;quot;0&amp;quot;/&amp;gt;&amp;lt;iframe src=&amp;qu">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-12-29T02:51:41.982Z">
+<meta property="og:updated_time" content="2019-01-14T06:45:51.280Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="编码绕过xss">
 <meta name="twitter:description" content="标签img、video、audio、iframe中的src属性只能请求，不能执行，在ie8以前可以;但可以使用js伪协议调用js12345&amp;lt;iframe src=&amp;quot;javascript:alert(&amp;apos;iframe&amp;apos;)&amp;quot; width = &amp;quot;0&amp;quot; height = &amp;quot;0&amp;quot;/&amp;gt;&amp;lt;iframe src=&amp;qu">
@@ -98,7 +98,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Mist',
+    scheme: 'Gemini',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
@@ -126,7 +126,7 @@
 
 
 
-  <title>编码绕过xss | Private Plots of P&W</title>
+  <title>编码绕过xss | 吾善养浩然气</title>
   
 
 
@@ -156,7 +156,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">Private Plots of P&W</span>
+        <span class="site-title">吾善养浩然气</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -182,16 +182,16 @@
       
         
         <li class="menu-item menu-item-主页">
-          <a href="/ | home" rel="section">
+          <a href="/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             主页
           </a>
         </li>
       
         
-        <li class="menu-item menu-item-about">
+        <li class="menu-item menu-item-关于">
           <a href="/about/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
@@ -201,7 +201,7 @@
         </li>
       
         
-        <li class="menu-item menu-item-tags">
+        <li class="menu-item menu-item-标签">
           <a href="/tags/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
@@ -211,7 +211,7 @@
         </li>
       
         
-        <li class="menu-item menu-item-categories">
+        <li class="menu-item menu-item-分类">
           <a href="/categories/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
@@ -221,7 +221,7 @@
         </li>
       
         
-        <li class="menu-item menu-item-archives">
+        <li class="menu-item menu-item-归档">
           <a href="/archives/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
@@ -272,7 +272,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Private Plots of P&W">
+      <meta itemprop="name" content="吾善养浩然气">
     </span>
 
     
@@ -461,7 +461,7 @@
 </ul>
 <p>标记化和树构建<br>标记化是词法分析过程、将输入内容解析成多个标记<br>构建解析流程图如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">st[network]--&gt;a1</span><br><span class="line">a1[tokeniser]--&gt;a2</span><br><span class="line">a2&#123;tree construction&#125;--&gt;a3[DOM]</span><br><span class="line">a2&#123;tree construction&#125;--&gt;a4[ScriptExecution]</span><br><span class="line">a4[ScriptExecution]--&gt;a1</span><br><span class="line">a3--&gt;a4</span><br></pre></td></tr></table></figure></p>
 <p>标记生成器识别标记，传递给树构造器，然后接受下一个字符以识别下一个标记；如此反复直到输入的结束</p>
-<h5 id="js解释器"><a href="#js解释器" class="headerlink" title="js解释器"></a>js解释器</h5><p>在处理如<script><style>这样的标签，解释器会切换到特殊解析模式，在src href 后边加入的JavaScript 等的html解码后，进入js的解析模式，进入该模式后，该DOM节点已经建立起了。</p>
+<h5 id="js解释器"><a href="#js解释器" class="headerlink" title="js解释器"></a>js解释器</h5><p>在处理如<br>“script、style”这样的标签，解释器会切换到特殊解析模式，在src href 后边加入的JavaScript 等的html解码后，进入js的解析模式，进入该模式后，该DOM节点已经建立起了。</p>
 <p>所以先进行jsunincode编码再进行html编码可以正常触发<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=&quot;javascript:alert&amp;#40;&amp;#39;&amp;#60;&amp;#92;&amp;#117;&amp;#52;&amp;#101;&amp;#48;&amp;#48;&amp;#62;&amp;#39;&amp;#41;&quot;&gt;test&lt;/a&gt;</span><br></pre></td></tr></table></figure></p>
 <p>在测试中 先进行html实体编码，再进行js16进制转码，不会正常解码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">源码:&lt;a href=&quot;javascript:alert(&apos;test&apos;)&quot;&gt;test&lt;/a&gt;</span><br></pre></td></tr></table></figure></p>
 <p>测试输出为unicode编码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">先html:</span><br><span class="line">&lt;a href=&quot;javascript:alert(&apos;&amp;#116;&amp;#101;&amp;#115;&amp;#116;&apos;)&quot;&gt;test&lt;/a&gt;</span><br><span class="line">再js16进制：</span><br><span class="line">&lt;a href=&quot;javascript:alert(&apos;\x26\x23\x31\x31\x36\x3b\x26\x23\x31\x30\x31\x3b\x26\x23\x31\x31\x35\x3b\x26\x23\x31\x31\x36;&apos;)&quot;&gt;test&lt;/a&gt;</span><br></pre></td></tr></table></figure></p>
@@ -473,24 +473,24 @@
 <p>tips:经测试 js16进制/8进制只会在js 字符串中解析，如果作为变量名、触发事件则不会解析如：</p>
 <p>思考：&lt;&lt;白帽子讲Web安全&gt;&gt;<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">    var x2=\x61\x6c\x65rt(1);</span><br><span class="line">    var x1=&quot; &apos;onclick=alert(1);//&apos;&quot;</span><br><span class="line">    var x=&quot;\x20\x27onclick\x3dalert\x281\x29\x3b\x2f\x2f\27&quot;;</span><br><span class="line">    document.write(&quot;&lt;a href=&apos;&quot;+x1+&quot;&apos;&gt;test&lt;a&gt;&quot;);</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
 <p>可以用以下例子来尝试看一下弹窗顺序<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;img src=1 onerror=&apos;a(1)&apos;&gt;</span><br><span class="line">&lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">    a(2);</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">    function a(c)&#123;</span><br><span class="line">        alert(c);</span><br><span class="line">    &#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">    a(3);</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
-<p>参考 0x_Jin 凯神的<a href="http://su.xmd5.org/static/drops/tips-689.html">《XSS与字符编码那些事儿》</a></p>
+<p>参考 0x_Jin 凯神的<a href="http://su.xmd5.org/static/drops/tips-689.html" target="_blank" rel="noopener">《XSS与字符编码那些事儿》</a></p>
 <h4 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h4><h5 id="xss中禁用了-amp-符号"><a href="#xss中禁用了-amp-符号" class="headerlink" title="xss中禁用了&amp;#符号"></a>xss中禁用了&amp;#符号</h5><p>实体编码是由&amp;#组成的，这个时候只能考虑能不能通过url编码绕过&amp;#，再让浏览器解码成 &amp;# 然后拼接x27 最后就成为了单引号的html16进制编码来绕过<br>借用凯神的案例<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=&quot;javascript:location=&apos;./3.3.php?offset=&apos;+document.getElementById(&apos;pagenum&apos;).value+&apos;&amp;searchtype_yjbg=yjjg&amp;searchvalue_yjbg=&apos;&quot;&gt;GO&lt;/a&gt;</span><br></pre></td></tr></table></figure></p>
 <p>提交的payload：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wooyun%26%23x27,alert(1)%2b%26%23x27</span><br></pre></td></tr></table></figure></p>
 <p>解码后<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&apos;,alert(1)&apos;</span><br></pre></td></tr></table></figure></p>
 <p>感谢在@星尘的指导下，从新捋了捋xss编码的问题，现阶段就暂时到这吧。还是沉淀不够。革命尚未成功，同志尚需努力啊 by @流云</p>
-<h4 id="在线工具"><a href="#在线工具" class="headerlink" title="在线工具"></a>在线工具</h4><p>在线编码解码工具：<br><a href="https://www.mokuge.com/tool/unicode/">https://www.mokuge.com/tool/unicode/</a></p>
+<h4 id="在线工具"><a href="#在线工具" class="headerlink" title="在线工具"></a>在线工具</h4><p>在线编码解码工具：<br><a href="https://www.mokuge.com/tool/unicode/" target="_blank" rel="noopener">https://www.mokuge.com/tool/unicode/</a></p>
 <h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><ul>
-<li><a href="https://www.cesafe.com/5075.html">https://www.cesafe.com/5075.html</a></li>
-<li><a href="http://su.xmd5.org/static/drops/tips-689.html">http://su.xmd5.org/static/drops/tips-689.html</a></li>
+<li><a href="https://www.cesafe.com/5075.html" target="_blank" rel="noopener">https://www.cesafe.com/5075.html</a></li>
+<li><a href="http://su.xmd5.org/static/drops/tips-689.html" target="_blank" rel="noopener">http://su.xmd5.org/static/drops/tips-689.html</a></li>
 </ul>
 <p>宽字节：</p>
 <ul>
-<li><a href="http://book.2cto.com/201301/14515.html">http://book.2cto.com/201301/14515.html</a> </li>
-<li><a href="http://itindex.net/detail/47408-xss-%E5%AD%A6%E4%B9%A0-xss">http://itindex.net/detail/47408-xss-%E5%AD%A6%E4%B9%A0-xss</a> </li>
-<li><a href="http://www.wooyun.org/bugs/wooyun-2010-015969">http://www.wooyun.org/bugs/wooyun-2010-015969</a></li>
-<li><a href="https://blog.csdn.net/u013648937/article/details/46629827">https://blog.csdn.net/u013648937/article/details/46629827</a> </li>
+<li><a href="http://book.2cto.com/201301/14515.html" target="_blank" rel="noopener">http://book.2cto.com/201301/14515.html</a> </li>
+<li><a href="http://itindex.net/detail/47408-xss-%E5%AD%A6%E4%B9%A0-xss" target="_blank" rel="noopener">http://itindex.net/detail/47408-xss-%E5%AD%A6%E4%B9%A0-xss</a> </li>
+<li><a href="http://www.wooyun.org/bugs/wooyun-2010-015969" target="_blank" rel="noopener">http://www.wooyun.org/bugs/wooyun-2010-015969</a></li>
+<li><a href="https://blog.csdn.net/u013648937/article/details/46629827" target="_blank" rel="noopener">https://blog.csdn.net/u013648937/article/details/46629827</a> </li>
 </ul>
-</script></p>
+
       
     </div>
     
@@ -524,8 +524,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/08/23/1119msf下windows内核提权方法/" rel="next" title="msf下 windows内核提权方法">
-                <i class="fa fa-chevron-left"></i> msf下 windows内核提权方法
+              <a href="/2018/07/23/BCH分叉/" rel="next" title="BCH分叉-重放攻击解决方案">
+                <i class="fa fa-chevron-left"></i> BCH分叉-重放攻击解决方案
               </a>
             
           </div>
@@ -534,8 +534,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/12/29/xss/DOM-XSS漏洞挖掘与攻击面延伸/" rel="prev" title="DOM XSS从javascript中输出数据到HTML页面">
-                DOM XSS从javascript中输出数据到HTML页面 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/12/24/Web渗透/XXE/XXE示例及应用/" rel="prev" title="XXE 示例及利用">
+                XXE 示例及利用 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -603,7 +603,7 @@
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
               <p class="site-author-name" itemprop="name">blackj liuyun</p>
-              <p class="site-description motion-element" itemprop="description">纯净水@流云-自留地，主要涉及web安全方向学习与分享资料</p>
+              <p class="site-description motion-element" itemprop="description">纯净水@流云-自留地</p>
           </div>
 
           <nav class="site-state motion-element">
@@ -611,9 +611,9 @@
             
               <div class="site-state-item site-state-posts">
               
-                <a href="/archives/">
+                <a href="/archives">
               
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -624,7 +624,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -635,7 +635,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -668,7 +668,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#标签"><span class="nav-number">1.</span> <span class="nav-text">标签</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Base64编码绕过"><span class="nav-number">2.</span> <span class="nav-text">Base64编码绕过</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTML编码16进制-10进制-amp-x-amp"><span class="nav-number">3.</span> <span class="nav-text">HTML编码16进制/10进制 &amp;#x/&amp;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#magic-quote-gpc绕过"><span class="nav-number">4.</span> <span class="nav-text">magic_quote_gpc绕过</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#javascript-jsunicode-8进制和16进制"><span class="nav-number">5.</span> <span class="nav-text">javascript jsunicode 8进制和16进制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#宽字节绕过"><span class="nav-number">6.</span> <span class="nav-text">宽字节绕过</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#头部Base绕过"><span class="nav-number">7.</span> <span class="nav-text">头部Base绕过</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#url编码"><span class="nav-number">8.</span> <span class="nav-text">url编码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#浏览器编码解码原理"><span class="nav-number"></span> <span class="nav-text">浏览器编码解码原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#重点是接下来的编码解码顺序"><span class="nav-number">1.</span> <span class="nav-text">重点是接下来的编码解码顺序</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#构造DOM树"><span class="nav-number">1.1.</span> <span class="nav-text">构造DOM树</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#js解释器"><span class="nav-number">1.2.</span> <span class="nav-text">js解释器</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#标签"><span class="nav-number">1.</span> <span class="nav-text">标签</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Base64编码绕过"><span class="nav-number">2.</span> <span class="nav-text">Base64编码绕过</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTML编码16进制-10进制-amp-x-amp"><span class="nav-number">3.</span> <span class="nav-text">HTML编码16进制/10进制 &amp;#x/&amp;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#magic-quote-gpc绕过"><span class="nav-number">4.</span> <span class="nav-text">magic_quote_gpc绕过</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#javascript-jsunicode-8进制和16进制"><span class="nav-number">5.</span> <span class="nav-text">javascript jsunicode 8进制和16进制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#宽字节绕过"><span class="nav-number">6.</span> <span class="nav-text">宽字节绕过</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#头部Base绕过"><span class="nav-number">7.</span> <span class="nav-text">头部Base绕过</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#url编码"><span class="nav-number">8.</span> <span class="nav-text">url编码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#浏览器编码解码原理"><span class="nav-number"></span> <span class="nav-text">浏览器编码解码原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#重点是接下来的编码解码顺序"><span class="nav-number">1.</span> <span class="nav-text">重点是接下来的编码解码顺序</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#构造DOM树"><span class="nav-number">1.1.</span> <span class="nav-text">构造DOM树</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#js解释器"><span class="nav-number">1.2.</span> <span class="nav-text">js解释器</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#案例"><span class="nav-number">2.</span> <span class="nav-text">案例</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#xss中禁用了-amp-符号"><span class="nav-number">2.1.</span> <span class="nav-text">xss中禁用了&amp;#符号</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在线工具"><span class="nav-number">3.</span> <span class="nav-text">在线工具</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
@@ -688,7 +688,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -702,7 +702,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">5k</span>
+    <span title="Site words total count">11.1k</span>
   
 </div>
 
@@ -715,7 +715,7 @@
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
 
 
 
@@ -814,6 +814,13 @@
 
   
   
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
 
   
   <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
