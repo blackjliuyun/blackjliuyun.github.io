@@ -149,9 +149,9 @@
         
         <tags>
             
-            <tag> XSS </tag>
-            
             <tag> Web安全 </tag>
+            
+            <tag> XSS </tag>
             
         </tags>
         
@@ -286,37 +286,55 @@
     </entry>
     
     <entry>
-      <title></title>
-      <url>/2019/06/17/Web%E6%B8%97%E9%80%8F/XXE/XXE%E5%AE%9E%E4%BE%8B%E5%8F%8A%E5%BA%94%E7%94%A83/</url>
+      <title><![CDATA[XXE实例及利用3]]></title>
+      <url>/2019/07/08/Web%E6%B8%97%E9%80%8F/XXE/XXE%E5%AE%9E%E4%BE%8B%E5%8F%8A%E5%BA%94%E7%94%A83/</url>
       <content type="html"><![CDATA[<p>Java - XXE</p>
 <h1 id="Java-XXE"><a href="#Java-XXE" class="headerlink" title="Java - XXE"></a>Java - XXE</h1><p>XXE在Java 代码中的漏洞示例</p>
 <h2 id="JAVA常见XXE漏洞写法案例"><a href="#JAVA常见XXE漏洞写法案例" class="headerlink" title="JAVA常见XXE漏洞写法案例"></a>JAVA常见XXE漏洞写法案例</h2><h3 id="spring-data-XMLBean-XXE复现分析"><a href="#spring-data-XMLBean-XXE复现分析" class="headerlink" title="spring-data-XMLBean XXE复现分析"></a>spring-data-XMLBean XXE复现分析</h3><h4 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h4><p>【1】下载环境<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/spring-projects/spring-data-examples.git</span><br></pre></td></tr></table></figure></p>
 <p>【2】下载安装maven并配置好环境变量<br>因为这里的新版本已经对次做了修复，所以这里的版本改为 2.0.5</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;org.springframework.data&lt;/groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;spring-data-commons&lt;/artifactId&gt;</span><br><span class="line">	&lt;version&gt;2.0.5.RELEASE&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
 <p>【3】配置好环境变量后，进入对应的web/projection 打包运行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn package</span><br></pre></td></tr></table></figure></p>
-<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613639506348.jpg" alt="-w1133"></p>
+<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613639506348.jpg" alt="-w1133"></p>
 <h4 id="部署运行"><a href="#部署运行" class="headerlink" title="部署运行"></a>部署运行</h4><p>进入对应目录搭建运行</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar spring-data-web-projection-2.0.0.BUILD-SNAPSHOT.jar</span><br></pre></td></tr></table></figure>
-<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613640157733.jpg" alt="-w754"></p>
-<h4 id="poc复现"><a href="#poc复现" class="headerlink" title="poc复现"></a>poc复现</h4><p>构造post请求<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613640647871.jpg" alt="-w1318"><br>比较奇怪的一点是，正常的xxe请求 任意文件读取 都应该是 file:///<br>这里直接执行也行<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613641950150.jpg" alt="-w1094"></p>
+<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613640157733.jpg" alt="-w754"></p>
+<h4 id="poc复现"><a href="#poc复现" class="headerlink" title="poc复现"></a>poc复现</h4><p>构造post请求<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613640647871.jpg" alt="-w1318"><br>比较奇怪的一点是，正常的xxe请求 任意文件读取 都应该是 file:///<br>这里直接执行也行<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613641950150.jpg" alt="-w1094"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">注意  这里的content-type 类型，得支持，改为 application/xml</span><br></pre></td></tr></table></figure>
-<p>xxe支持的content-type fuzz一下<br>在位置中application/xhtml+xml 与 application/xml 的效果是一样的<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613841433359.jpg" alt="-w1016"></p>
+<p>xxe支持的content-type fuzz一下<br>在位置中application/xhtml+xml 与 application/xml 的效果是一样的<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613841433359.jpg" alt="-w1016"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">注</span><br><span class="line">Accept代表发送端（客户端）希望接受的数据类型。 </span><br><span class="line">比如：Accept：text/xml; </span><br><span class="line">代表客户端希望接受的数据类型是xml类型</span><br><span class="line"></span><br><span class="line">Content-Type代表发送端（客户端|服务器）发送的实体数据的数据类型。 </span><br><span class="line">比如：Content-Type：text/html; </span><br><span class="line">代表发送端发送的数据格式是html。</span><br></pre></td></tr></table></figure>
-<h4 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h4><p>从该位置可以知道漏洞位置是在 firstname和lastname的接收处理，所以跟踪下idea下的该函数。<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613896457891.jpg" alt="-w1283"><br>该maven项目demo中就application和userController 两个函数，从主函数跟踪。<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613906870820.jpg" alt="-w911"><br>可以看到post请求中的user.getFirstname(),user.getLastname() 方法<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613907763911.jpg" alt="-w404"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613909426094.jpg" alt="-w805"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613909700427.jpg" alt="-w881"></p>
-<p>跟踪下 会发现，在调用responseEntity的时候就已经读取文件了<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614750470756.jpg" alt="-w932"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614751204095.jpg" alt="-w943"></p>
-<p>参考网上的分析，漏洞的处理函数位是在org.xmlbeam.ProjectionInvocationHandler:invokeReadProjection()处理<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614773758537.jpg" alt="-w913"></p>
+<h4 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h4><p>从该位置可以知道漏洞位置是在 firstname和lastname的接收处理，所以跟踪下idea下的该函数。<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613896457891.jpg" alt="-w1283"><br>该maven项目demo中就application和userController 两个函数，从主函数跟踪。<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613906870820.jpg" alt="-w911"><br>可以看到post请求中的user.getFirstname(),user.getLastname() 方法<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613907763911.jpg" alt="-w404"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613909426094.jpg" alt="-w805"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613909700427.jpg" alt="-w881"></p>
+<p>跟踪下 会发现，在调用responseEntity的时候就已经读取文件了<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614750470756.jpg" alt="-w932"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614751204095.jpg" alt="-w943"></p>
+<p>参考网上的分析，漏洞的处理函数位是在org.xmlbeam.ProjectionInvocationHandler:invokeReadProjection()处理<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614773758537.jpg" alt="-w913"></p>
 <p>顺带在这里看下相对路径处理成功的原因</p>
 <h2 id="待补充细分"><a href="#待补充细分" class="headerlink" title="待补充细分"></a>待补充细分</h2><p>  在提交http/post请求后，跟踪下</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> &lt;T&gt; Object readWithMessageConverters</span><br></pre></td></tr></table></figure>
-<p>在对该post参数进行处理时，这里还没进行文件读取转换<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618975324384.jpg" alt="-w900"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618981734937.jpg" alt="-w1184"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618983029402.jpg" alt="-w1144"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618991907073.jpg" alt="-w1425"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618992335070.jpg" alt="-w704"></p>
-<p>漏洞原因是在于XMLBeam漏洞版本中没有限制外部实体<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619003084333.jpg" alt="-w701"></p>
-<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619002278361.jpg" alt="-w771"></p>
-<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001968741.jpg" alt="-w810"></p>
-<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001679940.jpg" alt="-w805"></p>
-<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001256468.jpg" alt="-w915"></p>
+<p>在对该post参数进行处理时，这里还没进行文件读取转换<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618975324384.jpg" alt="-w900"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618981734937.jpg" alt="-w1184"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618983029402.jpg" alt="-w1144"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618991907073.jpg" alt="-w1425"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618992335070.jpg" alt="-w704"></p>
+<p>漏洞原因是在于XMLBeam漏洞版本中没有限制外部实体<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619003084333.jpg" alt="-w701"></p>
+<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619002278361.jpg" alt="-w771"></p>
+<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001968741.jpg" alt="-w810"></p>
+<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001679940.jpg" alt="-w805"></p>
+<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001256468.jpg" alt="-w915"></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://blog.spoock.com/2018/10/23/java-xxe/" target="_blank" rel="noopener">JAVA常见的XXE漏洞写法和防御</a><br><a href="https://blog.spoock.com/2018/05/16/cve-2018-1259/" target="_blank" rel="noopener">spring-data-XMLBean XXE复现分析</a><br><a href="https://xz.aliyun.com/t/2341" target="_blank" rel="noopener">XXE with Spring Data’s XMLBeam 分析</a><br><a href="https://www.cnblogs.com/Qian123/p/5256084.html" target="_blank" rel="noopener">框架基础——全面解析Java注解</a></p>
 ]]></content>
       
+        <categories>
+            
+            <category> Web渗透 </category>
+            
+            <category> 漏洞学习 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Web渗透 </tag>
+            
+            <tag> XXE </tag>
+            
+            <tag> 漏洞学习 </tag>
+            
+        </tags>
         
     </entry>
     
@@ -1036,11 +1054,11 @@
         
         <tags>
             
+            <tag> XSS </tag>
+            
             <tag> Web渗透 </tag>
             
             <tag> 常规渗透 </tag>
-            
-            <tag> XSS </tag>
             
         </tags>
         
