@@ -149,9 +149,9 @@
         
         <tags>
             
-            <tag> Web安全 </tag>
-            
             <tag> XSS </tag>
+            
+            <tag> Web安全 </tag>
             
         </tags>
         
@@ -330,9 +330,9 @@
             
             <tag> Web渗透 </tag>
             
-            <tag> XXE </tag>
-            
             <tag> 漏洞学习 </tag>
+            
+            <tag> XXE </tag>
             
         </tags>
         
@@ -1054,11 +1054,11 @@
         
         <tags>
             
-            <tag> XSS </tag>
-            
             <tag> Web渗透 </tag>
             
             <tag> 常规渗透 </tag>
+            
+            <tag> XSS </tag>
             
         </tags>
         
