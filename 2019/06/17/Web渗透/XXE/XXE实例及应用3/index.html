@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Java - XXE Java - XXEXXE在Java 代码中的漏洞示例 JAVA常见XXE漏洞写法案例spring-data-XMLBean XXE复现分析搭建环境【1】下载环境1git clone https://github.com/spring-projects/spring-data-examples.git 【2】下载安装maven并配置好环境变量因为这里的新版本已经对次做了修复，">
+<meta name="keywords" content="止于唇齿，掩于岁月">
+<meta property="og:type" content="article">
+<meta property="og:title" content="吾善养浩然气">
+<meta property="og:url" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/index.html">
+<meta property="og:site_name" content="吾善养浩然气">
+<meta property="og:description" content="Java - XXE Java - XXEXXE在Java 代码中的漏洞示例 JAVA常见XXE漏洞写法案例spring-data-XMLBean XXE复现分析搭建环境【1】下载环境1git clone https://github.com/spring-projects/spring-data-examples.git 【2】下载安装maven并配置好环境变量因为这里的新版本已经对次做了修复，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613639506348.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613640157733.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613640647871.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613641950150.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613841433359.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613896457891.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613906870820.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613907763911.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613909426094.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613909700427.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614750470756.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614751204095.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614773758537.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618975324384.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618981734937.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618983029402.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618991907073.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618992335070.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619003084333.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619002278361.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001968741.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001679940.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001256468.jpg">
+<meta property="og:updated_time" content="2019-07-25T16:45:52.606Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="吾善养浩然气">
+<meta name="twitter:description" content="Java - XXE Java - XXEXXE在Java 代码中的漏洞示例 JAVA常见XXE漏洞写法案例spring-data-XMLBean XXE复现分析搭建环境【1】下载环境1git clone https://github.com/spring-projects/spring-data-examples.git 【2】下载安装maven并配置好环境变量因为这里的新版本已经对次做了修复，">
+<meta name="twitter:image" content="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613639506348.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/"/>
+
+
+
+
+
+  <title> | 吾善养浩然气</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">吾善养浩然气</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-主页">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            主页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-关于">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-标签">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-分类">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-归档">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/17/Web渗透/XXE/XXE实例及应用3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="blackj liuyun">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吾善养浩然气">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline"></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-17T10:12:15+08:00">
+                2019-06-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  574
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Java - XXE</p>
+<h1 id="Java-XXE"><a href="#Java-XXE" class="headerlink" title="Java - XXE"></a>Java - XXE</h1><p>XXE在Java 代码中的漏洞示例</p>
+<h2 id="JAVA常见XXE漏洞写法案例"><a href="#JAVA常见XXE漏洞写法案例" class="headerlink" title="JAVA常见XXE漏洞写法案例"></a>JAVA常见XXE漏洞写法案例</h2><h3 id="spring-data-XMLBean-XXE复现分析"><a href="#spring-data-XMLBean-XXE复现分析" class="headerlink" title="spring-data-XMLBean XXE复现分析"></a>spring-data-XMLBean XXE复现分析</h3><h4 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h4><p>【1】下载环境<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/spring-projects/spring-data-examples.git</span><br></pre></td></tr></table></figure></p>
+<p>【2】下载安装maven并配置好环境变量<br>因为这里的新版本已经对次做了修复，所以这里的版本改为 2.0.5</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;org.springframework.data&lt;/groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;spring-data-commons&lt;/artifactId&gt;</span><br><span class="line">	&lt;version&gt;2.0.5.RELEASE&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>【3】配置好环境变量后，进入对应的web/projection 打包运行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn package</span><br></pre></td></tr></table></figure></p>
+<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613639506348.jpg" alt="-w1133"></p>
+<h4 id="部署运行"><a href="#部署运行" class="headerlink" title="部署运行"></a>部署运行</h4><p>进入对应目录搭建运行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar spring-data-web-projection-2.0.0.BUILD-SNAPSHOT.jar</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613640157733.jpg" alt="-w754"></p>
+<h4 id="poc复现"><a href="#poc复现" class="headerlink" title="poc复现"></a>poc复现</h4><p>构造post请求<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613640647871.jpg" alt="-w1318"><br>比较奇怪的一点是，正常的xxe请求 任意文件读取 都应该是 file:///<br>这里直接执行也行<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613641950150.jpg" alt="-w1094"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">注意  这里的content-type 类型，得支持，改为 application/xml</span><br></pre></td></tr></table></figure>
+<p>xxe支持的content-type fuzz一下<br>在位置中application/xhtml+xml 与 application/xml 的效果是一样的<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613841433359.jpg" alt="-w1016"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">注</span><br><span class="line">Accept代表发送端（客户端）希望接受的数据类型。 </span><br><span class="line">比如：Accept：text/xml; </span><br><span class="line">代表客户端希望接受的数据类型是xml类型</span><br><span class="line"></span><br><span class="line">Content-Type代表发送端（客户端|服务器）发送的实体数据的数据类型。 </span><br><span class="line">比如：Content-Type：text/html; </span><br><span class="line">代表发送端发送的数据格式是html。</span><br></pre></td></tr></table></figure>
+<h4 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h4><p>从该位置可以知道漏洞位置是在 firstname和lastname的接收处理，所以跟踪下idea下的该函数。<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613896457891.jpg" alt="-w1283"><br>该maven项目demo中就application和userController 两个函数，从主函数跟踪。<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613906870820.jpg" alt="-w911"><br>可以看到post请求中的user.getFirstname(),user.getLastname() 方法<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613907763911.jpg" alt="-w404"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613909426094.jpg" alt="-w805"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15613909700427.jpg" alt="-w881"></p>
+<p>跟踪下 会发现，在调用responseEntity的时候就已经读取文件了<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614750470756.jpg" alt="-w932"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614751204095.jpg" alt="-w943"></p>
+<p>参考网上的分析，漏洞的处理函数位是在org.xmlbeam.ProjectionInvocationHandler:invokeReadProjection()处理<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15614773758537.jpg" alt="-w913"></p>
+<p>顺带在这里看下相对路径处理成功的原因</p>
+<h2 id="待补充细分"><a href="#待补充细分" class="headerlink" title="待补充细分"></a>待补充细分</h2><p>  在提交http/post请求后，跟踪下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> &lt;T&gt; Object readWithMessageConverters</span><br></pre></td></tr></table></figure>
+<p>在对该post参数进行处理时，这里还没进行文件读取转换<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618975324384.jpg" alt="-w900"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618981734937.jpg" alt="-w1184"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618983029402.jpg" alt="-w1144"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618991907073.jpg" alt="-w1425"><br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15618992335070.jpg" alt="-w704"></p>
+<p>漏洞原因是在于XMLBeam漏洞版本中没有限制外部实体<br><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619003084333.jpg" alt="-w701"></p>
+<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619002278361.jpg" alt="-w771"></p>
+<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001968741.jpg" alt="-w810"></p>
+<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001679940.jpg" alt="-w805"></p>
+<p><img src="/2019/06/17/Web渗透/XXE/XXE实例及应用3/XXE实例及利用3/15619001256468.jpg" alt="-w915"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://blog.spoock.com/2018/10/23/java-xxe/" target="_blank" rel="noopener">JAVA常见的XXE漏洞写法和防御</a><br><a href="https://blog.spoock.com/2018/05/16/cve-2018-1259/" target="_blank" rel="noopener">spring-data-XMLBean XXE复现分析</a><br><a href="https://xz.aliyun.com/t/2341" target="_blank" rel="noopener">XXE with Spring Data’s XMLBeam 分析</a><br><a href="https://www.cnblogs.com/Qian123/p/5256084.html" target="_blank" rel="noopener">框架基础——全面解析Java注解</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/" rel="next" title="ETH 漏洞复现">
+                <i class="fa fa-chevron-left"></i> ETH 漏洞复现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/11/内网渗透/计划任务/" rel="prev" title="计划任务">
+                计划任务 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">blackj liuyun</p>
+              <p class="site-description motion-element" itemprop="description">纯净水@流云-自留地</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-XXE"><span class="nav-number">1.</span> <span class="nav-text">Java - XXE</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JAVA常见XXE漏洞写法案例"><span class="nav-number">1.1.</span> <span class="nav-text">JAVA常见XXE漏洞写法案例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#spring-data-XMLBean-XXE复现分析"><span class="nav-number">1.1.1.</span> <span class="nav-text">spring-data-XMLBean XXE复现分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#搭建环境"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">搭建环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部署运行"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">部署运行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#poc复现"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">poc复现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#漏洞分析"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">漏洞分析</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#待补充细分"><span class="nav-number">1.2.</span> <span class="nav-text">待补充细分</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">2.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">blackj liuyun</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">23.7k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
