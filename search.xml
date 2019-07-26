@@ -424,9 +424,9 @@ http://blog.nsfocus.net/xss-advance/#23_DOM
         
         <tags>
             
-            <tag> XSS </tag>
-            
             <tag> Web安全 </tag>
+            
+            <tag> XSS </tag>
             
         </tags>
         
@@ -2620,11 +2620,11 @@ a3--&gt;a4
         
         <tags>
             
+            <tag> XSS </tag>
+            
             <tag> Web渗透 </tag>
             
             <tag> 常规渗透 </tag>
-            
-            <tag> XSS </tag>
             
         </tags>
         
