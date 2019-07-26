@@ -1,373 +1,419 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
+<html lang="zh-Hans">
 
 
-
-  
-
-
-<html class="theme-next gemini use-motion" lang="zh-Hans">
 <head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
-
-
-
-
-
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
-
-
-  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
-
-
-
-
-
-  <meta name="keywords" content="Hexo, NexT" />
-
-
-
-
-
-
-
-
-
-
-<meta name="description" content="[TOC] ETH系统环境 ubuntu 16 搭建私有测试链 下载相关的go-ethereum 协议  git clone https://github.com/ethereum/go-ethereum.git  安装go环境  wget https://dl.google.com/go/go1.12.linux-amd64.tar.gz tar -C /usr/local -xzf go1.1">
-<meta name="keywords" content="止于唇齿，掩于岁月">
-<meta property="og:type" content="article">
-<meta property="og:title" content="ETH 漏洞复现">
-<meta property="og:url" content="http://yoursite.com/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/index.html">
-<meta property="og:site_name" content="吾善养浩然气">
-<meta property="og:description" content="[TOC] ETH系统环境 ubuntu 16 搭建私有测试链 下载相关的go-ethereum 协议  git clone https://github.com/ethereum/go-ethereum.git  安装go环境  wget https://dl.google.com/go/go1.12.linux-amd64.tar.gz tar -C /usr/local -xzf go1.1">
-<meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15522370181287.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525294348646.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525447646588.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525447843242.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525564158976.jpg">
-<meta property="og:updated_time" content="2019-07-21T04:31:46.067Z">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ETH 漏洞复现">
-<meta name="twitter:description" content="[TOC] ETH系统环境 ubuntu 16 搭建私有测试链 下载相关的go-ethereum 协议  git clone https://github.com/ethereum/go-ethereum.git  安装go环境  wget https://dl.google.com/go/go1.12.linux-amd64.tar.gz tar -C /usr/local -xzf go1.1">
-<meta name="twitter:image" content="http://yoursite.com/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15522370181287.jpg">
-
-
-
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '/',
-    scheme: 'Gemini',
-    version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
-
-
-
-  <link rel="canonical" href="http://yoursite.com/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/"/>
-
-
-
-
-
-  <title>ETH 漏洞复现 | 吾善养浩然气</title>
-  
-
-
-
-
-
-
-
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
-
-  
-  
+    <meta charset="utf-8">
+    <meta name="keywords" content="ETH 漏洞复现, 止于唇齿，掩于岁月">
+    <meta name="description" content="[TOC]
+ETH系统环境 ubuntu 16
+搭建私有测试链
+下载相关的go-ethereum 协议
+
+git clone https://github.com/ethereum/go-ethereum.git
+
+安装go环境
+
+wget">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>ETH 漏洞复现 | 吾善养浩然气</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">吾善养浩然气</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
     
-  
-
-  <div class="container sidebar-position-left page-post-detail">
-    <div class="headband"></div>
-
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>Index</span>
+        </a>
+    </li>
     
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>Tags</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>Categories</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>Archives</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>About</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>Friends</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="Search"></i>
+        </a>
+    </li>
+</ul>
 
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">吾善养浩然气</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">吾善养浩然气</div>
+        <div class="logo-desc">
+            
+            纯净水@流云-自留地
+            
+        </div>
     </div>
-      
-        <p class="site-subtitle"></p>
-      
-  </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
-  </div>
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                Index
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                Tags
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                Categories
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                Archives
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                About
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                Friends
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
 </div>
 
-<nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-主页">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            主页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-关于">
-          <a href="/about/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-标签">
-          <a href="/tags/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-分类">
-          <a href="/categories/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-归档">
-          <a href="/archives/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-
-      
-    </ul>
-  
-
-  
-</nav>
-
-
-
- </div>
-    </header>
-
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
-
-  <div id="posts" class="posts-expand">
-    
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="blackj liuyun">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="吾善养浩然气">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">ETH 漏洞复现</h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-14T00:00:00+08:00">
-                2019-03-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2.8k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  13
-                </span>
-              
-            </div>
-          
-
-          
-
         </div>
-      </header>
-    
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/17.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        ETH 漏洞复现
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
 
-      
-      
+    #articleContent :focus {
+        outline: none;
+    }
 
-      
-        <p>[TOC]</p>
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                          <div class="article-tag">
+                            <span class="chip bg-color">No tag</span>
+                          </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>Publish Date:&nbsp;&nbsp;
+                    2019-03-14
+                </div>
+
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>Read Count:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>[TOC]</p>
 <h1 id="ETH"><a href="#ETH" class="headerlink" title="ETH"></a>ETH</h1><p>系统环境 ubuntu 16</p>
 <h2 id="搭建私有测试链"><a href="#搭建私有测试链" class="headerlink" title="搭建私有测试链"></a>搭建私有测试链</h2><ul>
 <li>下载相关的go-ethereum 协议</li>
@@ -378,8 +424,11 @@
 </ul>
 <p>wget <a href="https://dl.google.com/go/go1.12.linux-amd64.tar.gz" target="_blank" rel="noopener">https://dl.google.com/go/go1.12.linux-amd64.tar.gz</a></p>
 <p>tar -C /usr/local -xzf go1.12.linux-amd64.tar.gz</p>
-<p>修改配置环境<br>vim ~/.bashrc<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export GOROOT=/usr/local/go</span><br><span class="line">export GOPATH=/home/go_demo</span><br><span class="line">export PATH=$PATH:$GOPATH:/usr/local/go/bin</span><br></pre></td></tr></table></figure></p>
-<ul>
+<p>修改配置环境<br>vim ~/.bashrc</p>
+<pre><code>export GOROOT=/usr/local/go
+export GOPATH=/home/go_demo
+export PATH=$PATH:$GOPATH:/usr/local/go/bin
+</code></pre><ul>
 <li>make geth</li>
 <li>连接测试网络</li>
 </ul>
@@ -391,32 +440,124 @@
 </li>
 <li>RPC常用调用格式</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cur addr:port -X POST --data &apos;&#123;&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:id, &quot;method&quot;:&quot;$&#123;method&#125;&quot;,&quot;params&quot;:&quot;$&#123;params&#125;&quot;&#125;&apos;</span><br></pre></td></tr></table></figure>
-<h2 id="创建私有链-待续"><a href="#创建私有链-待续" class="headerlink" title="创建私有链-待续"></a>创建私有链-待续</h2><h3 id="部署测试合约-待续"><a href="#部署测试合约-待续" class="headerlink" title="部署测试合约-待续"></a>部署测试合约-待续</h3><h3 id="合约创建子链-待续"><a href="#合约创建子链-待续" class="headerlink" title="合约创建子链-待续"></a>合约创建子链-待续</h3><hr>
-<h3 id="ETH-节点JSON-RPC测试"><a href="#ETH-节点JSON-RPC测试" class="headerlink" title="ETH 节点JSON-RPC测试"></a>ETH 节点JSON-RPC测试</h3><p>RPC接口：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">web3_clientVersion</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">web3_sha3</span><br><span class="line">net_version</span><br><span class="line">net_peerCount</span><br><span class="line">net_listening</span><br><span class="line">eth_protocolVersion</span><br><span class="line">eth_syncing</span><br><span class="line">eth_coinbase</span><br><span class="line">eth_mining</span><br><span class="line">eth_hashrate</span><br><span class="line">eth_gasPrice</span><br><span class="line">eth_accounts</span><br><span class="line">eth_blockNumber</span><br><span class="line">eth_getBalance</span><br><span class="line">eth_getStorageAt</span><br><span class="line">eth_getTransactionCount</span><br><span class="line">eth_getBlockTransactionCountByHash</span><br><span class="line">eth_getBlockTransactionCountByNumber</span><br><span class="line">eth_getUncleCountByBlockHash</span><br><span class="line">eth_getUncleCountByBlockNumber</span><br><span class="line">eth_getCode</span><br><span class="line">eth_sign</span><br><span class="line">eth_sendTransaction</span><br><span class="line">eth_sendRawTransaction</span><br><span class="line">eth_call</span><br><span class="line">eth_estimateGas</span><br><span class="line">eth_getBlockByHash</span><br><span class="line">eth_getBlockByNumber</span><br><span class="line">eth_getTransactionByHash</span><br><span class="line">eth_getTransactionByBlockHashAndIndex</span><br><span class="line">eth_getTransactionByBlockNumberAndIndex</span><br><span class="line">eth_getTransactionReceipt</span><br><span class="line">eth_getUncleByBlockHashAndIndex</span><br><span class="line">eth_getUncleByBlockNumberAndIndex</span><br><span class="line">eth_getCompilers</span><br><span class="line">eth_compileLLL</span><br><span class="line">eth_compileSolidity</span><br><span class="line">eth_compileSerpent</span><br><span class="line">eth_newFilter</span><br><span class="line">eth_newBlockFilter</span><br><span class="line">eth_newPendingTransactionFilter</span><br><span class="line">eth_uninstallFilter</span><br><span class="line">eth_getFilterChanges</span><br><span class="line">eth_getFilterLogs</span><br><span class="line">eth_getLogs</span><br><span class="line">eth_getWork</span><br><span class="line">eth_submitWork</span><br><span class="line">eth_submitHashrate</span><br><span class="line">db_putString</span><br><span class="line">db_getString</span><br><span class="line">db_putHex</span><br><span class="line">db_getHex</span><br><span class="line">shh_post</span><br><span class="line">shh_version</span><br><span class="line">shh_newIdentity</span><br><span class="line">shh_hasIdentity</span><br><span class="line">shh_newGroup</span><br><span class="line">shh_addToGroup</span><br><span class="line">shh_newFilter</span><br><span class="line">shh_uninstallFilter</span><br><span class="line">shh_getFilterChanges</span><br><span class="line">shh_getMessages</span><br></pre></td></tr></table></figure></p>
-<h2 id="创建钱包"><a href="#创建钱包" class="headerlink" title="创建钱包"></a>创建钱包</h2><p>启动节点后，调用节点自身的console，创建账号<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; eth.accounts</span><br></pre></td></tr></table></figure></p>
-<p>查询钱包用户<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; personal.newAccount()</span><br></pre></td></tr></table></figure></p>
-<p>创建钱包用户<br>这里注意下，当一个节点绑定多个钱包账户的时候，挖矿的收益会默认在第一个创始账户中，这个时候要改变收益账号<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; miner.setEtherbase(eth.accounts[1])</span><br><span class="line">成功改变会返回 true</span><br></pre></td></tr></table></figure></p>
-<p>查询获益钱包账户<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; eth.coinbase</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;personal.unlockAccount(address,passwd,time)</span><br></pre></td></tr></table></figure>
-<p>解锁钱包用户</p>
-<p>查询余额<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST -H &quot;Content-Type&quot;:application/json --data &apos;&#123;&quot;jsonrpc&quot;:&quot;2.0&quot;, &quot;method&quot;:&quot;eth_getBalance&quot;,&quot;params&quot;:[&quot;0xde1e758511a7c67e7db93d1c23c1060a21db4615&quot;,&quot;latest&quot;],&quot;id&quot;:67&#125;&apos; 172.25.0.10:8545</span><br></pre></td></tr></table></figure></p>
-<p>发起转账请求<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST -H &quot;Content-Type&quot;:application/json --data &apos;&#123;&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;eth_sendTransaction&quot;,&quot;params&quot;: [&#123;                                                                               </span><br><span class="line">  &quot;from&quot;: &quot;0xde1e758511a7c67e7db93d1c23c1060a21db4615&quot;,</span><br><span class="line">  &quot;to&quot;: &quot;0xd64a66c28a6ae5150af5e7c34696502793b91ae7&quot;,</span><br><span class="line">  &quot;value&quot;: &quot;0x1&quot;</span><br><span class="line">&#125;],</span><br><span class="line">&quot;id&quot;:67&#125;&apos; 172.25.0.10:8545</span><br></pre></td></tr></table></figure></p>
-<p>但是注意一下在此处的 当余额为0的时候，会报错，报错信息如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;error&quot;:&#123;&quot;code&quot;:-32000,&quot;message&quot;:&quot;exceeds block gas limit&quot;&#125;</span><br></pre></td></tr></table></figure></p>
-<p>待深究</p>
+<pre><code>cur addr:port -X POST --data &#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:id, &quot;method&quot;:&quot;${method}&quot;,&quot;params&quot;:&quot;${params}&quot;}&#39;
+</code></pre><h2 id="创建私有链-待续"><a href="#创建私有链-待续" class="headerlink" title="创建私有链-待续"></a>创建私有链-待续</h2><h3 id="部署测试合约-待续"><a href="#部署测试合约-待续" class="headerlink" title="部署测试合约-待续"></a>部署测试合约-待续</h3><h3 id="合约创建子链-待续"><a href="#合约创建子链-待续" class="headerlink" title="合约创建子链-待续"></a>合约创建子链-待续</h3><hr>
+<h3 id="ETH-节点JSON-RPC测试"><a href="#ETH-节点JSON-RPC测试" class="headerlink" title="ETH 节点JSON-RPC测试"></a>ETH 节点JSON-RPC测试</h3><p>RPC接口：</p>
+<pre><code>    web3_clientVersion
+
+
+    web3_sha3
+    net_version
+    net_peerCount
+    net_listening
+    eth_protocolVersion
+    eth_syncing
+    eth_coinbase
+    eth_mining
+    eth_hashrate
+    eth_gasPrice
+    eth_accounts
+    eth_blockNumber
+    eth_getBalance
+    eth_getStorageAt
+    eth_getTransactionCount
+    eth_getBlockTransactionCountByHash
+    eth_getBlockTransactionCountByNumber
+    eth_getUncleCountByBlockHash
+    eth_getUncleCountByBlockNumber
+    eth_getCode
+    eth_sign
+    eth_sendTransaction
+    eth_sendRawTransaction
+    eth_call
+    eth_estimateGas
+    eth_getBlockByHash
+    eth_getBlockByNumber
+    eth_getTransactionByHash
+    eth_getTransactionByBlockHashAndIndex
+    eth_getTransactionByBlockNumberAndIndex
+    eth_getTransactionReceipt
+    eth_getUncleByBlockHashAndIndex
+    eth_getUncleByBlockNumberAndIndex
+    eth_getCompilers
+    eth_compileLLL
+    eth_compileSolidity
+    eth_compileSerpent
+    eth_newFilter
+    eth_newBlockFilter
+    eth_newPendingTransactionFilter
+    eth_uninstallFilter
+    eth_getFilterChanges
+    eth_getFilterLogs
+    eth_getLogs
+    eth_getWork
+    eth_submitWork
+    eth_submitHashrate
+    db_putString
+    db_getString
+    db_putHex
+    db_getHex
+    shh_post
+    shh_version
+    shh_newIdentity
+    shh_hasIdentity
+    shh_newGroup
+    shh_addToGroup
+    shh_newFilter
+    shh_uninstallFilter
+    shh_getFilterChanges
+    shh_getMessages
+</code></pre><h2 id="创建钱包"><a href="#创建钱包" class="headerlink" title="创建钱包"></a>创建钱包</h2><p>启动节点后，调用节点自身的console，创建账号</p>
+<pre><code>&gt; eth.accounts
+</code></pre><p>查询钱包用户</p>
+<pre><code>&gt; personal.newAccount()
+</code></pre><p>创建钱包用户<br>这里注意下，当一个节点绑定多个钱包账户的时候，挖矿的收益会默认在第一个创始账户中，这个时候要改变收益账号</p>
+<pre><code>&gt; miner.setEtherbase(eth.accounts[1])
+成功改变会返回 true
+</code></pre><p>查询获益钱包账户</p>
+<pre><code>&gt; eth.coinbase
+</code></pre><pre><code>&gt;personal.unlockAccount(address,passwd,time)
+</code></pre><p>解锁钱包用户</p>
+<p>查询余额</p>
+<pre><code>curl -X POST -H &quot;Content-Type&quot;:application/json --data &#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;, &quot;method&quot;:&quot;eth_getBalance&quot;,&quot;params&quot;:[&quot;0xde1e758511a7c67e7db93d1c23c1060a21db4615&quot;,&quot;latest&quot;],&quot;id&quot;:67}&#39; 172.25.0.10:8545
+</code></pre><p>发起转账请求</p>
+<pre><code>curl -X POST -H &quot;Content-Type&quot;:application/json --data &#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;eth_sendTransaction&quot;,&quot;params&quot;: [{                                                                               
+  &quot;from&quot;: &quot;0xde1e758511a7c67e7db93d1c23c1060a21db4615&quot;,
+  &quot;to&quot;: &quot;0xd64a66c28a6ae5150af5e7c34696502793b91ae7&quot;,
+  &quot;value&quot;: &quot;0x1&quot;
+}],
+&quot;id&quot;:67}&#39; 172.25.0.10:8545
+</code></pre><p>但是注意一下在此处的 当余额为0的时候，会报错，报错信息如下：</p>
+<pre><code>&quot;error&quot;:{&quot;code&quot;:-32000,&quot;message&quot;:&quot;exceeds block gas limit&quot;}
+</code></pre><p>待深究</p>
 <p>其中 personal_listWallets 接口可以查看所有账户的解锁情况。</p>
-<h3 id="偷渡漏洞验证"><a href="#偷渡漏洞验证" class="headerlink" title="偷渡漏洞验证"></a>偷渡漏洞验证</h3><p>以太坊交易流程<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">用户发起转账请求。</span><br><span class="line"></span><br><span class="line">以太坊对转账信息进行签名</span><br><span class="line"></span><br><span class="line">校验签名后的信息并将信息加入交易缓存池 (txpool)</span><br><span class="line"></span><br><span class="line">从交易缓存池中提取交易信息进行广播</span><br></pre></td></tr></table></figure></p>
-<p>此处的核心便是对personal_unlockAccount的爆破攻击，在爆破成功后或者用户自身交易解锁的空余时间内，对该接口进行解锁，在解锁后，攻击者便调用转账函数，对该接口以较高的gas进行转账处理。</p>
-<p>防范方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">personal.sendTransaction 进行转账</span><br></pre></td></tr></table></figure></p>
-<p>关于 personal.sendTransaction与personal_unlockAccount对区别<br>这也就意味着如果执行了 unlockAccount() 函数、没有超时的话，从 ipc、rpc 调用 SendTransaction() 都会成功签名相关交易</p>
+<h3 id="偷渡漏洞验证"><a href="#偷渡漏洞验证" class="headerlink" title="偷渡漏洞验证"></a>偷渡漏洞验证</h3><p>以太坊交易流程</p>
+<pre><code>用户发起转账请求。
+
+以太坊对转账信息进行签名
+
+校验签名后的信息并将信息加入交易缓存池 (txpool)
+
+从交易缓存池中提取交易信息进行广播
+</code></pre><p>此处的核心便是对personal_unlockAccount的爆破攻击，在爆破成功后或者用户自身交易解锁的空余时间内，对该接口进行解锁，在解锁后，攻击者便调用转账函数，对该接口以较高的gas进行转账处理。</p>
+<p>防范方法：</p>
+<pre><code> personal.sendTransaction 进行转账
+</code></pre><p>关于 personal.sendTransaction与personal_unlockAccount对区别<br>这也就意味着如果执行了 unlockAccount() 函数、没有超时的话，从 ipc、rpc 调用 SendTransaction() 都会成功签名相关交易</p>
 <h4 id="偷渡漏洞接口爆破"><a href="#偷渡漏洞接口爆破" class="headerlink" title="偷渡漏洞接口爆破"></a>偷渡漏洞接口爆破</h4><p>爆破的目标<br>personal_unlockAccount 接口变成了 personal_sendTransaction 接口</p>
-<p>开启挖矿<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST -H &quot;Content-Type&quot;:application/json --data &apos;&#123;&quot;jsonrpc&quot;:&quot;2.0&quot;, &quot;method&quot;:&quot;miner_start&quot;,&quot;params&quot;:[],&quot;id&quot;:67&#125;&apos; 172.25.0.10:8545</span><br></pre></td></tr></table></figure></p>
-<p>或者 用本地console<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">miner.start(1)</span><br></pre></td></tr></table></figure></p>
-<h4 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h4><p>这里用docker 环境下的python3.6<br>docker run -it python:3.6 /bin/bash</p>
+<p>开启挖矿</p>
+<pre><code>curl -X POST -H &quot;Content-Type&quot;:application/json --data &#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;, &quot;method&quot;:&quot;miner_start&quot;,&quot;params&quot;:[],&quot;id&quot;:67}&#39; 172.25.0.10:8545
+</code></pre><p>或者 用本地console</p>
+<pre><code>miner.start(1)
+</code></pre><h4 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h4><p>这里用docker 环境下的python3.6<br>docker run -it python:3.6 /bin/bash</p>
 <h5 id="探测节点端口是否开放、获取当前区块高度"><a href="#探测节点端口是否开放、获取当前区块高度" class="headerlink" title="探测节点端口是否开放、获取当前区块高度"></a>探测节点端口是否开放、获取当前区块高度</h5><p>直接调用RPC 8545端口</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> web3 <span class="keyword">import</span> Web3,HTTPProvider</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>web3=Web3(HTTPProvider(<span class="string">"http://xx.xx.xx.xx:8545/"</span>))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>web3.eth.blockNumber</span><br></pre></td></tr></table></figure>
-<h5 id="探测节点上是否绑定有相关账户"><a href="#探测节点上是否绑定有相关账户" class="headerlink" title="探测节点上是否绑定有相关账户"></a>探测节点上是否绑定有相关账户</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>web3.eth.accounts</span><br></pre></td></tr></table></figure>
-<h5 id="查询下账户相关余额"><a href="#查询下账户相关余额" class="headerlink" title="查询下账户相关余额"></a>查询下账户相关余额</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>web3.eth.getBalance(web3.eth.accounts[])</span><br></pre></td></tr></table></figure>
+<pre class=" language-python"><code class="language-python"><span class="token operator">>></span><span class="token operator">></span> <span class="token keyword">from</span> web3 <span class="token keyword">import</span> Web3<span class="token punctuation">,</span>HTTPProvider
+<span class="token operator">>></span><span class="token operator">></span> web3<span class="token operator">=</span>Web3<span class="token punctuation">(</span>HTTPProvider<span class="token punctuation">(</span><span class="token string">"http://xx.xx.xx.xx:8545/"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token operator">>></span><span class="token operator">></span> web3<span class="token punctuation">.</span>eth<span class="token punctuation">.</span>blockNumber
+</code></pre>
+<h5 id="探测节点上是否绑定有相关账户"><a href="#探测节点上是否绑定有相关账户" class="headerlink" title="探测节点上是否绑定有相关账户"></a>探测节点上是否绑定有相关账户</h5><pre class=" language-python"><code class="language-python"><span class="token operator">>></span><span class="token operator">></span> web3<span class="token punctuation">.</span>eth<span class="token punctuation">.</span>accounts
+</code></pre>
+<h5 id="查询下账户相关余额"><a href="#查询下账户相关余额" class="headerlink" title="查询下账户相关余额"></a>查询下账户相关余额</h5><pre class=" language-python"><code class="language-python"><span class="token operator">>></span><span class="token operator">></span> web3<span class="token punctuation">.</span>eth<span class="token punctuation">.</span>getBalance<span class="token punctuation">(</span>web3<span class="token punctuation">.</span>eth<span class="token punctuation">.</span>accounts<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre>
 <h5 id="调用RPC爆破账户"><a href="#调用RPC爆破账户" class="headerlink" title="调用RPC爆破账户"></a>调用RPC爆破账户</h5><h5 id="轮询监控节点解锁账户"><a href="#轮询监控节点解锁账户" class="headerlink" title="轮询监控节点解锁账户"></a>轮询监控节点解锁账户</h5><h5 id="解锁期间进行转账"><a href="#解锁期间进行转账" class="headerlink" title="解锁期间进行转账"></a>解锁期间进行转账</h5><p>没什么可写的，就是用个循环，调用web3.eth.sendTransaction 不停的进行转账请求</p>
 <h4 id="离线状态下偷渡漏洞"><a href="#离线状态下偷渡漏洞" class="headerlink" title="离线状态下偷渡漏洞"></a>离线状态下偷渡漏洞</h4><p>跟偷渡漏洞实质没有区别，只是区别在于，不是在解锁期间进行转账，是在解锁期间调用转账签名eth_signTransaction，在账户解锁期间按照 nonce 递增的顺序构造多笔转账的签名，然后再在攻击者自己的节点上根据签名返回的raw 对签名进行广播，eth.sendRawTransaction(raw),达到转账的目的</p>
 <hr>
@@ -430,25 +571,165 @@
 <li>层2 p2p 通信链路</li>
 <li>层3 go语言的网络IO层</li>
 </ul>
-<h4 id="漏洞复现-1"><a href="#漏洞复现-1" class="headerlink" title="漏洞复现"></a>漏洞复现</h4><p>les/handler.go<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">	case query.Origin.Hash != (common.Hash&#123;&#125;) &amp;&amp; !query.Reverse:</span><br><span class="line">		// Hash based traversal towards the leaf block</span><br><span class="line">		if header := pm.blockchain.GetHeaderByNumber(origin.Number.Uint64() + query.Skip + 1); header != nil &#123;</span><br><span class="line">			if pm.blockchain.GetBlockHashesFromHash(header.Hash(), query.Skip+1)[query.Skip] == query.Origin.Hash &#123;</span><br><span class="line">				query.Origin.Hash = header.Hash()</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">				unknown = true</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			unknown = true</span><br><span class="line">		&#125;</span><br><span class="line">	case query.Reverse:</span><br><span class="line">		// Number based traversal towards the genesis block</span><br><span class="line">		if query.Origin.Number &gt;= query.Skip+1 &#123;</span><br><span class="line">			query.Origin.Number -= (query.Skip + 1)</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			unknown = true</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	case !query.Reverse:</span><br><span class="line">		// Number based traversal towards the leaf block</span><br><span class="line">		query.Origin.Number += (query.Skip + 1)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">bv, rcost := p.fcClient.RequestProcessed(costs.baseCost + query.Amount*costs.reqCost)</span><br><span class="line">pm.server.fcCostStats.update(msg.Code, query.Amount, rcost)</span><br><span class="line">return p.SendBlockHeaders(req.ReqID, bv, headers)</span><br></pre></td></tr></table></figure></p>
-<p>eth/handler.go 365-385 此处已修复<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">case query.Origin.Hash != (common.Hash&#123;&#125;) &amp;&amp; !query.Reverse:</span><br><span class="line">		// Hash based traversal towards the leaf block</span><br><span class="line">		var (</span><br><span class="line">			current = origin.Number.Uint64()</span><br><span class="line">			next    = current + query.Skip + 1</span><br><span class="line">		)</span><br><span class="line">		if next &lt;= current &#123;</span><br><span class="line">			infos, _ := json.MarshalIndent(p.Peer.Info(), &quot;&quot;, &quot;  &quot;)</span><br><span class="line">			p.Log().Warn(&quot;GetBlockHeaders skip overflow attack&quot;, &quot;current&quot;, current, &quot;skip&quot;, query.Skip, &quot;next&quot;, next, &quot;attacker&quot;, infos)</span><br><span class="line">			unknown = true</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			if header := pm.blockchain.GetHeaderByNumber(next); header != nil &#123;</span><br><span class="line">				if pm.blockchain.GetBlockHashesFromHash(header.Hash(), query.Skip+1)[query.Skip] == query.Origin.Hash &#123;</span><br><span class="line">					query.Origin.Hash = header.Hash()</span><br><span class="line">				&#125; else &#123;</span><br><span class="line">					unknown = true</span><br><span class="line">				&#125;</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">				unknown = true</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure></p>
-<hr>
+<h4 id="漏洞复现-1"><a href="#漏洞复现-1" class="headerlink" title="漏洞复现"></a>漏洞复现</h4><p>les/handler.go </p>
+<pre><code>            case query.Origin.Hash != (common.Hash{}) &amp;&amp; !query.Reverse:
+                // Hash based traversal towards the leaf block
+                if header := pm.blockchain.GetHeaderByNumber(origin.Number.Uint64() + query.Skip + 1); header != nil {
+                    if pm.blockchain.GetBlockHashesFromHash(header.Hash(), query.Skip+1)[query.Skip] == query.Origin.Hash {
+                        query.Origin.Hash = header.Hash()
+                    } else {
+                        unknown = true
+                    }
+                } else {
+                    unknown = true
+                }
+            case query.Reverse:
+                // Number based traversal towards the genesis block
+                if query.Origin.Number &gt;= query.Skip+1 {
+                    query.Origin.Number -= (query.Skip + 1)
+                } else {
+                    unknown = true
+                }
+
+            case !query.Reverse:
+                // Number based traversal towards the leaf block
+                query.Origin.Number += (query.Skip + 1)
+            }
+        }
+
+        bv, rcost := p.fcClient.RequestProcessed(costs.baseCost + query.Amount*costs.reqCost)
+        pm.server.fcCostStats.update(msg.Code, query.Amount, rcost)
+        return p.SendBlockHeaders(req.ReqID, bv, headers)
+</code></pre><p>eth/handler.go 365-385 此处已修复</p>
+<pre><code>        case query.Origin.Hash != (common.Hash{}) &amp;&amp; !query.Reverse:
+                // Hash based traversal towards the leaf block
+                var (
+                    current = origin.Number.Uint64()
+                    next    = current + query.Skip + 1
+                )
+                if next &lt;= current {
+                    infos, _ := json.MarshalIndent(p.Peer.Info(), &quot;&quot;, &quot;  &quot;)
+                    p.Log().Warn(&quot;GetBlockHeaders skip overflow attack&quot;, &quot;current&quot;, current, &quot;skip&quot;, query.Skip, &quot;next&quot;, next, &quot;attacker&quot;, infos)
+                    unknown = true
+                } else {
+                    if header := pm.blockchain.GetHeaderByNumber(next); header != nil {
+                        if pm.blockchain.GetBlockHashesFromHash(header.Hash(), query.Skip+1)[query.Skip] == query.Origin.Hash {
+                            query.Origin.Hash = header.Hash()
+                        } else {
+                            unknown = true
+                        }
+                    } else {
+                        unknown = true
+                    }
+                }
+</code></pre><hr>
 <h3 id="SetString导致的OOM拒绝服务"><a href="#SetString导致的OOM拒绝服务" class="headerlink" title="SetString导致的OOM拒绝服务"></a>SetString导致的OOM拒绝服务</h3><h4 id="漏洞分析-1"><a href="#漏洞分析-1" class="headerlink" title="漏洞分析"></a>漏洞分析</h4><p>根据分析，go语言中在使用math.big.Rat.SetString的时候，如果对传入的需要转换的函数没有相应的检测的时候，在传入其值为一个很大的浮点数的字符串的时候，就可能导致CPU耗尽的拒绝服务。<br>big.NewInt(0).SetString同样存在</p>
-<h5 id="测试样例"><a href="#测试样例" class="headerlink" title="测试样例"></a>测试样例</h5><p>这里简单调用下该模块，检查其对传入的很大的浮点型字符串时的处理<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">	<span class="string">"math/big"</span></span><br><span class="line">	<span class="string">"os"</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span>  <span class="title">Test</span><span class="params">(test <span class="keyword">string</span>)</span> <span class="params">()</span></span> &#123;</span><br><span class="line">	num, success := <span class="built_in">new</span>(big.Rat).SetString(test);</span><br><span class="line">	<span class="keyword">if</span> success &#123;</span><br><span class="line">		fmt.Print(num);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	fmt.Println(os.Args)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="built_in">len</span>(os.Args); i++ &#123;</span><br><span class="line">		fmt.Println(os.Args[i])</span><br><span class="line">	&#125;</span><br><span class="line">	Test(os.Args[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h5 id="测试样例"><a href="#测试样例" class="headerlink" title="测试样例"></a>测试样例</h5><p>这里简单调用下该模块，检查其对传入的很大的浮点型字符串时的处理</p>
+<pre class=" language-go"><code class="language-go"><span class="token keyword">package</span> main
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"fmt"</span>
+    <span class="token string">"math/big"</span>
+    <span class="token string">"os"</span>
+<span class="token punctuation">)</span>
+<span class="token keyword">func</span>  <span class="token function">Test</span><span class="token punctuation">(</span>test <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    num<span class="token punctuation">,</span> success <span class="token operator">:=</span> <span class="token function">new</span><span class="token punctuation">(</span>big<span class="token punctuation">.</span>Rat<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">SetString</span><span class="token punctuation">(</span>test<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> success <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Print</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>os<span class="token punctuation">.</span>Args<span class="token punctuation">)</span>
+    <span class="token keyword">for</span> i <span class="token operator">:=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token function">len</span><span class="token punctuation">(</span>os<span class="token punctuation">.</span>Args<span class="token punctuation">)</span><span class="token punctuation">;</span> i<span class="token operator">++</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>os<span class="token punctuation">.</span>Args<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">Test</span><span class="token punctuation">(</span>os<span class="token punctuation">.</span>Args<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+</code></pre>
 <p>测试结果图：<br><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15522370181287.jpg" alt="-w1256"><br>此处可以明显看到通过OS传入的浮点型参数1e111111111，此时CPU升到100%</p>
 <p>不过当浮点数</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">type</span> txdata <span class="keyword">struct</span> &#123;</span><br><span class="line">		AccountNonce <span class="keyword">string</span> <span class="string">`json:"nonce"`</span></span><br><span class="line">		Price        <span class="keyword">string</span> <span class="string">`json:"gasPrice"`</span></span><br><span class="line">		GasLimit     <span class="keyword">string</span> <span class="string">`json:"gas"`</span></span><br><span class="line">		Recipient    <span class="keyword">string</span> <span class="string">`json:"to"`</span></span><br><span class="line">		Amount       <span class="keyword">string</span> <span class="string">`json:"value"`</span></span><br><span class="line">		Payload      <span class="keyword">string</span> <span class="string">`json:"input"`</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> dec txdata</span><br><span class="line"></span><br><span class="line">	data := []<span class="keyword">byte</span>(<span class="string">"&#123;\"nonce\":\"2\",\"gasPrice\":1000000000000000000,\"gas\":\"50000\",\"to\":\"0x3fac0b8a3d21f8565b7446c6cc9e932badfb186c\",\"value\":\"20000\",\"input\":\"0x\"&#125;"</span>)</span><br><span class="line">	<span class="keyword">if</span> err := json.Unmarshal(data, &amp;dec); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(err);</span><br><span class="line">	&#125;</span><br><span class="line">	price := big.NewInt(<span class="number">0</span>)</span><br><span class="line">	price.SetString(dec.Price, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-go"><code class="language-go"><span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">type</span> txdata <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+        AccountNonce <span class="token builtin">string</span> <span class="token string">`json:"nonce"`</span>
+        Price        <span class="token builtin">string</span> <span class="token string">`json:"gasPrice"`</span>
+        GasLimit     <span class="token builtin">string</span> <span class="token string">`json:"gas"`</span>
+        Recipient    <span class="token builtin">string</span> <span class="token string">`json:"to"`</span>
+        Amount       <span class="token builtin">string</span> <span class="token string">`json:"value"`</span>
+        Payload      <span class="token builtin">string</span> <span class="token string">`json:"input"`</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">var</span> dec txdata
+
+    data <span class="token operator">:=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span><span class="token string">"{\"nonce\":\"2\",\"gasPrice\":1000000000000000000,\"gas\":\"50000\",\"to\":\"0x3fac0b8a3d21f8565b7446c6cc9e932badfb186c\",\"value\":\"20000\",\"input\":\"0x\"}"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">:=</span> json<span class="token punctuation">.</span><span class="token function">Unmarshal</span><span class="token punctuation">(</span>data<span class="token punctuation">,</span> <span class="token operator">&amp;</span>dec<span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    price <span class="token operator">:=</span> big<span class="token punctuation">.</span><span class="token function">NewInt</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+    price<span class="token punctuation">.</span><span class="token function">SetString</span><span class="token punctuation">(</span>dec<span class="token punctuation">.</span>Price<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
 <h5 id="漏洞分析-2"><a href="#漏洞分析-2" class="headerlink" title="漏洞分析"></a>漏洞分析</h5><p>看过测试用例后，这里我们实际分析一个最近看到的公链上漏洞。</p>
 <ul>
 <li>定位漏洞<br>这里根据代码审计中最简单的漏洞定位方法，因为知道了math.big.SetString存在问题,这里就去寻找，然后察看是否有可疑参数传入<br>这里我们定位到了<br>go-ethernum/cmd/geth/accountcmd.go 文件中</li>
 </ul>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">signTx</span><span class="params">(ctx *cli.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	prikey := ctx.Args().First()</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(prikey) == <span class="number">0</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">"&#123;error1&#125;"</span>)</span><br><span class="line">		<span class="keyword">return</span> errors.New(<span class="string">"no prikey"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	key, err := crypto.LoadECDSA(prikey)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">"&#123;error2&#125;"</span>)</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	jsonstr := ctx.GlobalString(utils.PasswordFileFlag.Name)</span><br><span class="line">	log.Info(jsonstr)</span><br><span class="line">	<span class="keyword">type</span> txdata <span class="keyword">struct</span> &#123;</span><br><span class="line">		AccountNonce <span class="keyword">string</span> <span class="string">`json:"nonce"`</span></span><br><span class="line">		Price        <span class="keyword">string</span> <span class="string">`json:"gasPrice"`</span></span><br><span class="line">		GasLimit     <span class="keyword">string</span> <span class="string">`json:"gas"`</span></span><br><span class="line">		Recipient    <span class="keyword">string</span> <span class="string">`json:"to"`</span></span><br><span class="line">		Amount       <span class="keyword">string</span> <span class="string">`json:"value"`</span></span><br><span class="line">		Payload      <span class="keyword">string</span> <span class="string">`json:"input"`</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> dec txdata</span><br><span class="line">	<span class="keyword">if</span> err := json.Unmarshal([]<span class="keyword">byte</span>(jsonstr), &amp;dec); err != <span class="literal">nil</span> &#123;<span class="comment">//go的json解析</span></span><br><span class="line">		fmt.Println(<span class="string">"&#123;error3&#125;"</span>)</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	nonce, err := strconv.ParseUint(dec.AccountNonce, <span class="number">0</span>, <span class="number">64</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">"&#123;error4&#125;"</span>)</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	amount := big.NewInt(<span class="number">0</span>)</span><br><span class="line">	amount.SetString(dec.Amount, <span class="number">0</span>)</span><br><span class="line">	price := big.NewInt(<span class="number">0</span>)</span><br><span class="line">	price.SetString(dec.Price, <span class="number">0</span>)</span><br><span class="line">	gas := big.NewInt(<span class="number">0</span>)</span><br><span class="line">	gas.SetString(dec.GasLimit, <span class="number">0</span>)</span><br><span class="line">	tx := types.NewTransaction(nonce, common.HexToAddress(dec.Recipient), amount, gas, price, []<span class="keyword">byte</span>(dec.Payload))</span><br><span class="line">	s := types.NewEIP155Signer(big.NewInt(<span class="number">15</span>))</span><br><span class="line">	sign, err := types.GetRowTransaction(s, tx, key)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">"&#123;error5&#125;"</span>)</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="string">"&#123;"</span> + sign + <span class="string">"&#125;"</span>)</span><br></pre></td></tr></table></figure>
+<pre class=" language-go"><code class="language-go"><span class="token keyword">func</span> <span class="token function">signTx</span><span class="token punctuation">(</span>ctx <span class="token operator">*</span>cli<span class="token punctuation">.</span>Context<span class="token punctuation">)</span> <span class="token builtin">error</span> <span class="token punctuation">{</span>
+    prikey <span class="token operator">:=</span> ctx<span class="token punctuation">.</span><span class="token function">Args</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">First</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token function">len</span><span class="token punctuation">(</span>prikey<span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"{error1}"</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> errors<span class="token punctuation">.</span><span class="token function">New</span><span class="token punctuation">(</span><span class="token string">"no prikey"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+    key<span class="token punctuation">,</span> err <span class="token operator">:=</span> crypto<span class="token punctuation">.</span><span class="token function">LoadECDSA</span><span class="token punctuation">(</span>prikey<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"{error2}"</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> err
+    <span class="token punctuation">}</span>
+    jsonstr <span class="token operator">:=</span> ctx<span class="token punctuation">.</span><span class="token function">GlobalString</span><span class="token punctuation">(</span>utils<span class="token punctuation">.</span>PasswordFileFlag<span class="token punctuation">.</span>Name<span class="token punctuation">)</span>
+    log<span class="token punctuation">.</span><span class="token function">Info</span><span class="token punctuation">(</span>jsonstr<span class="token punctuation">)</span>
+    <span class="token keyword">type</span> txdata <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+        AccountNonce <span class="token builtin">string</span> <span class="token string">`json:"nonce"`</span>
+        Price        <span class="token builtin">string</span> <span class="token string">`json:"gasPrice"`</span>
+        GasLimit     <span class="token builtin">string</span> <span class="token string">`json:"gas"`</span>
+        Recipient    <span class="token builtin">string</span> <span class="token string">`json:"to"`</span>
+        Amount       <span class="token builtin">string</span> <span class="token string">`json:"value"`</span>
+        Payload      <span class="token builtin">string</span> <span class="token string">`json:"input"`</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">var</span> dec txdata
+    <span class="token keyword">if</span> err <span class="token operator">:=</span> json<span class="token punctuation">.</span><span class="token function">Unmarshal</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span>jsonstr<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>dec<span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span><span class="token comment" spellcheck="true">//go的json解析</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"{error3}"</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> err
+    <span class="token punctuation">}</span>
+    nonce<span class="token punctuation">,</span> err <span class="token operator">:=</span> strconv<span class="token punctuation">.</span><span class="token function">ParseUint</span><span class="token punctuation">(</span>dec<span class="token punctuation">.</span>AccountNonce<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">64</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"{error4}"</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> err
+    <span class="token punctuation">}</span>
+    amount <span class="token operator">:=</span> big<span class="token punctuation">.</span><span class="token function">NewInt</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+    amount<span class="token punctuation">.</span><span class="token function">SetString</span><span class="token punctuation">(</span>dec<span class="token punctuation">.</span>Amount<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    price <span class="token operator">:=</span> big<span class="token punctuation">.</span><span class="token function">NewInt</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+    price<span class="token punctuation">.</span><span class="token function">SetString</span><span class="token punctuation">(</span>dec<span class="token punctuation">.</span>Price<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    gas <span class="token operator">:=</span> big<span class="token punctuation">.</span><span class="token function">NewInt</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+    gas<span class="token punctuation">.</span><span class="token function">SetString</span><span class="token punctuation">(</span>dec<span class="token punctuation">.</span>GasLimit<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    tx <span class="token operator">:=</span> types<span class="token punctuation">.</span><span class="token function">NewTransaction</span><span class="token punctuation">(</span>nonce<span class="token punctuation">,</span> common<span class="token punctuation">.</span><span class="token function">HexToAddress</span><span class="token punctuation">(</span>dec<span class="token punctuation">.</span>Recipient<span class="token punctuation">)</span><span class="token punctuation">,</span> amount<span class="token punctuation">,</span> gas<span class="token punctuation">,</span> price<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span>dec<span class="token punctuation">.</span>Payload<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    s <span class="token operator">:=</span> types<span class="token punctuation">.</span><span class="token function">NewEIP155Signer</span><span class="token punctuation">(</span>big<span class="token punctuation">.</span><span class="token function">NewInt</span><span class="token punctuation">(</span><span class="token number">15</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    sign<span class="token punctuation">,</span> err <span class="token operator">:=</span> types<span class="token punctuation">.</span><span class="token function">GetRowTransaction</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> tx<span class="token punctuation">,</span> key<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"{error5}"</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> err
+    <span class="token punctuation">}</span>
+    fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"{"</span> <span class="token operator">+</span> sign <span class="token operator">+</span> <span class="token string">"}"</span><span class="token punctuation">)</span>
+</code></pre>
 <p>简单的看了下，此处是对以太坊交易的功能，稍微理下流程：<br>转账请求：</p>
-<p>进行请求的时候，可以有三种方式：<br>调用JSON-RPC<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST -H &quot;Content-Type&quot;:application/json --data &apos;&#123;&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;eth_sendTransaction&quot;,&quot;params&quot;: [&#123;                                                                               </span><br><span class="line">  &quot;from&quot;: &quot;0xde1e758511a7c67e7db93d1c23c1060a21db4615&quot;,</span><br><span class="line">  &quot;to&quot;: &quot;0xd64a66c28a6ae5150af5e7c34696502793b91ae7&quot;,</span><br><span class="line">  &quot;value&quot;: &quot;0x1&quot;</span><br><span class="line">&#125;],</span><br><span class="line">&quot;id&quot;:67&#125;&apos; 172.25.0.10:8545</span><br></pre></td></tr></table></figure></p>
-<p>调用js console</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eth.sendTransaction(&#123;&quot;from&quot;:eth.accounts[0],to:eth.accounts[1],value:web3.toWei(10,&apos;ether&apos;)&#125;)</span><br></pre></td></tr></table></figure>
-<p>调用web3.js ，实质还是调用了js console API</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">web3.eth.sendTransaction(<span class="string">"from"</span>:eth.accounts[<span class="number">0</span>],to:eth.accounts[<span class="number">1</span>],value:web3.toWei(<span class="number">10</span>,<span class="string">'ether'</span>)&#125;)</span><br></pre></td></tr></table></figure>
+<p>进行请求的时候，可以有三种方式：<br>调用JSON-RPC</p>
+<pre><code>curl -X POST -H &quot;Content-Type&quot;:application/json --data &#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;eth_sendTransaction&quot;,&quot;params&quot;: [{                                                                               
+  &quot;from&quot;: &quot;0xde1e758511a7c67e7db93d1c23c1060a21db4615&quot;,
+  &quot;to&quot;: &quot;0xd64a66c28a6ae5150af5e7c34696502793b91ae7&quot;,
+  &quot;value&quot;: &quot;0x1&quot;
+}],
+&quot;id&quot;:67}&#39; 172.25.0.10:8545
+</code></pre><p>调用js console</p>
+<pre><code>eth.sendTransaction({&quot;from&quot;:eth.accounts[0],to:eth.accounts[1],value:web3.toWei(10,&#39;ether&#39;)})
+</code></pre><p>调用web3.js ，实质还是调用了js console API</p>
+<pre class=" language-python"><code class="language-python">web3<span class="token punctuation">.</span>eth<span class="token punctuation">.</span>sendTransaction<span class="token punctuation">(</span><span class="token string">"from"</span><span class="token punctuation">:</span>eth<span class="token punctuation">.</span>accounts<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span>to<span class="token punctuation">:</span>eth<span class="token punctuation">.</span>accounts<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>value<span class="token punctuation">:</span>web3<span class="token punctuation">.</span>toWei<span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">,</span><span class="token string">'ether'</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
 <p>流程如下：</p>
 <ul>
 <li>用户输入转账的地址和转入的地址和转出的金额</li>
@@ -458,416 +739,532 @@
 <li>把交易信息广播给其它节点<br>借用下seebug的图：<br><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525294348646.jpg" alt="-w830"></li>
 </ul>
 <p>在用户输入调用web3.js后，传入参数进行交易，在此处调用ethapi接口：<br>internal/ethapi/api.go 1071</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">unc (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args SendTxArgs) (common.Hash, error) &#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Look up the wallet containing the requested signer</span></span><br><span class="line">	account := accounts.Account&#123;Address: args.From&#125;</span><br><span class="line"></span><br><span class="line">	wallet, err := s.b.AccountManager().Find(account)</span><br><span class="line">	......</span><br></pre></td></tr></table></figure>
+<pre class=" language-go"><code class="language-go"><span class="token function">unc</span> <span class="token punctuation">(</span>s <span class="token operator">*</span>PublicTransactionPoolAPI<span class="token punctuation">)</span> <span class="token function">SendTransaction</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> args SendTxArgs<span class="token punctuation">)</span> <span class="token punctuation">(</span>common<span class="token punctuation">.</span>Hash<span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token comment" spellcheck="true">// Look up the wallet containing the requested signer</span>
+    account <span class="token operator">:=</span> accounts<span class="token punctuation">.</span>Account<span class="token punctuation">{</span>Address<span class="token punctuation">:</span> args<span class="token punctuation">.</span>From<span class="token punctuation">}</span>
+
+    wallet<span class="token punctuation">,</span> err <span class="token operator">:=</span> s<span class="token punctuation">.</span>b<span class="token punctuation">.</span><span class="token function">AccountManager</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">Find</span><span class="token punctuation">(</span>account<span class="token punctuation">)</span>
+    <span class="token operator">...</span><span class="token operator">...</span>
+</code></pre>
 <p>通过from来调取传入的账户地址</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">account := accounts.Account&#123;Address: args.From&#125;<span class="comment">//接收from参数</span></span><br><span class="line">wallet, err := s.b.AccountManager().Find(account)<span class="comment">//判断account是否存在</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(am *Manager)</span> <span class="title">Find</span><span class="params">(account Account)</span> <span class="params">(Wallet, error)</span></span> &#123;</span><br></pre></td></tr></table></figure>
+<pre class=" language-go"><code class="language-go">account <span class="token operator">:=</span> accounts<span class="token punctuation">.</span>Account<span class="token punctuation">{</span>Address<span class="token punctuation">:</span> args<span class="token punctuation">.</span>From<span class="token punctuation">}</span><span class="token comment" spellcheck="true">//接收from参数</span>
+wallet<span class="token punctuation">,</span> err <span class="token operator">:=</span> s<span class="token punctuation">.</span>b<span class="token punctuation">.</span><span class="token function">AccountManager</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">Find</span><span class="token punctuation">(</span>account<span class="token punctuation">)</span><span class="token comment" spellcheck="true">//判断account是否存在</span>
+
+<span class="token keyword">func</span> <span class="token punctuation">(</span>am <span class="token operator">*</span>Manager<span class="token punctuation">)</span> <span class="token function">Find</span><span class="token punctuation">(</span>account Account<span class="token punctuation">)</span> <span class="token punctuation">(</span>Wallet<span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+</code></pre>
 <p>通过交易信息生成type包</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(args *SendTxArgs)</span> <span class="title">toTransaction</span><span class="params">()</span> *<span class="title">types</span>.<span class="title">Transaction</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> args.To == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> types.NewContractCreation(<span class="keyword">uint64</span>(*args.Nonce), (*big.Int)(args.Value), (*big.Int)(args.Gas), (*big.Int)(args.GasPrice), args.Data)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> types.NewTransaction(<span class="keyword">uint64</span>(*args.Nonce), *args.To, (*big.Int)(args.Value), (*big.Int)(args.Gas), (*big.Int)(args.GasPrice), args.Data)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-go"><code class="language-go"><span class="token keyword">func</span> <span class="token punctuation">(</span>args <span class="token operator">*</span>SendTxArgs<span class="token punctuation">)</span> <span class="token function">toTransaction</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span>types<span class="token punctuation">.</span>Transaction <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> args<span class="token punctuation">.</span>To <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> types<span class="token punctuation">.</span><span class="token function">NewContractCreation</span><span class="token punctuation">(</span><span class="token function">uint64</span><span class="token punctuation">(</span><span class="token operator">*</span>args<span class="token punctuation">.</span>Nonce<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">*</span>big<span class="token punctuation">.</span>Int<span class="token punctuation">)</span><span class="token punctuation">(</span>args<span class="token punctuation">.</span>Value<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">*</span>big<span class="token punctuation">.</span>Int<span class="token punctuation">)</span><span class="token punctuation">(</span>args<span class="token punctuation">.</span>Gas<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">*</span>big<span class="token punctuation">.</span>Int<span class="token punctuation">)</span><span class="token punctuation">(</span>args<span class="token punctuation">.</span>GasPrice<span class="token punctuation">)</span><span class="token punctuation">,</span> args<span class="token punctuation">.</span>Data<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> types<span class="token punctuation">.</span><span class="token function">NewTransaction</span><span class="token punctuation">(</span><span class="token function">uint64</span><span class="token punctuation">(</span><span class="token operator">*</span>args<span class="token punctuation">.</span>Nonce<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">*</span>args<span class="token punctuation">.</span>To<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">*</span>big<span class="token punctuation">.</span>Int<span class="token punctuation">)</span><span class="token punctuation">(</span>args<span class="token punctuation">.</span>Value<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">*</span>big<span class="token punctuation">.</span>Int<span class="token punctuation">)</span><span class="token punctuation">(</span>args<span class="token punctuation">.</span>Gas<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">*</span>big<span class="token punctuation">.</span>Int<span class="token punctuation">)</span><span class="token punctuation">(</span>args<span class="token punctuation">.</span>GasPrice<span class="token punctuation">)</span><span class="token punctuation">,</span> args<span class="token punctuation">.</span>Data<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre>
 <p>对交易进行签名</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">signed, err := wallet.SignTx(account, tx, chainID)</span><br></pre></td></tr></table></figure>
+<pre class=" language-go"><code class="language-go">signed<span class="token punctuation">,</span> err <span class="token operator">:=</span> wallet<span class="token punctuation">.</span><span class="token function">SignTx</span><span class="token punctuation">(</span>account<span class="token punctuation">,</span> tx<span class="token punctuation">,</span> chainID<span class="token punctuation">)</span>
+</code></pre>
 <p>最后提交交易</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> submitTransaction(ctx, s.b, signed)</span><br></pre></td></tr></table></figure>
+<pre class=" language-go"><code class="language-go">    <span class="token keyword">return</span> <span class="token function">submitTransaction</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> s<span class="token punctuation">.</span>b<span class="token punctuation">,</span> signed<span class="token punctuation">)</span>
+</code></pre>
 <p>在这里推测是使用了big.NewInt.SetString函数，导致了此处的OOM造成了拒绝服务的风险。但是单独测试的后期并没复现成功，存在点问题，可能根本原因不在这，只在节点上测试成功。误打误撞的找到了这个节点漏洞。</p>
 <h4 id="漏洞复现-2"><a href="#漏洞复现-2" class="headerlink" title="漏洞复现"></a>漏洞复现</h4><p>在客户端console中，使用对应的转账函数，此时使用其中的转账函数，将其中的gasPrice、gasvalue、value的值使用为对应的16进制长数据<br>将导致CPU占用。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eth.sendTransaction()</span><br></pre></td></tr></table></figure>
+<pre class=" language-go"><code class="language-go">eth<span class="token punctuation">.</span><span class="token function">sendTransaction</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
 <p><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525447646588.jpg" alt="-w956"><br><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525447843242.jpg" alt="-w934"></p>
-<h2 id="坑点"><a href="#坑点" class="headerlink" title="坑点"></a>坑点</h2><h3 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h3><p>在内存资源不足的情况下，程序会自动退出。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">goroutine 1340 [chan receive]:</span><br><span class="line">github.com/ethereum/go-ethereum/p2p/discover.(*udp).</span><br></pre></td></tr></table></figure></p>
-<p>在调用math.big.Rat.SetString的时候，浮点数过大会不解析，同样不会造成影响。<br><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525564158976.jpg" alt="-w710"></p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">https://blog.csdn.net/fpcc/article/details/81050976</span><br><span class="line">https://tianyun6655.github.io/2017/09/24/以太坊源码交易/</span><br><span class="line">https://www.colabug.com/3485978.html</span><br><span class="line">https://cloud.tencent.com/developer/section/1143071</span><br><span class="line">https://www.jianshu.com/p/1b0ffb58f565</span><br><span class="line">https://github.com/zsfelfoldi/go-ethereum/wiki/Light-Ethereum-Subprotocol-%28LES%29</span><br><span class="line">https://paper.seebug.org/656/</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    
-    
-    
+<h2 id="坑点"><a href="#坑点" class="headerlink" title="坑点"></a>坑点</h2><h3 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h3><p>在内存资源不足的情况下，程序会自动退出。</p>
+<pre><code>goroutine 1340 [chan receive]:
+github.com/ethereum/go-ethereum/p2p/discover.(*udp).
+</code></pre><p>在调用math.big.Rat.SetString的时候，浮点数过大会不解析，同样不会造成影响。<br><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525564158976.jpg" alt="-w710"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><pre><code>https://blog.csdn.net/fpcc/article/details/81050976
+https://tianyun6655.github.io/2017/09/24/以太坊源码交易/
+https://www.colabug.com/3485978.html
+https://cloud.tencent.com/developer/section/1143071
+https://www.jianshu.com/p/1b0ffb58f565
+https://github.com/zsfelfoldi/go-ethereum/wiki/Light-Ethereum-Subprotocol-%28LES%29
+https://paper.seebug.org/656/
+</code></pre>
+            </div>
+            <hr/>
 
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/01/28/Web渗透/XXE/XXE实例及利用2/" rel="next" title="XXE 示例及利用-java—SDK-1">
-                <i class="fa fa-chevron-left"></i> XXE 示例及利用-java—SDK-1
-              </a>
-            
-          </div>
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
 
-          <span class="post-nav-divider"></span>
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
 
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/" rel="prev" title="XXE实例及应用3">
-                XXE实例及应用3 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
         </div>
-      
-
-      
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
     </div>
-  </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>Reprint policy</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《ETH 漏洞复现》
+                </span> by
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                blackj liuyun
+            </a> is licensed under a
+            <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">
+                Creative Commons Attribution 4.0 International License
+            </a> 
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>Copied successfully, please follow the reprint policy of this article</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">more</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
 
 
-          </div>
-          
+        </div>
+    </div>
 
+    
 
-          
+    
 
-  
+    
 
+    
 
+    
 
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;Previous</div>
+            <div class="card">
+                <a href="/2019/06/10/工具使用/wireshark 使用记录 /">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="">
+                        
+                        <span class="card-title"></span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            wireshark 使用记录 （-）[TOC]
+恶意流量检查在一台服务器上发现有恶意木马，对该设备进行wireshark 抓包分析，很久没用过wireshark了，记录回顾下。
+wireshark 流量分析过滤协议 ctrl+F 或者 ht
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-06-10
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            blackj liuyun
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
         </div>
         
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview-wrap sidebar-panel">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <p class="site-author-name" itemprop="name">blackj liuyun</p>
-              <p class="site-description motion-element" itemprop="description">纯净水@流云-自留地</p>
-          </div>
-
-          <nav class="site-state motion-element">
-
-            
-              <div class="site-state-item site-state-posts">
-              
-                <a href="/archives">
-              
-                  <span class="site-state-item-count">13</span>
-                  <span class="site-state-item-name">日志</span>
-                </a>
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-categories">
-                <a href="/categories/index.html">
-                  <span class="site-state-item-count">12</span>
-                  <span class="site-state-item-name">分类</span>
-                </a>
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-tags">
-                <a href="/tags/index.html">
-                  <span class="site-state-item-count">16</span>
-                  <span class="site-state-item-name">标签</span>
-                </a>
-              </div>
-            
-
-          </nav>
-
-          
-
-          
-
-          
-          
-
-          
-          
-
-          
-
-        </div>
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ETH"><span class="nav-number">1.</span> <span class="nav-text">ETH</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#搭建私有测试链"><span class="nav-number">1.1.</span> <span class="nav-text">搭建私有测试链</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建私有链-待续"><span class="nav-number">1.2.</span> <span class="nav-text">创建私有链-待续</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#部署测试合约-待续"><span class="nav-number">1.2.1.</span> <span class="nav-text">部署测试合约-待续</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#合约创建子链-待续"><span class="nav-number">1.2.2.</span> <span class="nav-text">合约创建子链-待续</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ETH-节点JSON-RPC测试"><span class="nav-number">1.2.3.</span> <span class="nav-text">ETH 节点JSON-RPC测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建钱包"><span class="nav-number">1.3.</span> <span class="nav-text">创建钱包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#偷渡漏洞验证"><span class="nav-number">1.3.1.</span> <span class="nav-text">偷渡漏洞验证</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#偷渡漏洞接口爆破"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">偷渡漏洞接口爆破</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#漏洞复现"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">漏洞复现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#探测节点端口是否开放、获取当前区块高度"><span class="nav-number">1.3.1.2.1.</span> <span class="nav-text">探测节点端口是否开放、获取当前区块高度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#探测节点上是否绑定有相关账户"><span class="nav-number">1.3.1.2.2.</span> <span class="nav-text">探测节点上是否绑定有相关账户</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#查询下账户相关余额"><span class="nav-number">1.3.1.2.3.</span> <span class="nav-text">查询下账户相关余额</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#调用RPC爆破账户"><span class="nav-number">1.3.1.2.4.</span> <span class="nav-text">调用RPC爆破账户</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#轮询监控节点解锁账户"><span class="nav-number">1.3.1.2.5.</span> <span class="nav-text">轮询监控节点解锁账户</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#解锁期间进行转账"><span class="nav-number">1.3.1.2.6.</span> <span class="nav-text">解锁期间进行转账</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#离线状态下偷渡漏洞"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">离线状态下偷渡漏洞</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#轻节点的拒绝服务漏洞-待分析"><span class="nav-number">1.3.2.</span> <span class="nav-text">轻节点的拒绝服务漏洞-待分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#漏洞分析"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#漏洞成因"><span class="nav-number">1.3.2.1.1.</span> <span class="nav-text">漏洞成因</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#LES协议"><span class="nav-number">1.3.2.1.1.1.</span> <span class="nav-text">LES协议</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#漏洞复现-1"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">漏洞复现</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SetString导致的OOM拒绝服务"><span class="nav-number">1.3.3.</span> <span class="nav-text">SetString导致的OOM拒绝服务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#漏洞分析-1"><span class="nav-number">1.3.3.1.</span> <span class="nav-text">漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#测试样例"><span class="nav-number">1.3.3.1.1.</span> <span class="nav-text">测试样例</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#漏洞分析-2"><span class="nav-number">1.3.3.1.2.</span> <span class="nav-text">漏洞分析</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#漏洞复现-2"><span class="nav-number">1.3.3.2.</span> <span class="nav-text">漏洞复现</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#坑点"><span class="nav-number">1.4.</span> <span class="nav-text">坑点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内存"><span class="nav-number">1.4.1.</span> <span class="nav-text">内存</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">2.</span> <span class="nav-text">参考</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
         
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
-  <span class="with-love">
-    <i class="fa fa-user"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">blackj liuyun</span>
-
-  
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item-icon">
-      <i class="fa fa-area-chart"></i>
-    </span>
-    
-      <span class="post-meta-item-text">Site words total count&#58;</span>
-    
-    <span title="Site words total count">23.7k</span>
-  
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                Next&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/01/28/Web渗透/XXE/XXE实例及利用2/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="XXE 示例及利用-java—SDK-1">
+                        
+                        <span class="card-title">XXE 示例及利用-java—SDK-1</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            [TOC]
+XXE实例分析在接着之前对XXE的了解和学习，但一直在实战中都没遇到，正好这段时间在同事的渗透工作中又遇到了微信SDK的XXE漏洞，便趁着这个机会结合之前对微信SDK中的XXE漏洞，总结一波。
+ex1漏洞原理
+微信SDK XXE
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-01-28
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            blackj liuyun
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Web渗透/" target="_blank">
+                        <span class="chip bg-color">Web渗透</span>
+                    </a>
+                    
+                    <a href="/tags/XXE-实例利用/" target="_blank">
+                        <span class="chip bg-color">XXE 实例利用</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
 </div>
 
 
-  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;TOC</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
 
 
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
 
-  <span class="post-meta-divider">|</span>
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
 
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
 
-
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
-
-
-
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
 
         
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
 
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
 
-
-
-
-
-
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
         
-      </div>
-    </footer>
-
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
-
-    
-
-  </div>
-
-  
-
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
-  }
+    });
 </script>
+    
 
+</main>
 
 
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&copy;<a href="https://blinkfox.github.io/" target="_blank">Blinkfox</a>基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
 
+            
 
+            
+			
+                <br>
+                
+                <span id="busuanzi_container_site_pv">
+                    <i class="fa fa-heart-o"></i>
+                    本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+                </span>
+                
+                
+                <span id="busuanzi_container_site_uv">
+                    <i class="fa fa-users"></i>
+                    次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+                </span>
+                
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
 
 
+    <a href="mailto:xxx@xx.xx" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
 
 
-  
 
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=123123123" class="tooltipped" data-tooltip="QQ联系我: 123123123" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
 
-  
 
+</div>
+    </div>
+</footer>
 
+<div class="progress-bar"></div>
 
 
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;Search</span>
+            <input type="search" id="searchInput" name="s" placeholder="Please enter a search keyword"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
 
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
 
 
+<script src="/libs/materialize/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
 
+<!-- Global site tag (gtag.js) - Google Analytics -->
 
 
 
-  
-  
-    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-  
+    <script src="/libs/others/clicklove.js"></script>
 
-  
-  
-    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-  
 
-  
-  
-    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-  
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
 
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
-  
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-
-  
-
-  
-
-  
 
 </body>
 </html>

