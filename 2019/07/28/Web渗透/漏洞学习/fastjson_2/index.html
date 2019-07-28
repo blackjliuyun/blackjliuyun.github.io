@@ -384,12 +384,12 @@ fastjson 常用序列化操作public static fina">
                                 <span class="chip bg-color">漏洞学习</span>
                             </a>
                         
-                            <a href="/tags/web-渗透/" target="_blank">
-                                <span class="chip bg-color">web 渗透</span>
-                            </a>
-                        
                             <a href="/tags/fastjson/" target="_blank">
                                 <span class="chip bg-color">fastjson</span>
+                            </a>
+                        
+                            <a href="/tags/web-渗透/" target="_blank">
+                                <span class="chip bg-color">web 渗透</span>
                             </a>
                         
                     </div>
@@ -467,11 +467,11 @@ User user1 <span class="token operator">=</span> JSON<span class="token punctuat
 String jsonString2 <span class="token operator">=</span> JSON<span class="token punctuation">.</span><span class="token function">toJSONString</span><span class="token punctuation">(</span>user<span class="token punctuation">,</span>SerializerFeature<span class="token punctuation">.</span>WriteClassName<span class="token punctuation">)</span>
 User user3 <span class="token operator">=</span> <span class="token punctuation">(</span>User<span class="token punctuation">)</span>JSON<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>jsonString2<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//通过parse方法进行反序列化</span>
 </code></pre>
-<p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643184131156.jpg" alt="-w679"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643184541626.jpg" alt="-w966"></p>
-<p>在进行反序列化的时候，这里显示autoType不支持<br>这个地方也正好是fastjson出现反序列化漏洞的地方。<br>代码位置：/repository/com/alibaba/fastjson/1.2.45/fastjson-1.2.45.jar!/com/alibaba/fastjson/parser/ParserConfig.class<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643187948237.jpg" alt="-w734"><br>这里抛出异常主要是自1.2.25及之后的版本，禁用了部分autotype的功能，也就是”@type”这种指定类型的功能会被限制在一定范围内使用。<br>而由于反序列化对象时，需要检查是否开启了autotype。所以如果反序列化检查时，autotype没有开启，就会报错。因此把测试的fastjson版本改成1.2.23<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643191763023.jpg" alt="-w492"></p>
-<p>此时测试就可以通过<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643191936440.jpg" alt="-w738"></p>
-<h4 id="fastjson-1-2-24前测试"><a href="#fastjson-1-2-24前测试" class="headerlink" title="fastjson 1.2.24前测试"></a>fastjson 1.2.24前测试</h4><p>盗图一张<br>fastjson反序列化流程<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643198176333.jpg" alt="-w875"></p>
-<p>在该反序列化漏洞中测试，新特性SerializerFeature.WriteClassName反序列化。<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643268573584.jpg" alt="-w885"></p>
+<p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643184131156.jpg" alt="-w679"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643184541626.jpg" alt="-w966"></p>
+<p>在进行反序列化的时候，这里显示autoType不支持<br>这个地方也正好是fastjson出现反序列化漏洞的地方。<br>代码位置：/repository/com/alibaba/fastjson/1.2.45/fastjson-1.2.45.jar!/com/alibaba/fastjson/parser/ParserConfig.class<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643187948237.jpg" alt="-w734"><br>这里抛出异常主要是自1.2.25及之后的版本，禁用了部分autotype的功能，也就是”@type”这种指定类型的功能会被限制在一定范围内使用。<br>而由于反序列化对象时，需要检查是否开启了autotype。所以如果反序列化检查时，autotype没有开启，就会报错。因此把测试的fastjson版本改成1.2.23<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643191763023.jpg" alt="-w492"></p>
+<p>此时测试就可以通过<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643191936440.jpg" alt="-w738"></p>
+<h4 id="fastjson-1-2-24前测试"><a href="#fastjson-1-2-24前测试" class="headerlink" title="fastjson 1.2.24前测试"></a>fastjson 1.2.24前测试</h4><p>盗图一张<br>fastjson反序列化流程<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643198176333.jpg" alt="-w875"></p>
+<p>在该反序列化漏洞中测试，新特性SerializerFeature.WriteClassName反序列化。<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643268573584.jpg" alt="-w885"></p>
 <h5 id="SerializerFeature-WriteClassName"><a href="#SerializerFeature-WriteClassName" class="headerlink" title="SerializerFeature.WriteClassName"></a>SerializerFeature.WriteClassName</h5><ul>
 <li><p>实例化测试<br>根据<a href="http://rui0.cn/archives/950" target="_blank" rel="noopener">探秘Java反序列化漏洞四：Fastjson反序列化漏洞分析</a>里面的介绍有点改动</p>
 <ul>
@@ -482,7 +482,7 @@ User user3 <span class="token operator">=</span> <span class="token punctuation"
 </li>
 </ul>
 <pre><code>-   坑二：内部类反序列化问题
-</code></pre><p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643291877645.jpg" alt="-w858"><br>此处只能使用parse<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643292138070.jpg" alt="-w699"></p>
+</code></pre><p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643291877645.jpg" alt="-w858"><br>此处只能使用parse<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643292138070.jpg" alt="-w699"></p>
 <p>模拟流程如下：</p>
 <pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>fastmaven<span class="token punctuation">.</span>service<span class="token punctuation">;</span>
 <span class="token keyword">import</span> com<span class="token punctuation">.</span>alibaba<span class="token punctuation">.</span>fastjson<span class="token punctuation">.</span>JSON<span class="token punctuation">;</span>
@@ -520,10 +520,10 @@ User user3 <span class="token operator">=</span> <span class="token punctuation"
 <span class="token punctuation">}</span>
 
 </code></pre>
-<p>代码执行如下：<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643294688396.jpg" alt="-w583"></p>
-<p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643292686330.jpg" alt="-w1420"></p>
-<h5 id="流程跟踪"><a href="#流程跟踪" class="headerlink" title="流程跟踪"></a>流程跟踪</h5><p>这里跟参照的文章有点不一样，但最后还是JSONLexerBase.java 后进行命令执行，然后报错，但此时代码已经执行了。<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643298281257.jpg" alt="-w977"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643298924797.jpg" alt="-w1023"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643299811746.jpg" alt="-w885"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643300069714.jpg" alt="-w1024"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643301009451.jpg" alt="-w977"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643301793013.jpg" alt="-w592"></p>
-<p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/media/15643001390126/15643305824826.jpg" alt="-w1319"></p>
+<p>代码执行如下：<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643294688396.jpg" alt="-w583"></p>
+<p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643292686330.jpg" alt="-w1420"></p>
+<h5 id="流程跟踪"><a href="#流程跟踪" class="headerlink" title="流程跟踪"></a>流程跟踪</h5><p>这里跟参照的文章有点不一样，但最后还是JSONLexerBase.java 后进行命令执行，然后报错，但此时代码已经执行了。<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643298281257.jpg" alt="-w977"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643298924797.jpg" alt="-w1023"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643299811746.jpg" alt="-w885"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643300069714.jpg" alt="-w1024"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643301009451.jpg" alt="-w977"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643301793013.jpg" alt="-w592"></p>
+<p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643305824826.jpg" alt="-w1319"></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://xxlegend.com/2017/05/03/title-%20fastjson%20远程反序列化poc的构造和分析/" target="_blank" rel="noopener">fastjson 远程反序列化poc的构造和分析</a><br><a href="http://rui0.cn/archives/950" target="_blank" rel="noopener">探秘Java反序列化漏洞四：Fastjson反序列化漏洞分析</a></p>
 
             </div>
@@ -779,12 +779,12 @@ fastjson 常用序列化操作public static fina
                         <span class="chip bg-color">漏洞学习</span>
                     </a>
                     
-                    <a href="/tags/web-渗透/" target="_blank">
-                        <span class="chip bg-color">web 渗透</span>
-                    </a>
-                    
                     <a href="/tags/fastjson/" target="_blank">
                         <span class="chip bg-color">fastjson</span>
+                    </a>
+                    
+                    <a href="/tags/web-渗透/" target="_blank">
+                        <span class="chip bg-color">web 渗透</span>
                     </a>
                     
                 </div>
