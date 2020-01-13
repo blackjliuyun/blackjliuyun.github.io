@@ -202,13 +202,9 @@ ls -l /proc/self/fd
 #查看打开的连接8
 echo -e "stats" >&8                             
 #向socket写入数据
-cat <&8                                                  
-#从socket读入数据
-exec 8<&-                                              
-#关闭socket读
-exec 8>&-                                              
+cat <&8 8="" #从socket读入数据="" exec="" 8<&-="" #关闭socket读="">&-                                              
 #关闭socket写
-</code></pre>
+</&8></读></code></pre>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://www.jackson-t.ca/runtime-exec-payloads.html" target="_blank" rel="noopener">编码转换</a><br><a href="https://paper.seebug.org/834/" target="_blank" rel="noopener">红队后渗透测试中的文件传输技巧</a></p>
 <p><a href="https://blog.spoock.com/2018/11/25/getshell-bypass-exec/" target="_blank" rel="noopener">绕过exec获取反弹shell</a><br><a href="https://www.cnblogs.com/leixiao-/p/10216571.html" target="_blank" rel="noopener">bash扩展</a></p>
 ]]></content>
@@ -231,6 +227,108 @@ exec 8>&-
             <tag> java反序列化 </tag>
             
             <tag> java反弹shell </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[java sql注入]]></title>
+      <url>/2019/12/13/Web%E6%B8%97%E9%80%8F/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/java_sql%E6%B3%A8%E5%85%A5/</url>
+      <content type="html"><![CDATA[<h1 id="java-sql注入"><a href="#java-sql注入" class="headerlink" title="java sql注入"></a>java sql注入</h1><p>[TOC]</p>
+<p>#0x01  简介<br>主要内容如下：<br>【1】易导致 SQL 注入的写法<br>【2】如何避免和修复 SQL 注入</p>
+<h1 id="0x02-JDBC"><a href="#0x02-JDBC" class="headerlink" title="0x02 JDBC"></a>0x02 JDBC</h1><ul>
+<li>JDBC:Java Database Connectivity</li>
+<li>是 Java 访问数据库的 API，不依赖于特定数据库 ( database-independent )</li>
+<li>所有 Java 持久层技术都基于 JDBC</li>
+</ul>
+<h2 id="0x021-SQL-注入写法"><a href="#0x021-SQL-注入写法" class="headerlink" title="0x021 SQL 注入写法"></a>0x021 SQL 注入写法</h2><pre class=" language-java"><code class="language-java">ResultSet rs <span class="token operator">=</span> st<span class="token punctuation">.</span><span class="token function">executeQuery</span><span class="token punctuation">(</span><span class="token string">"select * from account where "</span> <span class="token operator">+</span> <span class="token string">" id="</span> <span class="token operator">+</span> testid <span class="token operator">+</span> <span class="token string">" and password="</span> <span class="token operator">+</span> password <span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h2 id="0x022-防注入写法"><a href="#0x022-防注入写法" class="headerlink" title="0x022 防注入写法"></a>0x022 防注入写法</h2><h3 id="参数化查询"><a href="#参数化查询" class="headerlink" title="参数化查询"></a>参数化查询</h3><pre class=" language-PreparedStatement+占位符```"><code class="language-PreparedStatement+占位符```">
+```java
+        int testid = 6;
+        String password ="111' or '1'='1";
+        //ResultSet rs = st.executeQuery("select * from account where " + " id=" + testid + " and password=" + password );
+
+        String sql = "SELECT * FROM account WHERE id= ? and password= ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, testid);
+        ps.setString(2,password);
+        ResultSet resultSet = null;
+        resultSet = ps.executeQuery();
+        while(resultSet .next()){
+            int Id = resultSet .getInt("Id");
+            System.out.println(Id);
+        }
+        System.out.println(resultSet );
+
+        resultSet .close();
+        ps.close();
+        conn.close();
+</code></pre>
+<p>sql注入的原因在于在用户可控的地方未进行检测和过滤，造成了将用户输入部分带进了数据库编译<br><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721916985054.jpg" alt="-w1008"></p>
+<p>java中参数化查询 防sql注入的原因在于在用占位符占据时进行数据库编译/解释执行，完成后再结合参数进行填充，不会再次编译/解释执行。占位符进行填充是会进行转义，所以如果在使用预编译之前未使用占位符 仍会存在sql注入。<br>占位符使用如下：</p>
+<p>在setString函数中</p>
+<p><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721932849972.jpg" alt="-w974"><br><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721933465983.jpg" alt="-w1092"><br>单引号未能逃逸<br><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721934396199.jpg" alt="-w1036"></p>
+<p><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721918957816.jpg" alt="-w1120"></p>
+<p><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721829654934.jpg" alt="使用占位符及其执行效果"></p>
+<p>如果这里未使用占位符，即使使用了PreparedStatement也没有用<br><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721935714878.jpg" alt="-w587"></p>
+<p>除此之外，部分函数不能使用参数化查询，就需要过滤，以白名单为主</p>
+<h3 id="非参数化查询"><a href="#非参数化查询" class="headerlink" title="非参数化查询"></a>非参数化查询</h3><p>【1】参数占位符不能用于指定查询中的表和列的名称<br>【2】参数占位符不能用于查询的其他部分，比如ORDER BY子句中的ASC或者DESC关键词等。</p>
+<h4 id="order-by"><a href="#order-by" class="headerlink" title="order by"></a>order by</h4><p>ORDER BY 关键字后跟列名。当该列名的输入对用户可控时，参数化查询级无效了，因为ORDER BY 注入不需要闭合单引号，参数化查询没起到转义的作用，故在此处无效<br>构造案例 如：</p>
+<pre class=" language-oracle"><code class="language-oracle">orderby=ASC,if(1=1,1,(select 1 from information_schema.tables))&key=value
+orderby=ASC,if(1=2,1,(select 1 from information_schema.tables))&key=value
+</code></pre>
+<p>关于order by注入的案列在下期总结下</p>
+<h4 id="like"><a href="#like" class="headerlink" title="like %"></a>like %</h4><p>jdbc的预编译PreparedStatement是不会转义%的<br>如下：</p>
+<ul>
+<li>写法一</li>
+</ul>
+<pre class=" language-java"><code class="language-java">String sql <span class="token operator">=</span> <span class="token string">"select * from goods where min_name like ?"</span><span class="token punctuation">;</span>  <span class="token comment" spellcheck="true">// 含有参数</span>
+st <span class="token operator">=</span> conn<span class="token punctuation">.</span><span class="token function">prepareStatement</span><span class="token punctuation">(</span>sql<span class="token punctuation">)</span><span class="token punctuation">;</span>
+st<span class="token punctuation">.</span><span class="token function">setString</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"%儿童%"</span> <span class="token operator">+</span> <span class="token string">"%"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// 参数赋值</span>
+System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>st<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+<span class="token comment" spellcheck="true">//com.mysql.jdbc.JDBC4PreparedStatement@8543aa: </span>
+select <span class="token operator">*</span> from goods where min_name like '<span class="token operator">%</span>儿童<span class="token operator">%</span><span class="token operator">%</span>
+</code></pre>
+<ul>
+<li>写法二<br>开发者控制%，单纯提取用户的输入，但同样的有着隐患，如 用户输入关键词加上%： <code>%儿童%</code> 转换为包含查询。</li>
+</ul>
+<pre class=" language-java"><code class="language-java">String sql <span class="token operator">=</span> <span class="token string">"select * from goods where min_name like ?"</span><span class="token punctuation">;</span>  <span class="token comment" spellcheck="true">// 含有参数</span>
+st <span class="token operator">=</span> conn<span class="token punctuation">.</span><span class="token function">prepareStatement</span><span class="token punctuation">(</span>sql<span class="token punctuation">)</span><span class="token punctuation">;</span>
+st<span class="token punctuation">.</span><span class="token function">setString</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"%儿童%"</span> <span class="token operator">+</span> <span class="token string">"%"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// 参数赋值</span>
+System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>st<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+<span class="token comment" spellcheck="true">//com.mysql.jdbc.JDBC4PreparedStatement@8543aa: </span>
+select <span class="token operator">*</span> from goods where min_name like '<span class="token operator">%</span>儿童<span class="token operator">%</span><span class="token operator">%</span>
+</code></pre>
+<h4 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a>案例分析</h4><p>在一次测试中刚好遇到一次sql注入，经测试 判断为oracle数据库，<br>在该数据库测试中 基于bool的盲注，and 等字符不可用，但此处有<code>||</code> 可以使用<br>【1】使用order by 判断列名；<br>【2】构造payload如下1/(decode(INSTR（借鉴）判断当前用户：</p>
+<pre class=" language-oracle"><code class="language-oracle">j_username=11'||1/(decode(INSTR(user,'C',1),1,1,0))||' &j_password=122&submit=ENTER&targetUrlParameter=%2Findex.html
+j_username=11'||1/(decode(INSTR(user,'C',2),1,1,0))||' &j_password=122&submit=ENTER&targetUrlParameter=%2Findex.html
+j_username=11'||1/(decode(INSTR(user,'O',3),1,1,0))||' &j_password=122&submit=ENTER&targetUrlParameter=%2Findex.html
+</code></pre>
+<p><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15722822176976.jpg" alt="-w1294"></p>
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>在这个地方使用@@user 结果出来的是当前数据table名，没有搞懂为啥。<br><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15722823316340.jpg" alt="-w1303"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://b1ngz.github.io/java-sql-injection-note/" target="_blank" rel="noopener">Java SQL 注入学习笔记</a><br><a href="http://wismartzy.github.io/2016/07/15/MySQL-Order-By-Injection/" target="_blank" rel="noopener">MySQL Order By 注入</a><br><a href="https://blog.csdn.net/qq_36521579/article/details/79149466" target="_blank" rel="noopener">sql注入及用PrepareStatement就不用担心sql注入了吗？</a></p>
+]]></content>
+      
+        <categories>
+            
+            <category> web 渗透 </category>
+            
+            <category> java反序列化 </category>
+            
+            <category> java sql注入 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> web 渗透 </tag>
+            
+            <tag> java反序列化 </tag>
+            
+            <tag> java sql注入 </tag>
             
         </tags>
         
@@ -596,9 +694,9 @@ User user3 <span class="token operator">=</span> <span class="token punctuation"
             
             <tag> 漏洞学习 </tag>
             
-            <tag> web 渗透 </tag>
-            
             <tag> fastjson </tag>
+            
+            <tag> web 渗透 </tag>
             
         </tags>
         
@@ -1419,9 +1517,9 @@ Content-Type代表发送端（客户端|服务器）发送的实体数据的数�
             
             <tag> Web渗透 </tag>
             
-            <tag> 漏洞学习 </tag>
-            
             <tag> XXE </tag>
+            
+            <tag> 漏洞学习 </tag>
             
         </tags>
         

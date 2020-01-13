@@ -547,13 +547,9 @@ ls -l /proc/self/fd
 #查看打开的连接8
 echo -e "stats" >&8                             
 #向socket写入数据
-cat <&8                                                  
-#从socket读入数据
-exec 8<&-                                              
-#关闭socket读
-exec 8>&-                                              
+cat <&8 8="" #从socket读入数据="" exec="" 8<&-="" #关闭socket读="">&-                                              
 #关闭socket写
-</code></pre>
+</&8></读></code></pre>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://www.jackson-t.ca/runtime-exec-payloads.html" target="_blank" rel="noopener">编码转换</a><br><a href="https://paper.seebug.org/834/" target="_blank" rel="noopener">红队后渗透测试中的文件传输技巧</a></p>
 <p><a href="https://blog.spoock.com/2018/11/25/getshell-bypass-exec/" target="_blank" rel="noopener">绕过exec获取反弹shell</a><br><a href="https://www.cnblogs.com/leixiao-/p/10216571.html" target="_blank" rel="noopener">bash扩展</a></p>
 
@@ -827,26 +823,28 @@ CVE-2017-7525漏洞简介Jackson enableDefaultTyping 方法反序列化代码执
                 Next&nbsp;<i class="fa fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/">
+                <a href="/2019/12/13/Web渗透/java反序列化/java_sql注入/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="Apache Solr CVE-2019-0193 复现与学习">
+                        <img src="/medias/featureimages/13.jpg" class="responsive-img" alt="java sql注入">
                         
-                        <span class="card-title">Apache Solr CVE-2019-0193 复现与学习</span>
+                        <span class="card-title">java sql注入</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            Apache Solr CVE-2019-0193 复现与学习[TOC]
-简介（抄袭，具体功能没搞懂）Apache Solr是一个企业级搜索平台，用Java编写且开源，基于Apache Lucene项目。
-主要功能包括：full-text 
+                            java sql注入[TOC]
+#0x01  简介主要内容如下：【1】易导致 SQL 注入的写法【2】如何避免和修复 SQL 注入
+0x02 JDBC
+JDBC:Java Database Connectivity
+是 Java 访问数据库
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-09-08
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-12-13
                             </span>
                         <span class="publish-author">
                             
@@ -856,12 +854,12 @@ CVE-2017-7525漏洞简介Jackson enableDefaultTyping 方法反序列化代码执
                                     web 渗透
                                 </a>
                             
-                            <a href="/categories/web-渗透/漏洞学习/" class="post-category" target="_blank">
-                                    漏洞学习
+                            <a href="/categories/web-渗透/java反序列化/" class="post-category" target="_blank">
+                                    java反序列化
                                 </a>
                             
-                            <a href="/categories/web-渗透/漏洞学习/Apache-Solr-CVE-2019-0193/" class="post-category" target="_blank">
-                                    Apache Solr CVE-2019-0193
+                            <a href="/categories/web-渗透/java反序列化/java-sql注入/" class="post-category" target="_blank">
+                                    java sql注入
                                 </a>
                             
                             
@@ -871,16 +869,16 @@ CVE-2017-7525漏洞简介Jackson enableDefaultTyping 方法反序列化代码执
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/漏洞学习/" target="_blank">
-                        <span class="chip bg-color">漏洞学习</span>
-                    </a>
-                    
                     <a href="/tags/web-渗透/" target="_blank">
                         <span class="chip bg-color">web 渗透</span>
                     </a>
                     
-                    <a href="/tags/Apache-Solr-CVE-2019-0193/" target="_blank">
-                        <span class="chip bg-color">Apache Solr CVE-2019-0193</span>
+                    <a href="/tags/java反序列化/" target="_blank">
+                        <span class="chip bg-color">java反序列化</span>
+                    </a>
+                    
+                    <a href="/tags/java-sql注入/" target="_blank">
+                        <span class="chip bg-color">java sql注入</span>
                     </a>
                     
                 </div>
