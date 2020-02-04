@@ -202,9 +202,13 @@ ls -l /proc/self/fd
 #查看打开的连接8
 echo -e "stats" >&8                             
 #向socket写入数据
-cat <&8 8="" #从socket读入数据="" exec="" 8<&-="" #关闭socket读="">&-                                              
+cat <&8                                                  
+#从socket读入数据
+exec 8<&-                                              
+#关闭socket读
+exec 8>&-                                              
 #关闭socket写
-</&8></读></code></pre>
+</code></pre>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://www.jackson-t.ca/runtime-exec-payloads.html" target="_blank" rel="noopener">编码转换</a><br><a href="https://paper.seebug.org/834/" target="_blank" rel="noopener">红队后渗透测试中的文件传输技巧</a></p>
 <p><a href="https://blog.spoock.com/2018/11/25/getshell-bypass-exec/" target="_blank" rel="noopener">绕过exec获取反弹shell</a><br><a href="https://www.cnblogs.com/leixiao-/p/10216571.html" target="_blank" rel="noopener">bash扩展</a></p>
 ]]></content>
@@ -575,9 +579,9 @@ Connection: close
         
         <tags>
             
-            <tag> 漏洞学习 </tag>
-            
             <tag> web 渗透 </tag>
+            
+            <tag> 漏洞学习 </tag>
             
             <tag> Apache Solr CVE-2019-0193 </tag>
             
@@ -692,11 +696,11 @@ User user3 <span class="token operator">=</span> <span class="token punctuation"
         
         <tags>
             
+            <tag> web 渗透 </tag>
+            
             <tag> 漏洞学习 </tag>
             
             <tag> fastjson </tag>
-            
-            <tag> web 渗透 </tag>
             
         </tags>
         
