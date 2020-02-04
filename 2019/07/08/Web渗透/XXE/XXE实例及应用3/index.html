@@ -1,396 +1,102 @@
-<!DOCTYPE html>
-<html lang="zh-cmn-Hans">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="纯净水@流云-自留地">
-    <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
-    <title>XXE实例及应用3-Adagio</title>
-    
+extends includes/layout.pug
+
+block top_img
+  - var top_img =  page.top_img || page.cover || theme.post_meta.top_img || theme.default_top_img
+  - var bg_img = top_img !== true ? `background-image: url(${top_img})` : ''
+  div#top-container(style=bg_img)
+    #post-info
+      #post-title
+          .posttitle= page.title || _p('no_title')
+      #post-meta
+        if (theme.post_meta.date_type)
+          if (theme.post_meta.date_type === 'both')
+            time.post-meta__date
+              i.fa.fa-calendar.fa-fw(aria-hidden="true")
+              =' '+_p('post.created')+' '+date(page.date, config.date_format)
+              span.post-meta__separator |
+              i.fa.fa-history.fa-fw(aria-hidden="true")
+              =' '+_p('post.updated')+' '+date(page.updated, config.date_format)
+          else
+            - var date_type = theme.post_meta.date_type === 'updated' ? 'updated' : 'date'
+            time.post-meta__date #[i.fa.fa-calendar.fa-fw(aria-hidden="true")] #[=date(page[date_type], config.date_format)]
+                  
+        if (theme.post_meta.categories && page.categories.data.length > 0)
+          if (theme.post_meta.date_type)
+            span.post-meta__separator |
+          span
+            each item, index in page.categories.data
+              i.fa.fa-inbox.post-meta__icon.fa-fw(aria-hidden="true")
+              a(href=url_for(item.path)).post-meta__categories #[=item.name]
+              if (index < page.categories.data.length - 1)
+                i.fa.fa-angle-right.fa-fw(aria-hidden="true")
+        .post-meta-wordcount
+          if (theme.wordcount && theme.wordcount.enable)
+            i.fa.fa-file-word-o.post-meta__icon.fa-fw(aria-hidden="true")
+            span= _p('post.wordcount') + ':'
+            span.word-count= wordcount(page.content)
+            span.post-meta__separator |
+            i.fa.fa-clock-o.post-meta__icon.fa-fw(aria-hidden="true")
+            span= _p('post.min2read', min2read(page.content, {cn: 350, en: 160}))
+          .post-meta-pv-cv
+            if (theme.wordcount && theme.wordcount.enable && theme.busuanzi.page_pv)
+              span.post-meta__separator |
+            if theme.busuanzi.page_pv       
+              span
+                i.fa.fa-eye.post-meta__icon.fa-fw(aria-hidden="true") 
+                =_p('post.page_pv') + ':'
+              span#busuanzi_value_page_pv
+            if (theme.disqus && theme.disqus.enable && theme.disqus.count && page.comments !== false)
+              if (theme.busuanzi && theme.busuanzi.page_pv)
+                span.post-meta__separator |
+              i.fa.fa-comment-o.post-meta__icon.fa-fw(aria-hidden="true")
+              span= _p('post.comments') + ':'
+              a(href=url_for(page.path) + '#post-comment')
+                span.disqus-comment-count(data-disqus-url=page.permalink)
+            if (theme.valine && theme.valine.enable && theme.valine.count && page.comments !== false)
+              if (theme.busuanzi && theme.busuanzi.page_pv)
+                span.post-meta__separator |
+              i.fa.fa-comments-o.post-meta__icon.fa-fw(aria-hidden="true")
+              span= _p('post.comments') + ':'
+              a(href=url_for(page.path) + '#post-comment' itemprop="discussionUrl")
+                span.valine-comment-count.comment-count(data-xid=url_for(page.path) itemprop="commentCount")
+            if (theme.gitalk && theme.gitalk.enable && theme.gitalk.count && page.comments !== false)
+              if (theme.busuanzi && theme.busuanzi.page_pv)
+                span.post-meta__separator |
+              i.fa.fa-comments-o.post-meta__icon.fa-fw(aria-hidden="true")
+              span= _p('post.comments') + ':'
+              a(href=url_for(page.path) + '#post-comment')
+                span.gitalk-comment-count.comment-count
+
+
+block content
+  article#post(class="")
+    #post-content.article-container!= page.content
+  if (theme.post_copyright && theme.post_copyright.enable && page.copyright != false)
+    .post-copyright
+      .post-copyright__author
+        span.post-copyright-meta= _p('post.copyright.author') + ": "
+        span.post-copyright-info
+          a(href=`mailto:${config.email}`) #[=config.author]
+      .post-copyright__type
+        span.post-copyright-meta= _p('post.copyright.link') + ": "
+        span.post-copyright-info
+          a(href=url_for(page.permalink)) #[=page.permalink]
+      .post-copyright__notice
+        span.post-copyright-meta= _p('post.copyright.copyright_notice') + ": "
+        span.post-copyright-info!= _p('post.copyright.copyright_content', theme.post_copyright.license_url, theme.post_copyright.license, config.url, config.title)
+  
+  .tag_share
+    if (theme.post_meta.tags)
+      .post-meta__tag-list
+        each item, index in page.tags.data
+          a(href=url_for(item.path)).post-meta__tags #[=item.name]    
+    include includes/share/index.pug
         
-            <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-            <link href="https://cdn.bootcss.com/academicons/1.8.6/css/academicons.min.css" rel="stylesheet">
-            <link href="https://cdn.bootcss.com/font-awesome/5.9.0/css/all.min.css" rel="stylesheet">
-            <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
-        
-    
-    <link rel="stylesheet" href="/css/adagio.css">
-<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
-<body>
-    <div class="container-fluid">
-    <nav class="nav">
-        <div class="collapse navbar-collapse" id="navbar-sm">
-            
-            
-            <div class="navbar-nav">
-                <a href="https://hexo.io" class="nav-item nav-link">Hexo</a>
-            </div>
-            
-            <div class="navbar-nav">
-                <a href="http://www.hanlindong.com" class="nav-item nav-link">Adagio's author</a>
-            </div>
-            
-        </div>
-    </nav>
-</div>
-
-<div class="d-flex d-md-none" style="width: 100%; background-color: #e9ecef">
-    
-    <div class="nav">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-sm"
-            aria-expanded="false" aria-label="Toggle Navigation">
-            <i class="fas fa-bars fa-lg"></i>
-        </button>
-    </div>
-    
-    <nav class="navbar ml-auto">
-        <a class="navbar-brand" href="/">
-            
-            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
-            
-        </a>
-    </nav>
-</div>
-
-
-<div class="container d-none d-md-block my-navbar">
-    <nav class="navbar navbar-expand-sm navbar-light bg-transparent">
-        <a class="navbar-brand " href="/">
-            
-            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
-            
-        </a>
-        
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                
-                <li class="nav-item pl-2 pr-2 ">
-                    <a class="nav-link" href="https://hexo.io">Hexo</a>
-                </li>
-                
-                <li class="nav-item pl-2 pr-2 ">
-                    <a class="nav-link" href="http://www.hanlindong.com">Adagio's author</a>
-                </li>
-                
-            </ul>
-        </div>
-        
-    </nav>
-</div>
-
-
-
-
-    <div class="jumbotron jumbotron-fluid">
-    <div class="container">
-        
-        <h1 class="mt-4 article-title page-title">XXE实例及应用3</h1>
-        
-        <p class="lead text-gray mt-3">By Anonymous; Published on 2019-07-08</p>
-        
-        <div class="tags">
-            <ul class="tag-list">
-                
-                <li class="tag-list-item">
-                    <a class="tag-list-link" href="/tags/Web渗透/">Web渗透</a>
-                </li>
-                
-                <li class="tag-list-item">
-                    <a class="tag-list-link" href="/tags/漏洞学习/">漏洞学习</a>
-                </li>
-                
-                <li class="tag-list-item">
-                    <a class="tag-list-link" href="/tags/XXE/">XXE</a>
-                </li>
-                
-            </ul>
-        </div>
-        
-    </div>
-</div>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-9 pt-2">
-                <div class="row">
-                    <div class="col-12">
-                        <main>
-                            <article class="article-text page-content"><p>Java - XXE</p>
-<h1 id="Java-XXE"><a href="#Java-XXE" class="headerlink" title="Java - XXE"></a>Java - XXE</h1><p>XXE在Java 代码中的漏洞示例</p>
-<h2 id="JAVA常见XXE漏洞写法案例"><a href="#JAVA常见XXE漏洞写法案例" class="headerlink" title="JAVA常见XXE漏洞写法案例"></a>JAVA常见XXE漏洞写法案例</h2><h3 id="spring-data-XMLBean-XXE复现分析"><a href="#spring-data-XMLBean-XXE复现分析" class="headerlink" title="spring-data-XMLBean XXE复现分析"></a>spring-data-XMLBean XXE复现分析</h3><h4 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h4><p>【1】下载环境</p>
-<pre><code>git clone https://github.com/spring-projects/spring-data-examples.git
-</code></pre><p>【2】下载安装maven并配置好环境变量<br>因为这里的新版本已经对次做了修复，所以这里的版本改为 2.0.5</p>
-<pre><code>        &lt;dependency&gt;
-            &lt;groupId&gt;org.springframework.data&lt;/groupId&gt;
-            &lt;artifactId&gt;spring-data-commons&lt;/artifactId&gt;
-            &lt;version&gt;2.0.5.RELEASE&lt;/version&gt;
-        &lt;/dependency&gt;
-</code></pre><p>【3】配置好环境变量后，进入对应的web/projection 打包运行</p>
-<pre><code>mvn package
-</code></pre><p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613639506348.jpg" alt="-w1133"></p>
-<h4 id="部署运行"><a href="#部署运行" class="headerlink" title="部署运行"></a>部署运行</h4><p>进入对应目录搭建运行</p>
-<pre><code>java -jar spring-data-web-projection-2.0.0.BUILD-SNAPSHOT.jar
-</code></pre><p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613640157733.jpg" alt="-w754"></p>
-<h4 id="poc复现"><a href="#poc复现" class="headerlink" title="poc复现"></a>poc复现</h4><p>构造post请求<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613640647871.jpg" alt="-w1318"><br>比较奇怪的一点是，正常的xxe请求 任意文件读取 都应该是 file:///<br>这里直接执行也行<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613641950150.jpg" alt="-w1094"></p>
-<pre><code>
-注意  这里的content-type 类型，得支持，改为 application/xml
-</code></pre><p>xxe支持的content-type fuzz一下<br>在位置中application/xhtml+xml 与 application/xml 的效果是一样的<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613841433359.jpg" alt="-w1016"></p>
-<pre><code>注
-Accept代表发送端（客户端）希望接受的数据类型。 
-比如：Accept：text/xml; 
-代表客户端希望接受的数据类型是xml类型
-
-Content-Type代表发送端（客户端|服务器）发送的实体数据的数据类型。 
-比如：Content-Type：text/html; 
-代表发送端发送的数据格式是html。
-</code></pre><h4 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h4><p>从该位置可以知道漏洞位置是在 firstname和lastname的接收处理，所以跟踪下idea下的该函数。<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613896457891.jpg" alt="-w1283"><br>该maven项目demo中就application和userController 两个函数，从主函数跟踪。<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613906870820.jpg" alt="-w911"><br>可以看到post请求中的user.getFirstname(),user.getLastname() 方法<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613907763911.jpg" alt="-w404"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613909426094.jpg" alt="-w805"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15613909700427.jpg" alt="-w881"></p>
-<p>跟踪下 会发现，在调用responseEntity的时候就已经读取文件了<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614750470756.jpg" alt="-w932"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614751204095.jpg" alt="-w943"></p>
-<p>参考网上的分析，漏洞的处理函数位是在org.xmlbeam.ProjectionInvocationHandler:invokeReadProjection()处理<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15614773758537.jpg" alt="-w913"></p>
-<p>顺带在这里看下相对路径处理成功的原因</p>
-<h2 id="待补充细分"><a href="#待补充细分" class="headerlink" title="待补充细分"></a>待补充细分</h2><p>  在提交http/post请求后，跟踪下</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">protected</span> <span class="token operator">&lt;</span>T<span class="token operator">></span> Object readWithMessageConverters
-</code></pre>
-<p>在对该post参数进行处理时，这里还没进行文件读取转换<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618975324384.jpg" alt="-w900"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618981734937.jpg" alt="-w1184"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618983029402.jpg" alt="-w1144"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618991907073.jpg" alt="-w1425"><br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15618992335070.jpg" alt="-w704"></p>
-<p>漏洞原因是在于XMLBeam漏洞版本中没有限制外部实体<br><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619003084333.jpg" alt="-w701"></p>
-<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619002278361.jpg" alt="-w771"></p>
-<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001968741.jpg" alt="-w810"></p>
-<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001679940.jpg" alt="-w805"></p>
-<p><img src="/2019/07/08/Web渗透/XXE/XXE实例及应用3/15619001256468.jpg" alt="-w915"></p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://blog.spoock.com/2018/10/23/java-xxe/" target="_blank" rel="noopener">JAVA常见的XXE漏洞写法和防御</a><br><a href="https://blog.spoock.com/2018/05/16/cve-2018-1259/" target="_blank" rel="noopener">spring-data-XMLBean XXE复现分析</a><br><a href="https://xz.aliyun.com/t/2341" target="_blank" rel="noopener">XXE with Spring Data’s XMLBeam 分析</a><br><a href="https://www.cnblogs.com/Qian123/p/5256084.html" target="_blank" rel="noopener">框架基础——全面解析Java注解</a></p>
-</article>
-                        </main>
-                        
-                        
-                    </div>
-                </div>
-                <div class="row mt-5 mb-5">
-                    <div class="col-12">
-                        <div class="row">
-    <div class="col">
-        <nav aria-label="paginator" class="paginator">
-            <ul class="pagination d-none d-md-flex pagination-lg justify-content-center">
-                <li class="page-item ">
-                    <a class="page-link"
-                        href="/2019/07/11/内网渗透/计划任务/"
-                        aria-label="Previous">
-                        <span aria-hidden="true">&laquo;
-                            计划任务</span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                </li>
-                <li class="page-item ">
-                    <a class="page-link"
-                        href="/2019/06/10/工具使用/wireshark使用记录/"
-                        aria-label="Next">
-                        <span
-                            aria-hidden="true">
-                            &raquo;</span>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </li>
-            </ul>
-            <ul class="pagination d-md-none justify-content-center">
-                <li class="page-item ">
-                    <a class="page-link"
-                        href="/2019/07/11/内网渗透/计划任务/"
-                        aria-label="Previous">
-                        <span aria-hidden="true">&laquo;
-                            计划任务</span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                </li>
-                <li class="page-item ">
-                    <a class="page-link"
-                        href="/2019/06/10/工具使用/wireshark使用记录/"
-                        aria-label="Next">
-                        <span
-                            aria-hidden="true">
-                            &raquo;</span>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-</div>
-
-
-
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <div id="vcomment"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="container pt-4 page-sidebar">
-                    
-                    <div class="row">
-    <div class="col">
-        <h6>APPLAUSE FOR ME</h6>
-        <div id="applause-easy"></div>
-    </div>
-</div>
-                    
-                    <hr class="row">
-                    <div class="row toc-container">
-                        <div class="col-12">
-                            <h6>NAVIGATION</h6>
-                            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Java-XXE"><span class="toc-text">Java - XXE</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#JAVA常见XXE漏洞写法案例"><span class="toc-text">JAVA常见XXE漏洞写法案例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#spring-data-XMLBean-XXE复现分析"><span class="toc-text">spring-data-XMLBean XXE复现分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#搭建环境"><span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#部署运行"><span class="toc-text">部署运行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#poc复现"><span class="toc-text">poc复现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#漏洞分析"><span class="toc-text">漏洞分析</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#待补充细分"><span class="toc-text">待补充细分</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <footer>
-    <div class="jumbotron jumbotron-fluid mb-0">
-        <div class="container-fluid">
-            <div class="col text-center">
-                <div class="bottom-social">
-                    <div class="row">
-    <div class="col text-center">
-        <ul class="list-inline">
-            
-            <li class="list-inline-item">
-                
-                <a href="https://github.com/xxxxx">
-                    <span class="fa-stack fa-2x icon-link">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
-                    </span>
-                </a>
-                
-            </li>
-            
-            <li class="list-inline-item">
-                
-                <a href="https://www.facebook.com/xxxxx">
-                    <span class="fa-stack fa-2x icon-link">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
-                    </span>
-                </a>
-                
-            </li>
-            
-            <li class="list-inline-item">
-                
-                <a href="https://www.pinterest.com/xxxxx">
-                    <span class="fa-stack fa-2x icon-link">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-pinterest-p fa-stack-1x fa-inverse"></i>
-                    </span>
-                </a>
-                
-            </li>
-            
-            <li class="list-inline-item">
-                
-                <a href="https://www.linkedin.com/in/xxxxx">
-                    <span class="fa-stack fa-2x icon-link">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-linkedin-in fa-stack-1x fa-inverse"></i>
-                    </span>
-                </a>
-                
-            </li>
-            
-        </ul>
-    </div>
-</div>
-
-                </div>
-                <p class="copyright text-muted">
-                    Copyright &copy; 吾善养浩然气
-                    <br>
-                    Thanks for coming!
-                    <br>
-                    <a href="https://github.com/Hanlin-Dong/hexo-theme-adagio">Adagio</a> - A <a href="https://hexo.io">Hexo</a> theme made with love by
-                    <a href="http://www.hanlindong.com">Hanlin Dong</a>.
-                </p>
-            </div>
-        </div>
-    </div>
-</footer>
-
-    
-    
-        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.slim.min.js"></script>
-        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdn.bootcss.com/font-awesome/5.9.0/js/all.min.js"></script>
-         
-            <script type="text/x-mathjax-config">
-                MathJax.Hub.Config({
-                    CommonHTML: { linebreaks: { automatic: true } },
-                    "HTML-CSS": { linebreaks: { automatic: true } },
-                    SVG: { linebreaks: { automatic: true } }
-                });
-            </script>
-            <script src='https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-        
-    
-
-
-<script src="/js/av.min.js"></script>
-<script src="/js/valine.min.js"></script>
-<script src="/js/applause-easy.js"></script>
-
-<script>
-$(document).ready(function() {
-    var a = new ApplauseEasy({
-        id: 'applause-easy',
-        appId: "xxxxxxxxxx",
-        appKey: "xxxxxxxxxx",
-        img_src: "http://img.hanlindong.com/blog/site/clap.png",
-        img_width: "50px",
-        img_height: "50px"
-    })
-})
-</script>
-
-
-<script>
-    var _hmt = _hmt || [];
-    (function () {
-        var hm = document.createElement("script");
-        hm.src = "https://hm.baidu.com/hm.js?123456789";
-        var s = document.getElementsByTagName("script")[0];
-        s.parentNode.insertBefore(hm, s);
-    })();
-</script>
-
-
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11111111-1"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() {
-        dataLayer.push(arguments);
-    }
-    gtag('js', new Date());
-    gtag('config', 'UA-11111111-1');
-</script>
-
-
-    
-    <script>
-    new Valine({
-        el: "#vcomment",
-        appId: "xxxxxxxxxx",
-        appKey: "xxxxxxxxxx",
-        notify: false,
-        varify: false,
-        avatar: 'identicon',
-        placeholder: "",
-        recordIP: true
-    })
-</script>
-    
-</body>
-</html>
+  if theme.reward.enable
+    include includes/reward.pug
+  include includes/pagination.pug
+  
+  if theme.related_post && theme.related_post.enable
+    != related_posts(page,site.posts)
+  if page.comments !== false
+    include includes/comments/index.pug
