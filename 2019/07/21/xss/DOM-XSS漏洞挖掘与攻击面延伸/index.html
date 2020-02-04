@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="纯净水@流云-自留地">
+    <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
+    <title>DOM XSS从javascript中输出数据到HTML页面-Adagio</title>
+    
+        
+            <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/academicons/1.8.6/css/academicons.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/font-awesome/5.9.0/css/all.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+        
+    
+    <link rel="stylesheet" href="/css/adagio.css">
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<body>
+    <div class="container-fluid">
+    <nav class="nav">
+        <div class="collapse navbar-collapse" id="navbar-sm">
+            
+            
+            <div class="navbar-nav">
+                <a href="https://hexo.io" class="nav-item nav-link">Hexo</a>
+            </div>
+            
+            <div class="navbar-nav">
+                <a href="http://www.hanlindong.com" class="nav-item nav-link">Adagio's author</a>
+            </div>
+            
+        </div>
+    </nav>
+</div>
+
+<div class="d-flex d-md-none" style="width: 100%; background-color: #e9ecef">
+    
+    <div class="nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-sm"
+            aria-expanded="false" aria-label="Toggle Navigation">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+    </div>
+    
+    <nav class="navbar ml-auto">
+        <a class="navbar-brand" href="/">
+            
+            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
+            
+        </a>
+    </nav>
+</div>
+
+
+<div class="container d-none d-md-block my-navbar">
+    <nav class="navbar navbar-expand-sm navbar-light bg-transparent">
+        <a class="navbar-brand " href="/">
+            
+            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
+            
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="https://hexo.io">Hexo</a>
+                </li>
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="http://www.hanlindong.com">Adagio's author</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </nav>
+</div>
+
+
+
+
+    <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        
+        <h1 class="mt-4 article-title page-title">DOM XSS从javascript中输出数据到HTML页面</h1>
+        
+        <p class="lead text-gray mt-3">By Anonymous; Published on 2019-07-21</p>
+        
+        <div class="tags">
+            <ul class="tag-list">
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/Web安全/">Web安全</a>
+                </li>
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/XSS/">XSS</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 pt-2">
+                <div class="row">
+                    <div class="col-12">
+                        <main>
+                            <article class="article-text page-content"><p>DOM XSS从javascript中输出数据到HTML页面</p>
+<p>存储或反射型XSS是从服务端输出到HTML页面</p>
+<h4 id="常见位置"><a href="#常见位置" class="headerlink" title="常见位置"></a>常见位置</h4><h5 id="URL代入页面"><a href="#URL代入页面" class="headerlink" title="URL代入页面"></a>URL代入页面</h5><p>定义：通过js直接获取url中的参数，然后输出到HTML页面</p>
+<p>通过window.location.search获取页面url传递的参数</p>
+<pre><code>function GetQueryString(name) {
+    var reg = new RegExp(&quot;(^|&amp;)&quot; + name + &quot;=([^&amp;]*)(&amp;|$)&quot;);
+    var r = decodeURI(window.location.search.substr(1)).match(reg);
+    if (r != null)return unescape(r[2]);
+    return null;
+}
+
+var sname = GetQueryString(&quot;name&quot;);
+if(sname!=null){
+    var sname_ = decodeURIComponent(sname); 
+    alert(sname_);
+}    #获取具体参数  
+
+document.getElementById(&#39;foo&#39;).innerHTML = getUrlParam(&#39;foo&#39;) #dom型XSS问题
+</code></pre><p>此时取值时，匹配的URL是location.href，这个值包含了 location.search 和 location.hash 的值，而 location.hash 的值是不被传到服务器，但并且能被前端JS通过 getUrlParam 函数成功取值</p>
+<p><strong>location.search:</strong>获取问号后面的参数<br>如：</p>
+<pre><code>http://www.runoob.com/submit.htm?email=someone@ example.com
+</code></pre><p>通过document.write(location.search);获取到的是</p>
+<pre><code>?email=someone@example.com
+</code></pre><p>location.hash:获取url的锚部分，从“#”开始到最后，都是锚部分，不被传到服务器，但并且能被前端JS通过 getUrlParam 函数成功取值。</p>
+<h5 id="跳转类"><a href="#跳转类" class="headerlink" title="跳转类"></a>跳转类</h5><p>在 javascript 语法中，使用如下代码可以将页面进行跳转操作</p>
+<pre><code>location.href = urlparams.redirecturl;
+&lt;!DOCTYPE HTML&gt;
+&lt;html&gt;
+    &lt;head&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;script&gt;
+            function jump(){
+                window.location.href=&quot;javascript:alert(1)&quot;;
+            }
+        &lt;/script&gt;
+        &lt;button type=&quot;button&quot; onclick=&quot;jump()&quot;&gt;test&lt;/button&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+
+附：
+//顶层窗口跳转
+//top.location.href=&#39;http://www.baidu.com&#39;;
+
+//父层窗口跳转
+//parent.location.href=&#39;http://www.baidu.com&#39;;
+
+
+//以下均为本页面跳转
+
+//window.location.href=&quot;http://www.baidu.com&quot;;
+//location.href=&quot;http://www.baidu.com&quot;;
+//self.location.href=&quot;http://www.baidu.com&quot;;
+//this.location.href=&quot;http://www.baidu.com&quot;;
+//location.href=&quot;http://www.baidu.com&quot;;
+document.location.href
+</code></pre><p>这样的跳转通常会出现在登录页、退出页、中间页。<br>如果开发者让用户可以控制 redirecturl 参数，就可以使用 javascript:alert(1) 的形式进行XSS攻击。<br>最近几年的APP开发比较热门，通过web唤起APP的操作也是越来越多，跳转的协议也是多种多样，例如 webview:// , myappbridge:// 等等。 仅仅使用 http 和 https 来判断URL是否合法已经不适用了，于是由跳转所产生的DOM-XSS漏洞也逐渐增多。</p>
+<p>测试关注点 输入点</p>
+<pre><code>document.location
+document.URL
+document.URLUnencoded
+document.referrer
+window.location（href hash）
+所有的inputs
+window.name
+document.cookie
+XMLhttpRequest返回的数据
+localstorage
+
+·····
+</code></pre><p>以下几个地方是js输出到HTML的必经之路 输出点</p>
+<pre><code>document.write()
+document.writeln()
+xxx.innerHTML=
+xxx.outerHTML=
+innerHTML.replace=
+document.attachEvent()
+window.attachEvent()
+document.location.replace()
+document.location.assign()
+</code></pre><h5 id="缓存类"><a href="#缓存类" class="headerlink" title="缓存类"></a>缓存类</h5><p>开发者在缓存前端数据的时候，通常会存在 sessionStorage , localStorage , cookie 中，因为 sessionStorage 在页面刷新时就失效的特性，利用方式相对简单的只有后面两种。</p>
+<h5 id="参考学习"><a href="#参考学习" class="headerlink" title="参考学习"></a>参考学习</h5><pre><code>
+https://code.google.com/archive/p/domxsswiki/   domxss 备忘单
+https://cstcamaro.github.io/post/2018-ISC-%E6%BC%94%E8%AE%B2%E7%A8%BF?tdsourcetag=s_pctim_aiomsg
+
+http://blog.nsfocus.net/xss-advance/#23_DOM
+</code></pre></article>
+                        </main>
+                        
+                        
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-12">
+                        <div class="row">
+    <div class="col">
+        <nav aria-label="paginator" class="paginator">
+            <ul class="pagination d-none d-md-flex pagination-lg justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/07/21/安全策略/json/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            json与jsonp的学习与分析</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/07/18/Web渗透/漏洞学习/fastjson/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">fastjson 1.2.47 rce
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="pagination d-md-none justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/07/21/安全策略/json/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            json与jsonp的学习与分析</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/07/18/Web渗透/漏洞学习/fastjson/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">fastjson 1.2.47 rce
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="vcomment"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="container pt-4 page-sidebar">
+                    
+                    <div class="row">
+    <div class="col">
+        <h6>APPLAUSE FOR ME</h6>
+        <div id="applause-easy"></div>
+    </div>
+</div>
+                    
+                    <hr class="row">
+                    <div class="row toc-container">
+                        <div class="col-12">
+                            <h6>NAVIGATION</h6>
+                            <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#常见位置"><span class="toc-text">常见位置</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#URL代入页面"><span class="toc-text">URL代入页面</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#跳转类"><span class="toc-text">跳转类</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#缓存类"><span class="toc-text">缓存类</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#参考学习"><span class="toc-text">参考学习</span></a></li></ol></li></ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+    <div class="jumbotron jumbotron-fluid mb-0">
+        <div class="container-fluid">
+            <div class="col text-center">
+                <div class="bottom-social">
+                    <div class="row">
+    <div class="col text-center">
+        <ul class="list-inline">
+            
+            <li class="list-inline-item">
+                
+                <a href="https://github.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.facebook.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.pinterest.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-pinterest-p fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.linkedin.com/in/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-linkedin-in fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+                </div>
+                <p class="copyright text-muted">
+                    Copyright &copy; 吾善养浩然气
+                    <br>
+                    Thanks for coming!
+                    <br>
+                    <a href="https://github.com/Hanlin-Dong/hexo-theme-adagio">Adagio</a> - A <a href="https://hexo.io">Hexo</a> theme made with love by
+                    <a href="http://www.hanlindong.com">Hanlin Dong</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    
+    
+        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.slim.min.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.bootcss.com/font-awesome/5.9.0/js/all.min.js"></script>
+         
+            <script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                    CommonHTML: { linebreaks: { automatic: true } },
+                    "HTML-CSS": { linebreaks: { automatic: true } },
+                    SVG: { linebreaks: { automatic: true } }
+                });
+            </script>
+            <script src='https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+        
+    
+
+
+<script src="/js/av.min.js"></script>
+<script src="/js/valine.min.js"></script>
+<script src="/js/applause-easy.js"></script>
+
+<script>
+$(document).ready(function() {
+    var a = new ApplauseEasy({
+        id: 'applause-easy',
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        img_src: "http://img.hanlindong.com/blog/site/clap.png",
+        img_width: "50px",
+        img_height: "50px"
+    })
+})
+</script>
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?123456789";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11111111-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-11111111-1');
+</script>
+
+
+    
+    <script>
+    new Valine({
+        el: "#vcomment",
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        notify: false,
+        varify: false,
+        avatar: 'identicon',
+        placeholder: "",
+        recordIP: true
+    })
+</script>
+    
+</body>
+</html>

