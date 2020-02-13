@@ -479,7 +479,7 @@ height:50vh;
     <span class="token punctuation">}</span>
 </code></pre>
 <p>在此处分别执行：<br>【获取对象】-【实例化对象】- 【调用对象执行命令】</p>
-<p>先用ConstantTransformer()获取了Runtime类<br>接着反射调用getRuntime函数<br>再调用getRuntime的exec()函数，执行命令<br>依次调用关系为： Runtime –&gt; getRuntime –&gt; exec()<br>其中ChainedTransformer为链式的Transformer，会挨个执行定义的Transformer<br><img src="/posts/Java从反射到反序列化/15776892920470.jpg" alt="-w939"></p>
+<p>先用ConstantTransformer()获取了Runtime类<br>接着反射调用getRuntime函数<br>再调用getRuntime的exec()函数，执行命令<br>依次调用关系为： Runtime –&gt; getRuntime –&gt; exec()<br>其中ChainedTransformer为链式的Transformer，会挨个执行定义的Transformer<br><img src="/posts/2773946101/15776892920470.jpg" alt="-w939"></p>
 <ul>
 <li><p>ConstantTransformer<br>在 i=0时 <code>iTransformers[0]</code>为 <code>new ConstantTransformer(Runtime.class)</code>对象，该函数获取runtime对象，转为常量返回。<br>iConstant的返回值是一个class对象  java.lang.runtime<br>返回参数，此处输入的参数是<code>Runtime.class</code>,则此处参数对象即为 <code>class java.lang.runtime</code></p>
 </li>
@@ -589,7 +589,7 @@ height:50vh;
         <span class="token keyword">this</span><span class="token punctuation">.</span>valueTransformer <span class="token operator">=</span> valueTransformer<span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 </code></pre>
-<p>这里继承的父类是<code>AbstractInputCheckedMapDecorator</code>而其是继承的<code>AbstractMapDecorator</code>类，到此即构造完了 <code>TransformedMap</code><br><img src="/posts/Java从反射到反序列化/15810954727458.jpg" alt="-w1209"><br>【3】反序列化触发命令执行<br>遍历<code>TransformedMap</code>并使用<code>setvalue</code>方法进行触发</p>
+<p>这里继承的父类是<code>AbstractInputCheckedMapDecorator</code>而其是继承的<code>AbstractMapDecorator</code>类，到此即构造完了 <code>TransformedMap</code><br><img src="/posts/2773946101/15810954727458.jpg" alt="-w1209"><br>【3】反序列化触发命令执行<br>遍历<code>TransformedMap</code>并使用<code>setvalue</code>方法进行触发</p>
 <pre class=" language-java"><code class="language-java">entry<span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span><span class="token string">"th3wind"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <p>其中<code>setvalue</code>方法跟踪如下</p>
@@ -603,7 +603,7 @@ height:50vh;
         <span class="token keyword">return</span> valueTransformer<span class="token punctuation">.</span><span class="token function">transform</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 </code></pre>
-<p>其中<code>valueTransformer</code>为前面构造的<code>Transformer</code>对象，通过<code>transform</code>进行反射对象触发。结果如下<br><img src="/posts/Java从反射到反序列化/15810981595594.jpg" alt="-w904"></p>
+<p>其中<code>valueTransformer</code>为前面构造的<code>Transformer</code>对象，通过<code>transform</code>进行反射对象触发。结果如下<br><img src="/posts/2773946101/15810981595594.jpg" alt="-w904"></p>
 <p> 根据搜索在<code>transformedMap</code>中除了<code>checkSetValue</code>触发<code>transform</code>方法还有<code>transformKey</code>、<code>transformValue</code></p>
 <h4 id="JDK-Gadgets"><a href="#JDK-Gadgets" class="headerlink" title="JDK Gadgets"></a>JDK Gadgets</h4><p>在有了对应的用于反序列化的对象，接下来就是找对应的JDK Gadgets，以便来寻找目标及生成payload，在transformedmap的调用中为<code>sun.reflect.annotation.AnnotationInvocationHandler</code><br>根据反序列化会自动触发<code>readobject</code>函数，寻找的目标需要满足以下的条件：<br>【1】<code>readobject</code>或直接或间接调用以上提到的<code>transformKey</code>、<code>transformValue</code>、<code>checkSetValue</code></p>
 <h5 id="审计策略"><a href="#审计策略" class="headerlink" title="审计策略"></a>审计策略</h5><p>【1】找<code>transformKey</code>、<code>transformValue</code>、<code>checkSetValue</code>这几个方法被调用的位置<br>【2】全局搜索<code>readobject</code>方法</p>
@@ -679,7 +679,7 @@ main<span class="token operator">:</span><span class="token number">37</span><sp
         ois<span class="token punctuation">.</span><span class="token function">readObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span> <span class="token punctuation">}</span>
 </code></pre>
-<p>其中参数传递如下<br><img src="/posts/Java从反射到反序列化/15815837432305.jpg" alt="-w1116"><br>-<code>sun.reflect.annotation.AnnotationInvocationHandler</code>调用说明<br>在利用该工具类时，所用代码如下：</p>
+<p>其中参数传递如下<br><img src="/posts/2773946101/15815837432305.jpg" alt="-w1116"><br>-<code>sun.reflect.annotation.AnnotationInvocationHandler</code>调用说明<br>在利用该工具类时，所用代码如下：</p>
 <pre class=" language-java"><code class="language-java">
 Class <span class="token class-name">clazz</span> <span class="token operator">=</span> Class<span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"sun.reflect.annotation.AnnotationInvocationHandler"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 Constructor cons <span class="token operator">=</span> clazz<span class="token punctuation">.</span><span class="token function">getDeclaredConstructor</span><span class="token punctuation">(</span>Class<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span>Map<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -720,7 +720,7 @@ Object ins <span class="token operator">=</span> cons<span class="token punctuat
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>在传入的对象中，通过<code>retention</code>（java注解）<br><img src="/posts/Java从反射到反序列化/15816110329761.jpg" alt="-w630"><br>跟到关键位置<code>AbstractInputCheckedMapDecorator$MapEntry.setValue()</code><br><img src="/posts/Java从反射到反序列化/15816112901837.jpg" alt="-w1030"><br><code>setvalue</code>函数调用路线如下<br><img src="/posts/Java从反射到反序列化/15816115275198.jpg" alt="-w467"></p>
+<p>在传入的对象中，通过<code>retention</code>（java注解）<br><img src="/posts/2773946101/15816110329761.jpg" alt="-w630"><br>跟到关键位置<code>AbstractInputCheckedMapDecorator$MapEntry.setValue()</code><br><img src="/posts/2773946101/15816112901837.jpg" alt="-w1030"><br><code>setvalue</code>函数调用路线如下<br><img src="/posts/2773946101/15816115275198.jpg" alt="-w467"></p>
 <pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> Object <span class="token function">setValue</span><span class="token punctuation">(</span>Object value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
             value <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>parent<span class="token punctuation">.</span><span class="token function">checkSetValue</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
             <span class="token keyword">return</span> <span class="token keyword">super</span><span class="token punctuation">.</span>entry<span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -774,8 +774,8 @@ Object object <span class="token operator">=</span> classd<span class="token pun
 <pre class=" language-java"><code class="language-java">Class <span class="token class-name">classd2</span> <span class="token operator">=</span> Class<span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"java.util.Date"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 Object object <span class="token operator">=</span> classd<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
-<p><img src="/posts/Java从反射到反序列化/15776837782190.jpg" alt="-w1360"></p>
-<h2 id="java-注解"><a href="#java-注解" class="headerlink" title="java 注解"></a>java 注解</h2><p>来自于菜鸟的架构图，这个时候还比较迷糊，待补充详细。<br><img src="/posts/Java从反射到反序列化/15816101037537.jpg" alt="-w766"></p>
+<p><img src="/posts/2773946101/15776837782190.jpg" alt="-w1360"></p>
+<h2 id="java-注解"><a href="#java-注解" class="headerlink" title="java 注解"></a>java 注解</h2><p>来自于菜鸟的架构图，这个时候还比较迷糊，待补充详细。<br><img src="/posts/2773946101/15816101037537.jpg" alt="-w766"></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://www.freebuf.com/vuls/170344.html" target="_blank" rel="noopener">Java反序列化漏洞的原理分析</a><br><a href="https://blog.csdn.net/jameson_/article/details/80137016" target="_blank" rel="noopener">Java反序列化漏洞分析</a><br><a href="https://xz.aliyun.com/t/6884#toc-8" target="_blank" rel="noopener">JDK反序列化Gadgets 7u21</a><br><a href="https://www.anquanke.com/post/id/195865?display=mobile&amp;platform=iOS" target="_blank" rel="noopener">以Commons-Collections为例谈Java反序列化POC的编写</a></p>
 
     </article>
@@ -783,9 +783,9 @@ Object object <span class="token operator">=</span> classd<span class="token pun
     
         <div class="license-wrapper">
             <p>原文作者：<a href="https://blog.th3wind.xyz">th3wind</a>
-            <p>原文链接：<a href="https://blog.th3wind.xyz/posts/1.html">https://blog.th3wind.xyz/posts/1.html</a>
-            <p>发表日期：<a href="https://blog.th3wind.xyz/posts/1.html">February 13th 2020, 2:50:00 pm</a>
-            <p>更新日期：<a href="https://blog.th3wind.xyz/posts/1.html">February 14th 2020, 12:46:57 am</a>
+            <p>原文链接：<a href="https://blog.th3wind.xyz/posts/2773946101.html">https://blog.th3wind.xyz/posts/2773946101.html</a>
+            <p>发表日期：<a href="https://blog.th3wind.xyz/posts/2773946101.html">February 13th 2020, 2:50:00 pm</a>
+            <p>更新日期：<a href="https://blog.th3wind.xyz/posts/2773946101.html">February 14th 2020, 12:58:02 am</a>
             <p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     
@@ -1092,7 +1092,7 @@ top:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">02/13</span><a class="archive-post-title" href= "/posts/1.html" >Java从反射到反序列化</a>
+            <span class="archive-post-date">02/13</span><a class="archive-post-title" href= "/posts/2773946101.html" >Java从反射到反序列化</a>
         </li>
     
     
@@ -1259,25 +1259,25 @@ top:50vh;
     
         <span class="sidebar-tag-name" data-tags="XSS"><span class="iconfont-archer">&#xe606;</span>XSS</span>
     
-        <span class="sidebar-tag-name" data-tags="浏览器安全策略"><span class="iconfont-archer">&#xe606;</span>浏览器安全策略</span>
+        <span class="sidebar-tag-name" data-tags="Web渗透"><span class="iconfont-archer">&#xe606;</span>Web渗透</span>
+    
+        <span class="sidebar-tag-name" data-tags="常规渗透"><span class="iconfont-archer">&#xe606;</span>常规渗透</span>
     
         <span class="sidebar-tag-name" data-tags="内网渗透"><span class="iconfont-archer">&#xe606;</span>内网渗透</span>
     
         <span class="sidebar-tag-name" data-tags="计划任务"><span class="iconfont-archer">&#xe606;</span>计划任务</span>
     
-        <span class="sidebar-tag-name" data-tags="Web渗透"><span class="iconfont-archer">&#xe606;</span>Web渗透</span>
-    
-        <span class="sidebar-tag-name" data-tags="常规渗透"><span class="iconfont-archer">&#xe606;</span>常规渗透</span>
-    
         <span class="sidebar-tag-name" data-tags="移动端"><span class="iconfont-archer">&#xe606;</span>移动端</span>
     
         <span class="sidebar-tag-name" data-tags="frida"><span class="iconfont-archer">&#xe606;</span>frida</span>
     
+        <span class="sidebar-tag-name" data-tags="浏览器安全策略"><span class="iconfont-archer">&#xe606;</span>浏览器安全策略</span>
+    
+        <span class="sidebar-tag-name" data-tags="XXE 实例利用"><span class="iconfont-archer">&#xe606;</span>XXE 实例利用</span>
+    
         <span class="sidebar-tag-name" data-tags="漏洞学习"><span class="iconfont-archer">&#xe606;</span>漏洞学习</span>
     
         <span class="sidebar-tag-name" data-tags="XXE"><span class="iconfont-archer">&#xe606;</span>XXE</span>
-    
-        <span class="sidebar-tag-name" data-tags="XXE 实例利用"><span class="iconfont-archer">&#xe606;</span>XXE 实例利用</span>
     
         <span class="sidebar-tag-name" data-tags="web 渗透"><span class="iconfont-archer">&#xe606;</span>web 渗透</span>
     
@@ -1289,9 +1289,9 @@ top:50vh;
     
         <span class="sidebar-tag-name" data-tags="java反弹shell"><span class="iconfont-archer">&#xe606;</span>java反弹shell</span>
     
-        <span class="sidebar-tag-name" data-tags="fastjson"><span class="iconfont-archer">&#xe606;</span>fastjson</span>
-    
         <span class="sidebar-tag-name" data-tags="Apache Solr CVE-2019-0193"><span class="iconfont-archer">&#xe606;</span>Apache Solr CVE-2019-0193</span>
+    
+        <span class="sidebar-tag-name" data-tags="fastjson"><span class="iconfont-archer">&#xe606;</span>fastjson</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
@@ -1330,23 +1330,23 @@ jsonContent:
     
         <span class="sidebar-category-name" data-categories="Web安全"><span class="iconfont-archer">&#xe60a;</span>Web安全</span>
     
-        <span class="sidebar-category-name" data-categories="浏览器安全策略"><span class="iconfont-archer">&#xe60a;</span>浏览器安全策略</span>
+        <span class="sidebar-category-name" data-categories="Web渗透"><span class="iconfont-archer">&#xe60a;</span>Web渗透</span>
     
         <span class="sidebar-category-name" data-categories="内网渗透"><span class="iconfont-archer">&#xe60a;</span>内网渗透</span>
     
         <span class="sidebar-category-name" data-categories="Web安全/XSS"><span class="iconfont-archer">&#xe60a;</span>Web安全/XSS</span>
     
-        <span class="sidebar-category-name" data-categories="Web渗透"><span class="iconfont-archer">&#xe60a;</span>Web渗透</span>
+        <span class="sidebar-category-name" data-categories="Web渗透/常规渗透"><span class="iconfont-archer">&#xe60a;</span>Web渗透/常规渗透</span>
     
-        <span class="sidebar-category-name" data-categories="浏览器安全策略/csp"><span class="iconfont-archer">&#xe60a;</span>浏览器安全策略/csp</span>
+        <span class="sidebar-category-name" data-categories="浏览器安全策略"><span class="iconfont-archer">&#xe60a;</span>浏览器安全策略</span>
     
         <span class="sidebar-category-name" data-categories="内网渗透/计划任务"><span class="iconfont-archer">&#xe60a;</span>内网渗透/计划任务</span>
-    
-        <span class="sidebar-category-name" data-categories="Web渗透/常规渗透"><span class="iconfont-archer">&#xe60a;</span>Web渗透/常规渗透</span>
     
         <span class="sidebar-category-name" data-categories="Web渗透/安全策略"><span class="iconfont-archer">&#xe60a;</span>Web渗透/安全策略</span>
     
         <span class="sidebar-category-name" data-categories="Web渗透/常规渗透/XSS"><span class="iconfont-archer">&#xe60a;</span>Web渗透/常规渗透/XSS</span>
+    
+        <span class="sidebar-category-name" data-categories="浏览器安全策略/csp"><span class="iconfont-archer">&#xe60a;</span>浏览器安全策略/csp</span>
     
         <span class="sidebar-category-name" data-categories="Web渗透/漏洞学习"><span class="iconfont-archer">&#xe60a;</span>Web渗透/漏洞学习</span>
     
@@ -1358,11 +1358,11 @@ jsonContent:
     
         <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java反弹shell"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java反弹shell</span>
     
-        <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习/fastjson"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习/fastjson</span>
-    
         <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/jackson"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/jackson</span>
     
         <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习/Apache-Solr-CVE-2019-0193"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习/Apache-Solr-CVE-2019-0193</span>
+    
+        <span class="sidebar-category-name" data-categories="web-渗透/漏洞学习/fastjson"><span class="iconfont-archer">&#xe60a;</span>web-渗透/漏洞学习/fastjson</span>
     
         <span class="sidebar-category-name" data-categories="web-渗透/java反序列化/java-sql注入"><span class="iconfont-archer">&#xe60a;</span>web-渗透/java反序列化/java-sql注入</span>
     
